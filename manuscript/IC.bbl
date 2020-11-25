@@ -1,0 +1,23 @@
+\begin{thebibliography}{3}
+\newcommand{\enquote}[1]{``#1''}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[\protect\citeauthoryear{Autor, Dorn, and Hanson}{Autor
+  et~al.}{2013}]{Autor:2013}
+\textsc{Autor, D.~H., D.~Dorn, and G.~H. Hanson} (2013): \enquote{{The China
+  Syndrome: Local Labor Market Effects of Import Competition in the United
+  States},} \emph{American Economic Review}, 103, 2121--2168.
+
+\bibitem[\protect\citeauthoryear{Bloom, Handley, Kurman, and Luck}{Bloom
+  et~al.}{2019}]{Bloom:2019}
+\textsc{Bloom, N., K.~Handley, A.~Kurman, and P.~Luck} (2019): \enquote{{The
+  Impact of Chinese Trade on U.S. Employment: The Good, The Bad, and The
+  Debatable},} \emph{Working Paper}, 1--40.
+
+\bibitem[\protect\citeauthoryear{Eckert, Fort, Schott, and Yang}{Eckert
+  et~al.}{2020}]{Eckert:2020}
+\textsc{Eckert, F., T.~C. Fort, P.~K. Schott, and N.~J. Yang} (2020):
+  \enquote{{Imputing Missing Values in the US Census Bureau's County Business
+  Patterns },} \emph{NBER Working Paper}, 1--39.
+
+\end{thebibliography}

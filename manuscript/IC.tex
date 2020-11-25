@@ -1,0 +1,94 @@
+\documentclass[onehalfspacing,11pt]{article}
+\usepackage{achicago,setspace,palatino,graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{bm,bbm}
+\usepackage[bottom]{footmisc} % places footnotes @ bottom of page
+\usepackage{booktabs}
+\usepackage{enumerate}
+\usepackage[breaklinks]{hyperref} % option enables "broken" links across lines
+\usepackage{natbib}
+\usepackage[usenames,dvipsnames]{pstricks}
+\usepackage{epsfig}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{lscape,rotating}
+\usepackage{xfrac}
+\usepackage{dsfont}
+\newtheorem{as}{Assumption}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{corr}{Corollary}
+\newtheorem{df}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{prp}{Proposition}
+\newtheorem{clm}{Claim}
+\newtheorem{rmk}{Remark}
+\newenvironment{prf}{{\bf Proof}}{\hfill {\sc q.e.d. }}
+\newenvironment{prfLemma}{{\bf Proof of Lemma}}{\hfill {\sc q.e.d. }(Lemma)}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1.5ex plus0.5ex
+minus0.5ex} \textwidth15.75cm \evensidemargin5mm \oddsidemargin5mm
+\topmargin-8mm \textheight 21.7cm
+
+\newcommand{\fraction}{\int\frac{\mu_{t+1}}{\epsilon_{t+1}} }
+\newcommand{\lbar}{\int\frac{\mu_{t+1}}{\epsilon_{t+1}} }
+\parindent 0pt
+\parskip 5pt
+\def\newblock{\hskip .11em plus .33em minus .07em}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\begin{titlepage}
+%\begin{singlespacing}
+
+\title{Industry Clusters\footnote{Nicole Jieying Zhang, Zili Yang, and Weihao Lu provided outstanding research assistance.}}
+
+\author{Simeon D.~Alder\footnote{University of Wisconsin - Madison, Department of Economics, email: \url{simeon.alder@wisc.edu}}}
+%\date{October 2011}
+\date{\today} % \\ \vspace{5mm} {\sc Preliminary and Incomplete}}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+\noindent
+\textit{JEL Codes:} 
+
+\textit{Keywords:} 
+%\end{singlespacing}
+\end{titlepage}
+
+%\begin{onehalfspacing}
+
+\section{Introduction}
+%The rise of imports from China since the early 1990s has been identified as one of the key culprits for the loss of manufacturing jobs in the United States. \cite{Autor:2013} attribute one quarter of the decline in manufacturing employment to import competition from China. More recently, \cite{Bloom:2019} paint a more differentiated picture of job losses due to the rise of Chinese imports. While some areas did indeed experience significant manufacturing job losses, others exhibit a more modest decline that was, in addition, more than offset by job creation in the services sector. Moreover, the employment effect of Chinese imports disappears in the wake of the Great Recession.
+%
+%Our own approach analyzes job losses at the local level from a different angle and argues that agglomeration effects play a significant role. Counties with more concentrated employment across industries (at the two- and four-digit NAICS levels) tend to experience a larger decline of employment, even after we control for the extent of local import competition and the importance of manufacturing as a key employment sector.
+
+Since the publication of \cite{Autor:2013}, there has been a growing literature on the local employment effects of external shocks, namely the sharp rise in imports of manufactured goods from China. Between 1990 and 2007, \cite{Autor:2013} attribute approximately one quarter of the observed decline in manufacturing employment to the surge of Chinese imports. More recently, \cite{Bloom:2019} paint a more differentiated picture of job losses due to the rise of Chinese imports. While some areas did indeed experience significant manufacturing job losses, others exhibit a more modest decline that was, in addition, more than offset by job creation in the services sector. Moreover, the employment effect of Chinese imports disappears in the wake of the Great Recession.
+
+Here we try to answer a question that is related to the \cite{Bloom:2019} results. What sorts of local conditions allow local economies to weather exogenous industry or sector-specific shocks more robustly? For comparison's sake, we will review the effect on manufacturing jobs separately, but our interests lie in the broader local employment dynamics.
+
+We focus on the role that the employment mix across sectors, subsectors, and industry groups (that is, the 2, 3, and 4-digit levels of the NAICS codes) plays with respect to local resilience to external shocks. Do local economies with a more diversified labor force weather these sorts of disruptions better in the long run? Or put differently, what determines the rate at which local economies ``reinvent'' themselves after dominant industries suffer adverse shocks?
+
+To answer this question, we use data from the Census Bureau's  {\it County Business Patters} (CBP) and merge it with highly disaggregated import data (at the 10-digit Harmonized System level), as reported by the Census Bureau. Across the two main sources, we can explore the link between imports and employment from 1992 to 2016.
+
+We find that diversification can indeed mitigate the local employment effect of an external shock, which we take to be the surge in U.S. imports from China starting in the 1990s. Similar to the results reported in \cite{Autor:2013} we find that employment drops by .003 log points (0.3 percentage points) when imports rise by \$1,000 per worker over a three or five-year horizon. The employment response is slightly higher over a 10-year window (0.4 percentage points). What's more, this effect varies systematically across counties with different sectoral employment patterns. Using a Herfindahl-Hirschman Index (HHI) to quantify the distribution of employment across 2-digit NAICS sectors, we find that a one-standard deviation rise in the local HHI is associated with a 1.5 percentage point drop in local employment. The magnitude of this effect is again smaller in the short term (three or five-year changes) than in the longer run (ten-year change).
+
+Remarkably, the initial share of manufacturing employment is {\it not} statistically related to the rise in imports, once we control for the extent of sectoral diversification at the county level over the three-, five-, and ten-year horizons.
+
+Given the importance of the manufacturing sector in Wisconsin, we analyze the effect of the rise in Chinese imports across the state's 72 counties. We find that manufacturing employment [TBC]. The change in the employment to working-age-population ratio is [TBC]. 
+
+\section{Data}
+Our empirical analysis is based on two distinct datasets with disaggregated employment data by location and industry in the County Business Patters (CBP) and detailed import values by product category in the trade data. Merging the two datasets is somewhat challenging since the industry classification has undergone several changes over the course of the 25 years covered in the CBP. The early years are based on the industry-heavy SIC (Standard Industry Classification) codes whereas the post-1997 data is based on a number of different versions of the North American Industry Classification System (NAICS), a ``by-product'' of NAFTA. Our industry classification reconciliation is similar to \cite{Autor:2013} (see \href{https://www.ddorn.net/data.htm}{https://www.ddorn.net/data.htm} for more details), but reclassifies from SIC to NAICS rather than from NAICS to SIC. In this respect, we follow the rationale of \cite{Eckert:2020}. We do not, however, use their recursive algorithm to impute flagged employment numbers at the county-industry level.\footnote{It is worth noting that the \cite{Bloom:2019} results are based on the Longitudinal Business Database, the confidential micro data underlying the CBP. This eliminates the need to impute county-industry employment numbers due to flags and synthetic noise in the publicly accessible CBP data.}
+
+The SIC-to-NAICS reclassification has the additional advantage that the matching from Harmonized System (or HS) product categories in the trade data to industry classifications in the local employment data is unique, with only a small number of exceptions (that account for a vanishingly small fraction of all imports).
+
+[WE SHOULD SAY SOMETHING ABOUT CROSS-VALIDATING OUR RESULTS TO MAKE SURE OUR INDUSTRY RECLASSIFICATION DOESN'T DRIVE OUR RESULTS COMPARED TO AUTOR, DORN, AND HANSON.]
+\newpage
+\bibliography{/Users/simeonalder/Dropbox/Bibliography/MasterBibliography}
+\bibliographystyle{ecta}
+\end{document}
