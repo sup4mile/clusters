@@ -1,6 +1,11 @@
-\begin{thebibliography}{3}
+\begin{thebibliography}{13}
 \newcommand{\enquote}[1]{``#1''}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[\protect\citeauthoryear{Alder, Lagakos, and Ohanian}{Alder
+  et~al.}{2019}]{Alder:2019b}
+\textsc{Alder, S.~D., D.~Lagakos, and L.~E. Ohanian} (2019): \enquote{Labor
+  Market Conflict and the Decline of the Rust Belt,} Working Paper.
 
 \bibitem[\protect\citeauthoryear{Autor, Dorn, and Hanson}{Autor
   et~al.}{2013}]{Autor:2013}
@@ -8,16 +13,61 @@
   Syndrome: Local Labor Market Effects of Import Competition in the United
   States},} \emph{American Economic Review}, 103, 2121--2168.
 
+\bibitem[\protect\citeauthoryear{Berube and Murray}{Berube and
+  Murray}{2018}]{Berube:2018}
+\textsc{Berube, A. and C.~Murray} (2018): \enquote{Renewing America's economic
+  promise through older industrial cities,} \emph{Brookings Metropolitan Policy
+  Program Report}, 1--76.
+
 \bibitem[\protect\citeauthoryear{Bloom, Handley, Kurman, and Luck}{Bloom
   et~al.}{2019}]{Bloom:2019}
 \textsc{Bloom, N., K.~Handley, A.~Kurman, and P.~Luck} (2019): \enquote{{The
   Impact of Chinese Trade on U.S. Employment: The Good, The Bad, and The
   Debatable},} \emph{Working Paper}, 1--40.
 
+\bibitem[\protect\citeauthoryear{Cabral, Wang, and Xu}{Cabral
+  et~al.}{2018}]{Cabral:2018}
+\textsc{Cabral, L., Z.~Wang, and D.~Y. Xu} (2018): \enquote{{Competitors,
+  complementors, parents and places: Explaining regional agglomeration in the
+  U.S. auto industry},} \emph{Review of Economic Dynamics}, 30, 1--29.
+
 \bibitem[\protect\citeauthoryear{Eckert, Fort, Schott, and Yang}{Eckert
   et~al.}{2020}]{Eckert:2020}
 \textsc{Eckert, F., T.~C. Fort, P.~K. Schott, and N.~J. Yang} (2020):
   \enquote{{Imputing Missing Values in the US Census Bureau's County Business
   Patterns },} \emph{NBER Working Paper}, 1--39.
+
+\bibitem[\protect\citeauthoryear{Fort, Pierce, and Schott}{Fort
+  et~al.}{2018}]{Fort:2018}
+\textsc{Fort, T.~C., J.~R. Pierce, and P.~K. Schott} (2018): \enquote{New
+  Perspectives on the Decline of US Manufacturing Employment,} Working Paper
+  24490, National Bureau of Economic Research.
+
+\bibitem[\protect\citeauthoryear{Giannone}{Giannone}{2019}]{Giannone:2019}
+\textsc{Giannone, E.} (2019): \enquote{{Skill-Biased Technical Change and
+  Regional Convergence},} \emph{Working Paper}, 1--84.
+
+\bibitem[\protect\citeauthoryear{Herrendorf, Rogerson, and
+  Valentinyi}{Herrendorf et~al.}{2014}]{Herrendorf:2013b}
+\textsc{Herrendorf, B., R.~Rogerson, and {\'A}.~Valentinyi} (2014):
+  \enquote{Growth and Structural Transformation,} in \emph{Handbook of Economic
+  Growth}, ed. by P.~Aghion and S.~N. Durlauf, Elsevier B.V., vol.~2, 855--941.
+
+\bibitem[\protect\citeauthoryear{Holmes}{Holmes}{1998}]{Holmes:1998}
+\textsc{Holmes, T.~J.} (1998): \enquote{The effect of state policies on the
+  location of manufacturing: Evidence from state borders,} \emph{Journal of
+  Political Economy}, 106, 667--705.
+
+\bibitem[\protect\citeauthoryear{Michaels}{Michaels}{2017}]{Michaels:2017}
+\textsc{Michaels, D.} (2017): \enquote{Foreign Robots Invade American Factory
+  Floors,} \emph{Wall Street Journal}.
+
+\bibitem[\protect\citeauthoryear{Porter}{Porter}{2017}]{Porter:2017}
+\textsc{Porter, E.} (2017): \enquote{Economic Scene: Why Big Cities Thrive, and
+  Smaller Ones Are Being Left Behind,} \emph{The New York Times}.
+
+\bibitem[\protect\citeauthoryear{Porter}{Porter}{2018}]{Porter:2018}
+---\hspace{-.1pt}---\hspace{-.1pt}--- (2018): \enquote{Economic Scene: Lessons
+  From Rust-Belt Cities That Kept Their Sheen,} \emph{The New York Times}.
 
 \end{thebibliography}
