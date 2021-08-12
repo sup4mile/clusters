@@ -1,11 +1,12 @@
-"""
-finally put this into a function, so that constants and parameters can be
-changed easily and do robust change/check.
-"""
-
-using JuMP, Ipopt
+using JuMP, Ipopt, JLD
 model = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" => 100000))
 
+# File name and path for JLD file with results:
+fpath = pwd()
+fname = "/results/previous_solution.jld"
+
+# Enable (=1) / disable (=0) loading of previous solution:
+load_previous = 1
 # constants
 nc = 2 # number of counties
 ni = 2 # number of industries
@@ -20,7 +21,7 @@ Lx = 1 # total mass of labor at foreign country
 μ_ub = vec([0.5 0.5; 1 1])
 zH = vec(ones(Int64, nc, ni))
 zF= vec(ones(Int64, ni))
-τ = 1
+τ = 1.1
 E = ρ/(ρ-1)
 
 # total indices
@@ -32,16 +33,36 @@ total_ind = 8(nc * ni) + 14ni
 
 # _ci_v for firm level
 # _ci for county-industry level
-
-# variables
-@variable(model, P, start = 0.5)
-@variable(model, Y, start = 0.5)
-@variable(model, Px, start = 0.5)
-@variable(model, Yx, start = 0.5)
-#@variable(model, E, start = 0.5)
-@variable(model, Ex, start = 0.5)
-@variable(model, wF, start = 1)
-@variable(model, x[1:total_ind] >= 0)
+if load_previous == 0
+    # variables
+    @variable(model, P, start = 0.5)
+    @variable(model, Y, start = 0.5)
+    @variable(model, Px, start = 0.5)
+    @variable(model, Yx, start = 0.5)
+    #@variable(model, E, start = 0.5)
+    @variable(model, Ex, start = 0.5)
+    @variable(model, wF, start = 1)
+    @variable(model, x[1:total_ind] >= 0)
+else
+    d = load(fpath*fname)
+    P_val = d["P_val"]
+    @variable(model, P, start = P_val)
+    Y_val = d["Y_val"]
+    @variable(model, Y, start = Y_val)
+    Px_val = d["Px_val"]
+    @variable(model, Px, start = Px_val)
+    Yx_val = d["Yx_val"]
+    @variable(model, Yx, start = Yx_val)
+    #@variable(model, E, start = 0.5)
+    Ex_val = d["Ex_val"]
+    @variable(model, Ex, start = Ex_val)
+    wF_val = d["wF_val"]
+    @variable(model, wF, start = wF_val)
+    x_val = d["x_val"]
+    @variables(model, begin
+               x[i=1:total_ind] >= 0, (start = x_val[i])
+           end)
+end
 
 # constraints and functions
 # functions of Ps
@@ -243,14 +264,14 @@ function s_ciHx_(i, x...)
 end
 
 #=function s_iF_(i, x...)
-    i = trunc(Int, i)
-    return ((μ_ub[i] - μ_lb[i]) * x[6nc*ni+8ni+i]) ^ η
+i = trunc(Int, i)
+return ((μ_ub[i] - μ_lb[i]) * x[6nc*ni+8ni+i]) ^ η
 end
 =#
 
 #=function s_iFx_(i, x...)
-    i = trunc(Int, i)
-    return ((μ_ub[i] - μ_lb[i]) * x[6nc*ni+9ni+i]) ^ η
+i = trunc(Int, i)
+return ((μ_ub[i] - μ_lb[i]) * x[6nc*ni+9ni+i]) ^ η
 end
 =#
 
@@ -456,6 +477,8 @@ println("E = ", value(E))
 println("Ex = ", value(Ex))
 println("wF = ", value(wF))
 
+# Save Julia workspace:
+save(fpath*fname,"P_val",value(P),"Y_val",value(Y),"Px_val",value(Px),"Yx_val",value(Yx),"Ex_val",value(Ex),"wF_val",value(wF),"x_val",value.(x))
 # total value of trade over gdp
 # import quantities
 # check different values of productivities
