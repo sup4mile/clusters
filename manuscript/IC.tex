@@ -92,7 +92,7 @@ Of course, Silicon Valley isn't the only place for tech workers, just like Detro
 
 To answer this question, we use data from the Census Bureau's  {\it County Business Patterns} (CBP) and merge it with highly disaggregated import data (at the 10-digit Harmonized System level), as reported by the Census Bureau. Across the two main sources, we can explore the link between imports and local labor markets from 1992 to 2016. At this point, all of our local results are reported at the county level.
 
-We find that diversification can indeed mitigate the local employment effect of an external shock, which we take to be the surge in U.S. imports from China starting in the 1990s. We find that employment drops by 0.15 percentage points when imports rise by \$1,000 per worker over a five-year horizon and this estimate is broadly in line with the earlier literature. What's more, the effect varies systematically across counties with different sectoral employment patterns. When we add a Herfindahl-Hirschman Index (HHI) to quantify the distribution of employment across 4-digit NAICS sectors, we find that a one-standard deviation rise in the local HHI is associated with a 1.5 percentage point drop in local employment over five years and the direct effect of the trade shock becomes insignificant. While we have coefficient estimates for shorter (three years) and longer (ten years) horizons we focus on the five-year estimates in this report. The results are qualitatively similar and the statistical significance does not hinge on the length of the time horizon. All estimates for three and ten-year differences are available upon request.
+We find that diversification can indeed mitigate the local employment effect of an external shock, which we take to be the surge in U.S. imports from China starting in the 1990s. We find that employment drops by 0.15 percentage points when imports rise by \$1,000 per worker over a five-year horizon and this estimate is broadly in line with the earlier literature. What's more, the effect varies systematically across counties with different sectoral employment patterns. When we add a Herfindahl-Hirschman Index (HHI) to quantify the distribution of employment across 4-digit NAICS sectors, we find that a one-standard deviation rise in the local HHI is associated with a 1.5 percentage point drop in local employment over five years and the direct effect of the trade shock becomes insignificant. While we have coefficient estimates for shorter (three years) and longer (ten years) horizons we focus on the five-year estimates in this report. The results are qualitatively similar and the statistical significance does not hinge on the length of the time horizon.\footnote{The estimates for three and ten-year differences are available upon request.}
 
 We find strong empirical support for the hypothesis that more diversified local economies are better able to absorb external shocks.
 %Remarkably, the initial share of manufacturing employment is {\it not} statistically related to the rise in imports, once we control for the extent of sectoral diversification at the county level over five years (both stacked and pooled long differences).
@@ -124,7 +124,7 @@ $75^{th}$ Percentile   & 568 & 820 & 2,442 & 1,074 & 1,044\\
 $90^{th}$ Percentile   & 1,119 & 1,507 & 4,316 & 1,952 & 2,011\\
 $95^{th}$ Percentile   & 1,683 & 2,332 & 6,184 & 2,963 & 3,088\\
 $99^{th}$ Percentile   & 4,986 & 5,871 & 13,140 & 6,673 & 6,949\\
-Standard Deviation & \\
+%Standard Deviation & \\
 \bottomrule
 \end{tabular*}
   \caption{5-Year Change in Imports per Worker (annual, in U.S.~dollars)}\label{tab:d5ipw}
@@ -290,17 +290,27 @@ y_{i,c,t}^H(j) & =\left( \frac{p_{i,c,t}^H(j)}{p_{i,t}}\right) ^{-\rho} \left( \
 \end{align}%
 where $X_{t}$ is aggregate expenditure, $P_{t}$ is the price of the final good, and $p_{i,t}$ is the price of the sectoral composite $y_{i,t}$ in {\it Home}.
 
+Since the production technology is linear in labor, the firm solves a completely separate profit maximization problem for production and shipment to the export market in {\it Foreign}.
+
+The price and output associated with the ``export'' problem are given by:
+\begin{align}
+\label{}
+p_{i,c,t}^{H*}(j) & =\frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j) \mathcal{L}_{i,c,t}^\eta} = p_{i,c,t}^{H}(j)  \\
+y_{i,c,t}^{H*}(j) &  =\left( \frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j)} \right) ^{-\rho } {p_{i,t}^*}^{\rho-\sigma} {P_t^*}^{\sigma-1} X_t^*,
+\end{align}
+where $X_{t}^*$, $P_{t}^*$, and $p_{i,t}^*$ are the foreign counterparts to the expenditures and prices above.
+
 The sectoral price index is given by
 \begin{equation}
 \label{ }
 p_{i,t} = \left( \sum_c \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} p_{i,c,t}^H(j)^{1-\rho} + \left( \tau p_{i,t}^F(j) \right)^{1-\rho} \right)^{\frac{1}{1-\rho}},
 \end{equation}
-where $p_{i,t}^F(j)$ is the factory gate price (f.o.b.) of the foreign variety $j$ in industry $i$ and $\tau p_{i,t}^F(j)$ is the corresponding c.i.f.~price at the destination.\footnote{The profit maximization problems of foreign producers mirror those of domestic producers, as do the ideal price indices at the sectoral level and the price of the final good. Recall, however, that $\eta=0$ and the foreign wage $w_t^F$ cannot be normalized to unity. The latter is determined in equilibrium and is pinned down by a balanced trade condition. We will fill in these details in the next version of the manuscript.} The final good price is a power mean over the sectoral indices:
+where $p_{i,t}^F(j)$ is the factory gate price (f.o.b.) of the foreign variety $j$ in industry $i$ and $\tau p_{i,t}^F(j)$ is the corresponding c.i.f.~price at the destination.\footnote{The profit maximization problems of foreign producers mirror those of domestic producers. Recall, however, that $\eta=0$ and the foreign wage $w_t^*$ cannot be normalized to unity. The latter is determined in equilibrium and is pinned down by a balanced trade condition. We will fill in these details in the next version of the manuscript.} The final good price is a power mean over the sectoral indices:
 \begin{equation}
 \label{ }
 P_t = \left( \sum_{i=1}^I p_{i,t}^{1-\sigma} \right)^{\frac{1}{1-\sigma}}.
 \end{equation}
-Since the production technology is linear in labor, the firm solves a completely separate profit maximization problem for production and shipment to the export market in {\it Foreign}.
+
 
 %The firm's period equilibrium profits are: 
 %\begin{equation}
@@ -309,7 +319,15 @@ Since the production technology is linear in labor, the firm solves a completely
 %e^{\varepsilon _{t}(i)}z_{t}(i)}\right) ^{1-\sigma }\frac{X_{t}}{\sigma }.
 %\label{eq:monopolist_profits}
 %\end{equation}%
-We choose domestic labor to be the numeraire, so that $w_t=1$ in all periods. Since, in addition, we assume that the economy is endowed with $L \equiv 1$ workers and thanks to the constant mark-up rule, it is straightforward to show that $X_t = \frac{\rho}{\rho-1}$
+We choose domestic labor to be the numeraire, so that $w_t=1$ in all periods. Since, in addition, we assume that the economy is endowed with $L \equiv 1$ workers and thanks to the constant mark-up rule, it is straightforward to show that $X_t = \frac{\rho}{\rho-1}$.
+
+Trade is balanced each period, that is,
+\begin{equation}
+\sum_i \sum_c \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} p_{i,c,t}^{H*}(j)  y_{i,c,t}^{H*}(j) dj = 
+\sum_i \int_0^1 \tau p_{i,t}^{F}(j) y_{i,t}^{F}(j) dj.  \label{eq:trade_balance}
+\end{equation}
+
+It is straightforward to show that $p_{i,c,t}^{F}(j)=\frac{\rho }{\rho -1}\frac{w_{t}^*}{z_{i,t}^*(j)}$ and that $y_{i,c,t}^{F}(j)$ also depends on $w_t^*$. This implies that the trade balance condition pins down the foreign wage in equilibrium.
 %\section{Local Labor Market Dynamics in Wisconsin}
 %What do these results suggest for county-level employment dynamics in Wisconsin? Despite the widespread perception that competition from overseas has lead to the disappearance of manufacturing jobs, this is not borne out in the data. While it is certainly the case that Wisconsin was more exposed to the rise in Chinese imports than most U.S.~states (the color scheme to the right of Figure \ref{fig:d5ipw} illustrates the {\it national} deciles and Wisconsin counties tend to gravitate to the middle and top of the scale), there is no evidence to suggest that counties with plausibly higher exposure experienced lower employment growth between 1997 and 2002.
 %\begin{figure}
