@@ -1,4 +1,4 @@
-\begin{thebibliography}{13}
+\begin{thebibliography}{15}
 \newcommand{\enquote}[1]{``#1''}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
@@ -6,6 +6,11 @@
   et~al.}{2019}]{Alder:2019b}
 \textsc{Alder, S.~D., D.~Lagakos, and L.~E. Ohanian} (2019): \enquote{Labor
   Market Conflict and the Decline of the Rust Belt,} Working Paper.
+
+\bibitem[\protect\citeauthoryear{Atkeson and Burstein}{Atkeson and
+  Burstein}{2008}]{Atkeson:2008}
+\textsc{Atkeson, A. and A.~Burstein} (2008): \enquote{Pricing-to-market, trade
+  costs, and international relative prices,} \emph{American Economic Review}.
 
 \bibitem[\protect\citeauthoryear{Autor, Dorn, and Hanson}{Autor
   et~al.}{2013}]{Autor:2013}
@@ -36,6 +41,12 @@
 \textsc{Eckert, F., T.~C. Fort, P.~K. Schott, and N.~J. Yang} (2020):
   \enquote{{Imputing Missing Values in the US Census Bureau's County Business
   Patterns },} \emph{NBER Working Paper}, 1--39.
+
+\bibitem[\protect\citeauthoryear{Edmond, Midrigan, and Xu}{Edmond
+  et~al.}{2015}]{Edmond:2015}
+\textsc{Edmond, C., V.~Midrigan, and D.~Y. Xu} (2015): \enquote{Competition,
+  Markups, and the Gains from International Trade,} \emph{American Economic
+  Review}, 105, 3183--3221.
 
 \bibitem[\protect\citeauthoryear{Fort, Pierce, and Schott}{Fort
   et~al.}{2018}]{Fort:2018}

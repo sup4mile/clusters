@@ -1,46 +1,46 @@
-This is BibTeX, Version 0.99d (TeX Live 2019)
+This is BibTeX, Version 0.99d (TeX Live 2017)
 Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: IC.aux
 The style file: ecta.bst
 Database file #1: /Users/simeonalder/Dropbox/Bibliography/MasterBibliography.bib
-You've used 13 entries,
+You've used 15 entries,
             2849 wiz_defined-function locations,
-            685 strings with 6822 characters,
-and the built_in function-call counts, 7790 in all, are:
-= -- 661
-> -- 332
-< -- 14
-+ -- 107
-- -- 92
-* -- 632
-:= -- 1213
-add.period$ -- 26
-call.type$ -- 13
-change.case$ -- 83
-chr.to.int$ -- 13
-cite$ -- 13
-duplicate$ -- 589
-empty$ -- 563
-format.name$ -- 139
-if$ -- 1561
+            698 strings with 7102 characters,
+and the built_in function-call counts, 8977 in all, are:
+= -- 760
+> -- 387
+< -- 16
++ -- 124
+- -- 107
+* -- 740
+:= -- 1397
+add.period$ -- 30
+call.type$ -- 15
+change.case$ -- 96
+chr.to.int$ -- 15
+cite$ -- 15
+duplicate$ -- 675
+empty$ -- 647
+format.name$ -- 166
+if$ -- 1796
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 100
-newline$ -- 44
-num.names$ -- 66
-pop$ -- 205
+missing$ -- 115
+newline$ -- 50
+num.names$ -- 76
+pop$ -- 236
 preamble$ -- 1
-purify$ -- 82
+purify$ -- 95
 quote$ -- 0
-skip$ -- 237
+skip$ -- 267
 stack$ -- 0
-substring$ -- 340
-swap$ -- 285
+substring$ -- 391
+swap$ -- 327
 text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 156
+type$ -- 180
 warning$ -- 0
-while$ -- 61
+while$ -- 68
 width$ -- 0
-write$ -- 158
+write$ -- 181

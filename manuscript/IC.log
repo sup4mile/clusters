@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=latex 2017.5.23)  29 JAN 2021 16:26
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=latex 2017.5.23)  16 AUG 2021 22:49
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -867,7 +867,17 @@ Package: multicol 2017/04/11 v1.8q multicolumn formatting (FMi)
 \c@clm=\count274
 \c@rmk=\count275
 Package hyperref Info: Option `colorlinks' set `true' on input line 39.
- (./IC.aux)
+ (./IC.aux
+
+LaTeX Warning: Label ` ' multiply defined.
+
+
+LaTeX Warning: Label ` ' multiply defined.
+
+
+LaTeX Warning: Label ` ' multiply defined.
+
+)
 \openout1 = `IC.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
@@ -886,8 +896,7 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 43.
 LaTeX Font Info:    ... okay on input line 43.
 LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 43.
 LaTeX Font Info:    Try loading font information for TS1+cmr on input line 43.
-
-(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1cmr.fd
+ (/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    ... okay on input line 43.
@@ -918,53 +927,62 @@ LaTeX Info: Redefining \nameref on input line 43.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: rotating package is loaded.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/ppl/b/n' tried instead on input line 68.
-LaTeX Font Info:    Try loading font information for U+msa on input line 73.
+LaTeX Font Info:    Try loading font information for U+msa on input line 64.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 73.
+LaTeX Font Info:    Try loading font information for U+msb on input line 64.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1
-
-] [2]
-LaTeX Font Info:    Try loading font information for TS1+ppl on input line 95.
+)
+LaTeX Font Info:    Try loading font information for TS1+ppl on input line 64.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
-) [3]
+)
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 64.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/ot1pcr.fd
+File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
+) [1
+
+]
+LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <14.4> not available
+(Font)              Font shape `OT1/ppl/b/n' tried instead on input line 68.
+ [1]
+[2] [3]
 Overfull \hbox (5.7295pt too wide) in paragraph at lines 107--108
 \OT1/ppl/m/n/10.95 small num-ber of ex-cep-tions (that ac-count for a van-ish-i
 ngly small frac-tion of all im-ports).Finally,
  []
 
 [4] [5] [6] [7]
-File: d5_ipw_1997.eps Graphic file (type eps)
- <d5_ipw_1997.eps>
-File: d5log_emp_i_97_02-1.eps Graphic file (type eps)
- <d5log_emp_i_97_02-1.eps> [8] [9] [10]
-[11] (./IC.bbl)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 264.
- [12]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 264.
+LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <12> not available
+(Font)              Font shape `OT1/ppl/b/n' tried instead on input line 225.
+ [8] [9] [10] [11] (./IC.bbl [12])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 353.
+ [13]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 353.
  (./IC.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 264.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 264.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 353.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 353.
 Package rerunfilecheck Info: File `IC.out' has not changed.
-(rerunfilecheck)             Checksum: EB31A23BE74EEFE5F9EA6E36965F3F60;242.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 264.
+(rerunfilecheck)             Checksum: B9116CE2C88F53C9961B13C92190A583;358.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 353.
  ) 
 Here is how much of TeX's memory you used:
- 23232 strings out of 492996
- 418459 string characters out of 6132730
- 504799 words of memory out of 5000000
- 26491 multiletter control sequences out of 15000+600000
- 22959 words of font info for 79 fonts, out of 8000000 for 9000
+ 23306 strings out of 492996
+ 419555 string characters out of 6132730
+ 505528 words of memory out of 5000000
+ 26560 multiletter control sequences out of 15000+600000
+ 30279 words of font info for 104 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 53i,12n,92p,10372b,411s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 53i,12n,92p,10372b,451s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on IC.dvi (12 pages, 63700 bytes).
+Output written on IC.dvi (14 pages, 79692 bytes).

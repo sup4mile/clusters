@@ -42,26 +42,26 @@ minus0.5ex} \textwidth15.75cm \evensidemargin5mm \oddsidemargin5mm
 
 \begin{document}
 
-%\begin{titlepage}
-%%\begin{singlespacing}
-%
-%\title{Industry Clusters\footnote{Nicole Jieying Zhang, Zili Yang, and Weihao Lu provided outstanding research assistance.}}
-%
-%\author{Simeon D.~Alder\footnote{University of Wisconsin - Madison, Department of Economics, email: \url{simeon.alder@wisc.edu}}}
-%%\date{October 2011}
-%\date{\today} % \\ \vspace{5mm} {\sc Preliminary and Incomplete}}
-%
-%\maketitle
+\begin{titlepage}
+%\begin{singlespacing}
+
+\title{Industry Clusters\footnote{Nicole Jieying Zhang, Zili Yang, and Weihao Lu provided outstanding research assistance.}}
+
+\author{Simeon D.~Alder\footnote{University of Wisconsin - Madison, Department of Economics, email: \url{simeon.alder@wisc.edu}}}
+%\date{October 2011}
+\date{\today} % \\ \vspace{5mm} {\sc Preliminary and Incomplete}}
+
+\maketitle
 %
 %\begin{abstract}
 %
 %\end{abstract}
-%%\noindent
-%%\textit{JEL Codes:} 
-%%
-%%\textit{Keywords:} 
-%%\end{singlespacing}
-%\end{titlepage}
+%\noindent
+%\textit{JEL Codes:} 
+%
+%\textit{Keywords:} 
+%\end{singlespacing}
+\end{titlepage}
 
 %\begin{onehalfspacing}
 
@@ -221,28 +221,117 @@ In order to gauge whether the effects of an exogenous trade shock are stronger i
 
 Once concern is that industry concentration could vary systematically with the size of the local labor market. Small rural counties with a few thousand workers cannot be as diversified as, say, Los Angeles County in California. Or, to pick up the headline of the New York Times article mentioned earlier, small cities may simply offer less scope for diversification than large ones. Indeed, the Herfindahl index and the number of working age individuals are negatively correlated (-0.15), but only weakly so. When we include local employment (or the local working-age population) as additional controls in column (5), none of the previous coefficients are substantially different and the statistical significance remains unchanged. Size {\it per se} doesn't appear to have much explanatory power for the local employment dynamics.
 
-\section{Local Labor Market Dynamics in Wisconsin}
-What do these results suggest for county-level employment dynamics in Wisconsin? Despite the widespread perception that competition from overseas has lead to the disappearance of manufacturing jobs, this is not borne out in the data. While it is certainly the case that Wisconsin was more exposed to the rise in Chinese imports than most U.S.~states (the color scheme to the right of Figure \ref{fig:d5ipw} illustrates the {\it national} deciles and Wisconsin counties tend to gravitate to the middle and top of the scale), there is no evidence to suggest that counties with plausibly higher exposure experienced lower employment growth between 1997 and 2002.
-\begin{figure}
-\begin{center}
- \includegraphics[width=.95\textwidth]{d5_ipw_1997.eps}
-\caption{5-Year Change in Imports per Worker 1997-2002 (US\$)}
-\label{fig:d5ipw}
-\end{center}
-\end{figure}
+\section{Model}
+\subsection{Preferences, Technology, and Geography}\label{sec:preferences}
+Time is discrete and periods are indexed by $t$. The economy is populated by a unit measure of workers with linear preferences of a single final consumption good:
+\begin{equation}
+\label{eq:U}
+U_t = \sum_{s=t}^\infty \beta^{t-s} u(c_s) = \sum_{s=t}^\infty \beta^{t-s} c_s,
+\end{equation}
+where $0<\beta < 1$ is the discount factor and workers are endowed with a single unit of labor each period, which they supply inelastically.
 
-\begin{figure}
-\begin{center}
-\includegraphics[width=.95\textwidth]{d5log_emp_i_97_02-1.eps}
-\caption{5-Year Employment Change 1997-2002 (Percent)}
-\label{fig:d5emp}
-\end{center}
-\end{figure}
-Maps for 1992-1997, 2002-2007, 2007-2011, and 2011-2016 (not included here) illustrate the same lack of relationship between imports and employment growth. This visual impression is also borne out statistically.
+The single final good $Y$ is produced using output from $I$ different industries. The production technology features a constant elasticity of substitution between each pair of inputs:
+\begin{equation}
+\label{eq:Y}
+Y_t = \left( \sum_{i=1}^I y_{i,t}^{\frac{\sigma-1}{\sigma}} \right)^{\frac{\sigma}{\sigma-1}}.
+\end{equation}
+By assumption, these sectoral intermediates are gross substitutes, i.e.~$\sigma>1$. There is free entry into the market for final goods and we will characterize the problem of a representative firm in section \ref{sec:problems}.
 
-The same regression as in column (5) of Table \ref{tab:2sls} with data for Wisconsin counties only yields similar coefficient estimates as the full national sample. The effect of the rise in manufacturing imports is somewhat stronger and significant at the 10 percent level, while the local share of employment in manufacturing is no longer statistically significant. The effect of local industry concentration, on the other hand, is stronger (-0.242 compared to -0.183 in the national sample) and remains statistically significant at the 5 percent level, suggesting that diversification at the county level plays an important role even in a state with a high proportion of manufacturing jobs compared to the national average.
+Output in industry $i$ is a composite good produced using differentiated varieties indexed by $j$. Each variety comes in two flavors: on is produced produced domestically (with superscript $H$) and the second is imported from abroad (with superscript $F$). The aggregation of varieties features an Armington-style technology with constant elasticity of substitution:
+\begin{equation}
+\label{eq:yi}
+y_{i,t} = \left( \int_{0}^1 \left( {y^H_{i,t}(j)}^{\frac{\rho-1}{\rho}} + {y^F_{i,t}(j)}^{\frac{\rho-1}{\rho}} \right) dj\right)^{\frac{\rho}{\rho-1}},
+\end{equation}
+where $\rho$ is the substitution elasticity between any two varieties. We follow \cite{Atkeson:2008} and \cite{Edmond:2015} by assuming that $1 < \sigma < \rho < \infty$. This means that the elasticity of substitution across varieties within the same industry $i$ is higher than the elasticity across industries.
 
-One plausible explanation that was not explored here is that the loss of manufacturing jobs was offset by job growth in the service sector. Nationally, \cite{Bloom:2019} find that this occurred particularly in local labor markets with a skilled workforce and, at a more granular level, that large multinational firms played a crucial role in this process. Due to data limitations associated with County Business Patterns, a more detailed analysis along these lines was beyond the scope of this paper but is an area for future research and certainly of interest from a policy perspective.
+In addition, the domestic economy has a geography with $C$ locations whose empirical counterparts are counties.\footnote{Later, we also report results at the slightly more aggregated \textit{Communiting Zone} level. In the remainder of the paper, these results are labeled accordingly to avoid any confusion with respect to the level of aggregation.} Each county $c \in C$ hosts a measure of firms associated with industry $i$, denoted $\mu_{i,c} \geq 0$. The measure of all firms in an industry is normalized to unity and we have $\sum_{c=1}^C \mu_{i,c} = 1$. Moreover, we characterize the partition of the unit interval $[0,1]$ by the set of threshold indices $\{ \underline{\mu}_{i,c},\overline{\mu}_{i,c} \}_{c=1}^C$ such that $\mu_{c,i} = \overline{\mu}_{i,c} - \underline{\mu}_{i,c}$ for all $i$ and $c$. 
+
+Note that we allow for the possibility $\mu_{c,i} = 0$ by setting $\overline{\mu}_{i,c} = \underline{\mu}_{i,c}$. Not all locations will have a full contingent of industries. We denote the local industry composition by $I_c \subseteq I$. Moreover, for a given $I_c$ in location $c$ our characterization of the local industry mix allows us to capture differences in industry concentration. In principle, locations can have a perfectly balanced composition $\{ \mu_c = \mu_{i,c} \}_{c \in I_c}$ or be characterized by a dominant industry $i$ with a ``peripheral'' presence of firms in other industries $i' \in I_c \setminus \{ i \}$.
+
+Each variety $j$ is produced by a single firm and the partition discussed earlier implies that we can characterize the ``assignment'' of firms to locations by $c(j): [0,1] \rightarrow C$. The local industry mix matters in this environment since the production of individual varieties is subject to within-industry spillovers in each location:
+\begin{equation}
+\label{ }
+y_{i,c,t}^H(j) = z_{i,t}^H(j) \ell_{i,c,t}(j) \left( \mathcal{L}_{i,c,t}^H \right)^\eta, %{\underbrace{\left( \int_{\underline{\mu}_{i,c(j)}}^{\overline{\mu}_{i,c(j)}} \ell_{i,t}(\jmath) d \jmath \right)}_{\equiv \mathcal{L}_{i,c,t}}}^\eta,
+\end{equation}
+
+where $\eta \geq 0$ governs the strength of the positive externality -- i.e.~the technological spillover -- and $\mathcal{L}_{i,c,t}^H$ denotes total employment in industry $i$ and location $c$. 
+
+The labor productivities $z_{i,t}^H(j)$ are drawn from known distributions for each industry $i$ and individual producers take total employment at the industry-county level as given.
+%s home to a subset of industries $I_c \subseteq I$. Some counties host firms from all industries while others have a more limited industrial mix. Moreover, for each $i \in I$ the allocation of firms across counties is a partition of the closed interval $[0,1]$ into $C_i \leq C$ intervals.
+
+International trade is subject to symmetric iceberg-style trade costs denoted by $\tau$. In order to deliver one unit of output to an international destination, firms produce and ship $\tau$ units, which requires additional units of labor input. For simplicity, we abstract from geography and local technology spillovers in the {\it Foreign} economy, which allows us to drop local industry employment abroad ($\mathcal{L}$) altogether. Formally, production for international markets can be written as:
+\begin{align}
+\label{}
+\tau y_{i,c,t}^{H*}(j) & = z_{i,t}^H(j) \ell_{i,c,t}^{H*}(j) \left( \mathcal{L}_{i,c,t}^H \right)^\eta\\
+\tau y_{i,t}^{F}(j) & = z_{i,t}^F(j) \ell_{i,t}^{F}(j) \label{eq:tauyF}
+\end{align}
+The location of production (or factor use) is labeled $H$ for {\it Home} and $F$ for {\it Foreign}. The location of final use -- consumption, in this simple model -- carries an asterisk when it occurs in {\it Foreign}. Consumption in {\it Home} is the ``omitted' case and is not labeled. In other words, $\tau y_{i,c,t}^{H*}(j)$ is the quantity of variety $j$ in industry $i$ and location $c$ produced in {\it Home} for the export market, of which $y_{i,c,t}^{H*}(j)$ is delivered to its destination. Similarly, $y_{i,t}^{F}(j)$ is the quantity of variety $j$ in industry $i$ produced in {\it Foreign} that is delivered to the {\it Home} market. Since the {\it Foreign} economy is geography-free, we can omit the county index $c$ in equation \eqref{eq:tauyF}.\footnote{For completeness, foreign firms produce for local consumption according to:
+\begin{equation}
+\label{ }
+y_{i,t}^{F*}(j) = z_{i,t}^F(j) \ell_{i,t}^{F*}(j) .
+\end{equation}}
+Finally, the two economies are endowed with $L^H$ and $L^F$ workers. 
+\subsection{Firms' Problems}\label{sec:problems}
+A firm producing variety $j$ in industry $i$ and location $c$ for domestic use chooses the price $p_{i,c,t}(j)$, output $y_{i,c,t}(j)$, and
+labor input $\ell_{i,c,t}(j)$ to maximize its profits: 
+\begin{equation}
+\pi_{i,c,t}^H(j) = p_{i,c,t}^H(j) y_{i,c,t}^H(j) - w_{t}\ell_{i,c,t}^H(j),  \label{eq:profit_max_static}
+\end{equation}%
+subject to the downward-sloping demand curve implied by \eqref{eq:yi}. The firm's optimal price is the standard
+markup: 
+\begin{equation}
+p_{i,c,t}^H(j)=\frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j) \mathcal{L}_{i,c,t}^\eta}.  \label{eq:monopolist_price}
+\end{equation}%
+The corresponding output is: 
+\begin{align}
+y_{i,c,t}^H(j) & =\left( \frac{p_{i,c,t}^H(j)}{p_{i,t}}\right) ^{-\rho} \left( \frac{p_{i,t}}{P_t} \right)^{-\sigma} \frac{X_{t}}{P_{t}} \nonumber \\
+& =\left( \frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j)}\right) ^{-\rho } p_{i,t}^{\rho-\sigma} P_t^{\sigma-1} X_t
+\label{eq:monopolist_output}
+\end{align}%
+where $X_{t}$ is aggregate expenditure, $P_{t}$ is the price of the final good, and $p_{i,t}$ is the price of the sectoral composite $y_{i,t}$ in {\it Home}.
+
+The sectoral price index is given by
+\begin{equation}
+\label{ }
+p_{i,t} = \left( \sum_c \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} p_{i,c,t}^H(j)^{1-\rho} + \left( \tau p_{i,t}^F(j) \right)^{1-\rho} \right)^{\frac{1}{1-\rho}},
+\end{equation}
+where $p_{i,t}^F(j)$ is the factory gate price (f.o.b.) of the foreign variety $j$ in industry $i$ and $\tau p_{i,t}^F(j)$ is the corresponding c.i.f.~price at the destination.\footnote{The profit maximization problems of foreign producers mirror those of domestic producers, as do the ideal price indices at the sectoral level and the price of the final good. Recall, however, that $\eta=0$ and the foreign wage $w_t^F$ cannot be normalized to unity. The latter is determined in equilibrium and is pinned down by a balanced trade condition. We will fill in these details in the next version of the manuscript.} The final good price is a power mean over the sectoral indices:
+\begin{equation}
+\label{ }
+P_t = \left( \sum_{i=1}^I p_{i,t}^{1-\sigma} \right)^{\frac{1}{1-\sigma}}.
+\end{equation}
+Since the production technology is linear in labor, the firm solves a completely separate profit maximization problem for production and shipment to the export market in {\it Foreign}.
+
+%The firm's period equilibrium profits are: 
+%\begin{equation}
+%\pi _{t}(i)=\left( \frac{p_{t}(i)}{P_{t}}\right) ^{1-\sigma }\frac{X_{t}}{%
+%\sigma }=\left( \frac{\sigma }{\sigma -1}\frac{w_{t}}{P_{t}}\frac{1}{%
+%e^{\varepsilon _{t}(i)}z_{t}(i)}\right) ^{1-\sigma }\frac{X_{t}}{\sigma }.
+%\label{eq:monopolist_profits}
+%\end{equation}%
+We choose domestic labor to be the numeraire, so that $w_t=1$ in all periods. Since, in addition, we assume that the economy is endowed with $L \equiv 1$ workers and thanks to the constant mark-up rule, it is straightforward to show that $X_t = \frac{\rho}{\rho-1}$
+%\section{Local Labor Market Dynamics in Wisconsin}
+%What do these results suggest for county-level employment dynamics in Wisconsin? Despite the widespread perception that competition from overseas has lead to the disappearance of manufacturing jobs, this is not borne out in the data. While it is certainly the case that Wisconsin was more exposed to the rise in Chinese imports than most U.S.~states (the color scheme to the right of Figure \ref{fig:d5ipw} illustrates the {\it national} deciles and Wisconsin counties tend to gravitate to the middle and top of the scale), there is no evidence to suggest that counties with plausibly higher exposure experienced lower employment growth between 1997 and 2002.
+%\begin{figure}
+%\begin{center}
+% \includegraphics[width=.95\textwidth]{d5_ipw_1997.eps}
+%\caption{5-Year Change in Imports per Worker 1997-2002 (US\$)}
+%\label{fig:d5ipw}
+%\end{center}
+%\end{figure}
+%
+%\begin{figure}
+%\begin{center}
+%\includegraphics[width=.95\textwidth]{d5log_emp_i_97_02-1.eps}
+%\caption{5-Year Employment Change 1997-2002 (Percent)}
+%\label{fig:d5emp}
+%\end{center}
+%\end{figure}
+%Maps for 1992-1997, 2002-2007, 2007-2011, and 2011-2016 (not included here) illustrate the same lack of relationship between imports and employment growth. This visual impression is also borne out statistically.
+%
+%The same regression as in column (5) of Table \ref{tab:2sls} with data for Wisconsin counties only yields similar coefficient estimates as the full national sample. The effect of the rise in manufacturing imports is somewhat stronger and significant at the 10 percent level, while the local share of employment in manufacturing is no longer statistically significant. The effect of local industry concentration, on the other hand, is stronger (-0.242 compared to -0.183 in the national sample) and remains statistically significant at the 5 percent level, suggesting that diversification at the county level plays an important role even in a state with a high proportion of manufacturing jobs compared to the national average.
+%
+%One plausible explanation that was not explored here is that the loss of manufacturing jobs was offset by job growth in the service sector. Nationally, \cite{Bloom:2019} find that this occurred particularly in local labor markets with a skilled workforce and, at a more granular level, that large multinational firms played a crucial role in this process. Due to data limitations associated with County Business Patterns, a more detailed analysis along these lines was beyond the scope of this paper but is an area for future research and certainly of interest from a policy perspective.
 %\begin{figure*}[t!]
 %    \centering
 %    \begin{subfigure}[t]{0.5\textwidth}
