@@ -16,12 +16,12 @@ Lx = 1 # total mass of labor at foreign country
 # parameters
 η = 0
 ρ = 2
-σ = 2
+σ = 1.9
 μ_lb = vec([0 0; 0.5 0.5])
 μ_ub = vec([0.5 0.5; 1 1])
 zH = vec(ones(Int64, nc, ni))
 zF= vec(ones(Int64, ni))
-τ = 1
+τ = 1e10
 E = ρ/(ρ-1)
 
 # total indices

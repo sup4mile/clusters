@@ -1,0 +1,291 @@
+%\documentclass[11pt,hyperref={bookmarks=false}]{beamer}
+%\documentclass[11pt,handout]{beamer}
+\documentclass[11pt]{beamer}
+%\usetheme{Copenhagen}
+%\usetheme{default}
+\usetheme{default}
+%\usecolortheme{seagull}
+%\usefonttheme{professionalfonts}
+%\useoutertheme{infolines}%{miniframes}
+%\usepackage{xmpmulti}
+%\usepackage{latexsym,fancyhdr,array,tabularx,multicol}
+%\usepackage{ifthen,booktabs,calc,longtable,lscape,amsmath}
+%\usepackage{egameps}
+% \usepackage[usenames,dvipsnames]{pstricks}
+% \usepackage{epsfig}
+% \usepackage{pst-grad} % For gradients
+% \usepackage{pst-plot} % For axes
+%\usepackage{psfrag,graphicx}
+\usepackage{graphicx,xfrac}
+%\usepackage{xmpmulti}
+%\usepackage{latexsym,fancyhdr,array,tabularx,multicol}
+\usepackage{tabularx,booktabs}
+\usepackage{amsmath}
+%\usepackage{ifthen,calc}
+%\usepackage{multirow}
+\usepackage{multicol}
+%\usepackage{pgf}
+%\usepackage{longtable, lscape}
+%\usepackage{lscape}
+\newtheorem{df}{Definition}
+\newtheorem{lm}{Lemma}
+\newtheorem{prp}{Proposition}
+\newtheorem{sprf}{Sketch of Proof}
+\newtheorem{prf}{Proof}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{suffc}{Sufficient Condition}
+\setbeameroption{hide notes}
+%\newcommand{\threelinebracer}{$\left. \begin{array}{c} \\ \\ \\ \end{array} \right\rbrace$}
+%\newcommand{\threelinebracel}{$\left. \begin{array}{c} \\ \\ \\ \end{array} \right\lbrace$}
+%\newcommand{\twolinebracer}{$\left. \begin{array}{c} \\ \\ \end{array} \right\rbrace$}
+%\newcommand{\twolinebracel}{$\left. \begin{array}{c} \\ \\ \end{array} \right\lbrace$}
+\linespread{1.1}
+%\setlength{\parindent}{0pt}
+\usepackage{parskip}
+\addtolength{\parskip}{0pt}
+%\newenvironment{num}
+% {\leftmargini=6mm\leftmarginii=8mm
+%  \begin{itemize}}{\end{itemize}}
+% Separate slides by \begin{frame} and \end{frame}.
+\title{Industry Clusters}
+\author[shortname]{Simeon Alder\inst{1}}
+\institute[shortinst]{\inst{1} U of Wisconsin--Madison}
+\date{\today}
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Imports and Employment Growth (1.a)}
+\begin{table}
+  \centering 
+    {\tiny
+    %    \begin{tabular*}{.85\textwidth}{@{\extracolsep{\fill}} lccccc}
+    \begin{tabularx}{1\textwidth}{@{\extracolsep{\stretch{1}}} lcccc}
+% \begin{tabularx}{1.0\textwidth}{ c *{6}{X} }
+    \toprule
+    \multicolumn{5}{c}{Dependent Variable: 5-Year Change in Employment-to-Population Ratio} \\
+    \midrule
+    & \multicolumn{2}{c}{Stacked First Differences 1992-2016}  & \multicolumn{2}{c}{Overlapping First Differences 1992-2016}\\
+        \cmidrule{2-3} \cmidrule{4-5}    
+    & (1) & (2) & (3) & (4)  \\
+    & SLS & SLS & 2SLS & 2SLS  \\
+    \midrule
+%HHI (2-digit NAICS) & -0.152*** \\
+%                                & (0.033) \\
+%\midrule
+%HHI (4-digit NAICS)& & -0.257*** & -0.253*** & -0.195*** & -0.183***\\
+%			      & & (0.032) & (0.030) & (0.035) & (0.038)\\
+%\midrule
+Change in imports &  -0.0014**& -0.0004 & -0.0016** & 0.0008  \\
+per worker	     &  (0.0006) & (0.0005) & (0.0006) & (0.0006)  \\
+\midrule
+Manufacturing emp- & & -0.06*** & & -0.073** \\
+loyment share & & (0.016) & & (0.020) \\
+\midrule
+%HHI $\times$ change & & & & &  -0.011\\
+% in imports per worker & & & & &  (0.014)\\
+% \midrule
+ Year fixed effects & yes & yes & yes & yes  \\
+%    \midrule
+%    \midrule
+% $R^2$ & 0.39 & 0.39 & 0.45 & 0.46 \\
+ \bottomrule
+% \multicolumn{6}{l}{{\small The robust standard errors are clustered on state and reported in parenthesis.}} \\
+% \multicolumn{6}{l}{{\small *** is significant at 1 percent, ** is significant at 5 percent, and * is significant at 10 percent.}} \\
+% \multicolumn{6}{l}{{\small Reported $R^2$ values are for OLS in columns (1) and (2) and second stage of 2SLS incolumns (3)-(5).}}
+%    \end{tabular*}
+    \end{tabularx}}
+%  \caption{2SLS Estimates}\label{tab:2sls}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Imports and Employment Growth (1.b)}
+\begin{table}
+  \centering 
+    {\tiny
+    %    \begin{tabular*}{.85\textwidth}{@{\extracolsep{\fill}} lccccc}
+    \begin{tabularx}{1\textwidth}{@{\extracolsep{\stretch{1}}} lcccc}
+% \begin{tabularx}{1.0\textwidth}{ c *{6}{X} }
+    \toprule
+    \multicolumn{5}{c}{Dependent Variable: 5-Year Change in Employment-to-Population Ratio} \\
+    \midrule
+    & \multicolumn{2}{c}{Stacked First Differences 1992-2016}  & \multicolumn{2}{c}{Overlapping First Differences 1992-2016}\\
+        \cmidrule{2-3} \cmidrule{4-5}
+    & (1) & (2) & (3) & (4)  \\
+    & SLS & SLS & 2SLS & 2SLS  \\
+    \midrule
+%HHI (2-digit NAICS) & -0.152*** \\
+%                                & (0.033) \\
+%\midrule
+%HHI (4-digit NAICS)& & -0.257*** & -0.253*** & -0.195*** & -0.183***\\
+%			      & & (0.032) & (0.030) & (0.035) & (0.038)\\
+%\midrule
+Change in imports & -0.012*** & -0.013*** & -0.013***  & -0.015*** \\
+per worker	     &  (0.001) & (0.002) & (0.002) & (0.002)  \\
+\midrule
+Manufacturing emp- & & 0.037* & & -0.073** \\
+loyment share & & (0.019) & & (0.020) \\
+\midrule
+%HHI $\times$ change & & & & &  -0.011\\
+% in imports per worker & & & & &  (0.014)\\
+% \midrule
+ Year fixed effects & no & no & no & no  \\
+%    \midrule
+%    \midrule
+% $R^2$ & 0.39 & 0.39 & 0.45 & 0.46 \\
+ \bottomrule
+% \multicolumn{6}{l}{{\small The robust standard errors are clustered on state and reported in parenthesis.}} \\
+% \multicolumn{6}{l}{{\small *** is significant at 1 percent, ** is significant at 5 percent, and * is significant at 10 percent.}} \\
+% \multicolumn{6}{l}{{\small Reported $R^2$ values are for OLS in columns (1) and (2) and second stage of 2SLS incolumns (3)-(5).}}
+%    \end{tabular*}
+    \end{tabularx}}
+%  \caption{2SLS Estimates}\label{tab:2sls}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Imports and Employment Growth (2.a)}
+\begin{table}
+  \centering 
+%    \begin{tabular*}{.85\textwidth}{@{\extracolsep{\fill}} lccccc}
+%    \begin{tabularx}{.85\textwidth}{@{\extracolsep{\stretch{1}}} lccccc}
+    {\tiny \begin{tabularx}{1.0\textwidth}{ c *{5}{X} }
+    \toprule
+    \multicolumn{5}{c}{Dependent Variable: 5-Year Change in Employment-to-Population Ratio} \\
+    \midrule
+    & \multicolumn{4}{c}{Stacked First Differences 1992-2016}\\
+        \cmidrule{2-5}
+    & (1) & (2) & (3) & (4)  \\
+    & OLS & OLS & 2SLS & 2SLS  \\
+    \midrule
+HHI (2-digit NAICS) & -0.152*** \\
+                                & (0.033) \\
+\midrule
+HHI (4-digit NAICS)& & -0.257*** & -0.253*** & -0.195*** \\
+			      & & (0.032) & (0.030) & (0.035) \\
+\midrule
+Change in imports &  &  & -0.001* & 0.000 \\
+per worker	     &  &  & (0.001) & (0.000) \\
+\midrule
+Manufacturing emp- & & & & -0.046** \\
+loyment share & & & & (0.018)  \\
+ \midrule
+ Year fixed effects & yes & yes & yes & yes \\
+    \midrule
+    \midrule
+ $R^2$ & 0.39 & 0.39 \\ %& 0.40 & 0.40 & 0.40 \\
+ \bottomrule
+% \multicolumn{6}{l}{{\small The robust standard errors are clustered on state and reported in parenthesis.}} \\
+% \multicolumn{6}{l}{{\small *** is significant at 1 percent, ** is significant at 5 percent, and * is significant at 10 percent.}} \\
+% \multicolumn{6}{l}{{\small Reported $R^2$ values are for OLS in columns (1) and (2) and second stage of 2SLS incolumns (3)-(5).}}
+%    \end{tabular*}
+    \end{tabularx}}
+%  \caption{2SLS Estimates}\label{tab:2sls}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Imports and Employment Growth (2.b)}
+\begin{table}
+  \centering 
+%    \begin{tabular*}{.85\textwidth}{@{\extracolsep{\fill}} lccccc}
+%    \begin{tabularx}{.85\textwidth}{@{\extracolsep{\stretch{1}}} lccccc}
+    {\tiny \begin{tabularx}{1.0\textwidth}{ c *{5}{X} }
+    \toprule
+    \multicolumn{5}{c}{Dependent Variable: 5-Year Change in Employment-to-Population Ratio} \\
+    \midrule
+    & \multicolumn{4}{c}{Stacked First Differences 1992-2016}\\
+        \cmidrule{2-5}
+    & (1) & (2) & (3) & (4) \\
+    & OLS & OLS & 2SLS & 2SLS \\
+    \midrule
+HHI (2-digit NAICS) & -0.065* \\
+                                & (0.036) \\
+\midrule
+HHI (4-digit NAICS)& & -0.216*** & -0.173*** & -0.192*** \\
+			      & & (0.029) & (0.024) & (0.020) \\
+\midrule
+Change in imports &  &  & -0.012*** & -0.012*** \\
+per worker	     &  &  & (0.002) & (0.002) \\
+\midrule
+Manufacturing emp- & & & & 0.036 \\
+loyment share & & & & (0.037) \\
+\midrule
+ Year fixed effects & no & no & no & no\\
+    \midrule
+    \midrule
+ $R^2$ & 0.00 & 0.00 \\ %& 0.02 & 0.02 & 0.02 \\
+ \bottomrule
+% \multicolumn{6}{l}{{\small The robust standard errors are clustered on state and reported in parenthesis.}} \\
+% \multicolumn{6}{l}{{\small *** is significant at 1 percent, ** is significant at 5 percent, and * is significant at 10 percent.}} \\
+% \multicolumn{6}{l}{{\small Reported $R^2$ values are for OLS in columns (1) and (2) and second stage of 2SLS incolumns (3)-(5).}}
+%    \end{tabular*}
+    \end{tabularx}}
+%  \caption{2SLS Estimates}\label{tab:2sls}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Imports and Employment Growth (3)}
+\begin{table}
+  \centering 
+%    \begin{tabular*}{.85\textwidth}{@{\extracolsep{\fill}} lccccc}
+%    \begin{tabularx}{.85\textwidth}{@{\extracolsep{\stretch{1}}} lccccc}
+    {\tiny \begin{tabularx}{1.0\textwidth}{ c *{5}{X} }
+    \toprule
+    \multicolumn{5}{c}{Dependent Variable: 5-Year Change in Employment-to-Population Ratio} \\
+    \midrule
+    & \multicolumn{4}{c}{Stacked First Differences 1992-2016}\\
+    \cmidrule{2-5}
+    & (1) & (2) & (3) & (4) \\
+    & 2SLS & 2SLS & 2SLS & 2SLS \\
+    \midrule
+HHI (4-digit NAICS)& & -0.219*** &  & -0.306*** \\
+			      & & (0.034) &  & (0.027) \\
+\midrule
+Change in imports & 0.001 & -0.000 & -0.014*** & -0.016*** \\
+per worker	     & (0.001) & (0.001) & (0.002) & (0.002) \\
+\midrule
+Manufacturing emp- & -0.100** & -0.086** & 0.015 & 0.031 \\
+loyment share & (0.034) & (0.035) & (0.036) & (0.036) \\
+\midrule
+HHI $\times$ change & -0.028** & 0.010& 0.054***& 0.108***\\
+ in imports per worker & (0.013) & (0.015) & (0.018) & (0.020) \\
+ \midrule
+ Year fixed effects & yes & yes & no & no \\
+%    \midrule
+%    \midrule
+% $R^2$ & 0.00 & 0.00 \\ %& 0.02 & 0.02 & 0.02 \\
+ \bottomrule
+% \multicolumn{6}{l}{{\small The robust standard errors are clustered on state and reported in parenthesis.}} \\
+% \multicolumn{6}{l}{{\small *** is significant at 1 percent, ** is significant at 5 percent, and * is significant at 10 percent.}} \\
+% \multicolumn{6}{l}{{\small Reported $R^2$ values are for OLS in columns (1) and (2) and second stage of 2SLS incolumns (3)-(5).}}
+%    \end{tabular*}
+    \end{tabularx}}
+%  \caption{2SLS Estimates}\label{tab:2sls}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Empirical Variation}
+\begin{table}
+\centering
+\begin{tabularx}{\textwidth}{@{\extracolsep{\stretch{1}}} lc}
+\toprule
+Variable & Standard Deviation \\
+\midrule
+Change in imports per worker & 2.10 \\
+HHI & 0.05 \\
+HHI $\times$ change in imports per worker & 0.25 \\
+Manufacturing employment share & 0.08 \\
+Change in emploment-to-population ratio & 0.07 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{frame}
+
+\end{document}
