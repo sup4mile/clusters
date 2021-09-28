@@ -68,7 +68,7 @@ function p_i_H_(i, x...) # calculate industry price index at home
     sum = (H_sum + F_sum)^(1/(1-ρ))
     return sum
 end
-register(model, :p_i_H_, dimension, p_i_H_, autodiff = true)
+register(m, :p_i_H_, dimension, p_i_H_, autodiff = true)
 @NLexpression(m, p_i_H[i in 1:ni], p_i_H_(i))
 
 function p_i_F_(i, x...) # calculate industry price index at foreign
@@ -81,27 +81,43 @@ function p_i_F_(i, x...) # calculate industry price index at foreign
     sum = (Hx_sum + Fx_sum)^(1/(1-ρ))
     return sum
 end
-register(model, :p_i_F_, dimension, p_i_F_, autodiff = true)
-@NLexpression(m, p_i_F_[i in 1:ni], p_i_F_(i))
+register(m, :p_i_F_, dimension, p_i_F_, autodiff = true)
+@NLexpression(m, p_i_F[i in 1:ni], p_i_F_(i))
 
 # aggregate price index
-function p_H()
-
+function p_H_(x...) # calculate final good price index at home
+    sum = 0
+    for i in 1:ni
+        sum += (p_i_H[i])^(1-σ)
+    end
+    return sum^(1/(1-σ))
 end
-register()
-@NLexpression()
+register(m, :p_H_, dimension, p_H_, autodiff = true)
+@NLexpression(m, p_H, p_H_())
 
-function p_F()
-
+function p_F_(x...) # calculate final good price index at foreign
+    sum = 0
+    for i in 1:ni
+        sum += (p_i_F[i])^(1-σ)
+    end
+    return sum^(1/(1-σ))
 end
-register()
-@NLexpression()
+register(m, :p_F_, dimension, p_F_, autodiff = true)
+@NLexpression(m, p_F, p_F_())
 
 # firm_output_home Matrix
-yv_ic_H
-yv_ic_Hx
-yv_if_F
-yv_if_Fx
+@NLexpression(m, yv_ic_H[i in 1:ni, j in 1:nc],
+    [pv_ic_H[i,j]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H)
+    # firm_home production for home consumption
+@NLexpression(m, yv_ic_Hx[i in 1:ni, j in 1:nc],
+    [pv_ic_Hx[i,j]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
+    # firm_home production for foreign consumption
+@NLexpression(m, pv_if_F[i in 1:ni, j in 1:nc],
+    [pv_if_Fx[i,j]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H)
+    # firm_foreign production for home consumption
+@NLexpression(m, yv_if_Fx[i in 1:ni, j in 1:nc],
+    [pv_if_F[i,j]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
+    # firm_foreign production for foreign consumption
 
 # balanced Trade
 check variable name!!!
