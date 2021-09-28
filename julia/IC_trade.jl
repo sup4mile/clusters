@@ -6,7 +6,7 @@ fpath = pwd()
 fname = "/results/previous_solution.jld"
 
 # Enable (=1) / disable (=0) loading of previous solution:
-load_previous = 1
+load_previous = 0
 # constants
 nc = 2 # number of counties
 ni = 2 # number of industries
@@ -18,16 +18,21 @@ Lx = 1 # total mass of labor at foreign country
 ρ = 2
 σ = 1.9
 μ_lb = vec([0 0; 0.5 0.5])
-μ_ub = vec([0.5 0.5; 1 1])
-zH = vec(ones(Int64, nc, ni))
+μ_ub = vec([0.5 0.5; 1 1]) #### does column or row mean county level/industry level?
+zH = vec(ones(Int64, nc, ni)) # productivity
 zF= vec(ones(Int64, ni))
 τ = 1e10
 E = ρ/(ρ-1)
 
 # total indices
 total_ind = 8(nc * ni) + 14ni
+#### where does this come from
 # ordering: p_ciH, p_ciHx, p_iF, p_iFx, y_ciH, y_ciHx, y_iH, y_iHx, y_iF, y_iFx
+
 # l_ci_vH, l_ci_vHx, l_i_vF, l_i_vFx, s_ciH, s_ciHx
+#### what is the v in l_ci_vH???
+#### what is s_ciH, s_ciHx
+
 # Pi, Pix, Yi, Yix, Ei, Eix
 # 24 inputs
 
