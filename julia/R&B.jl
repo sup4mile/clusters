@@ -1,18 +1,24 @@
 # this .jl file tests the implementation of matrix indexes
 using JuMP, JLD, Ipopt
 
+m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>100000))
+
+# File name and path for JLD file with results:
+fpath = pwd()
+fname = "/results/previous_solution.jld"
+
+# Enable (=1) / disable (=0) loading of previous solution:
+load_previous = 0
+
 # parameters
+nc = 2 # number of counties
+ni = 2 # number of industries
 η = 0 # the spill-over effect
 ρ = 2 # the elasiticity of substitution within industry
 σ = 2 # the elasiticity of substitution across industries
-
-nc = 2 # number of counties
-ni = 2 # number of industries
-
 L = 1 # total mass of labor at home country
 Lx = 1 # total mass of labor at foreign country
-
-w_H = 1
+w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
 E_H = (Markup_H + 1) * w_H # expenditure
 
@@ -112,12 +118,22 @@ register(m, :p_F_, dimension, p_F_, autodiff = true)
 @NLexpression(m, yv_ic_Hx[i in 1:ni, j in 1:nc],
     [pv_ic_Hx[i,j]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
     # firm_home production for foreign consumption
-@NLexpression(m, pv_if_F[i in 1:ni, j in 1:nc],
-    [pv_if_Fx[i,j]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H)
+@NLexpression(m, pv_if_F[i in 1:ni],
+    [pv_if_F[i]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H)
     # firm_foreign production for home consumption
-@NLexpression(m, yv_if_Fx[i in 1:ni, j in 1:nc],
-    [pv_if_F[i,j]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
+@NLexpression(m, yv_if_Fx[i in 1:ni],
+    [pv_if_Fx[i]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
     # firm_foreign production for foreign consumption
+
+# labor inverse demand
+@NLexpression(m, lv_ic_H_calc[i in 1:ni, j in 1:nc],
+    yv_ic_H[i,j] / (z_H[i] * (L_ic_H[i,j]) ^ η))
+@NLexpression(m, lv_ic_Hx_calc[i in 1:ni, j in 1:nc],
+    yv_ic_Hx[i,j] / (z_H[i] * (L_ic_Hx[i,j]) ^ η))
+@NLexpression(m, lv_if_F_calc[i in 1:ni],
+    τ * yv_ic_F[i,j] / z_F[i])
+@NLexpression(m, lv_if_Fx_calc[i in 1:ni],
+    τ * yv_ic_Fx[i] / z_F[i])
 
 # balanced Trade
 check variable name!!!
@@ -150,26 +166,35 @@ register()
 @NLexpression(
 @NLexpression()
 
-@NLconstraint(m, ) # domestic = foreign
 
 
 
 # JuMP
-m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>100000))
-
 #@variable(model, initial guesses, start = 0.5)
 @variable(m, lv_ic_H[1:ni, 1:nc] >= 0, start = 0.5)
 @variable(m, lv_ci_Hx[1:ni, 1:nc], start = 0.5)
 @variable(m, lv_ci_F[1:ni], start = 0.5)
 @variable(m, lv_ci_Fx[1:ni], start = 0.5)
+@variable(m, w_F >= 0, start = 1)
 
 @NLexpression(m, )
 
+# Optimization problem
 # labor supply = labor demand
 @NLconstraint(m, [i = 1:ni], [j = 1:nc], lv_ic_H[i,j] == lv_ic_H_calc[i,j])
+@NLconstraint(m, [i = 1:ni], [j = 1:nc], lv_ic_Hx[i,j] == lv_ic_Hx_calc[i,j])
+@NLconstraint(m, [i = 1:ni], lv_if_F[i] == lv_if_F_calc[i])
+@NLconstraint(m, [i = 1:ni], lv_if_Fx[i] == lv_ic_Fx_calc[i])
+# trade balance condition
+@NLconstraint(m, [i = 1:ni], )
 
 
+# run optimization
+optimize!(m)
 
+# print results
+print(solution_summary(m))
+value()
 
 
 
