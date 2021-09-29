@@ -23,25 +23,44 @@ E_H = (Markup_H + 1) * w_H # expenditure
 z_H = Matrix((ones(Int64, ni, nc))) # home productivity
 z_F= Matrix(ones(Int64, ni, 1)) # foreign productivity
 
+# JuMP model and variables
+m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>100000))
+
+#@variable(model, initial guesses, start = 0.5)
+@variable(m, lv_ic_H[1:ni, 1:nc] >= 0, start = 0.5)
+@variable(m, lv_ci_Hx[1:ni, 1:nc] >= 0, start = 0.5)
+@variable(m, lv_ci_F[1:ni] >= 0, start = 0.5)
+@variable(m, lv_ci_Fx[1:ni] >= 0, start = 0.5)
+@variable(m, w_F, start = 0.5)
+
 
 # Initial guesses
+# # firm_labor_home initial guess
+# lv_ic_H = Matrix{Any}(undef, ni, nc) # home production home consumption
+# # industry 1 county 2 has index [1,2]; row is industry and col is county
+# lv_ic_Hx = Matrix{Any}(undef, ni, nc) # home production foreign consumption
+#
+# # firm_labor_foreign initial guess
+# lv_if_Fx = Matrix{Any}(undef, ni, 1) # foreign production foreign consumption
+# lv_if_F = Matrix{Any}(undef, ni, 1) # foreign production home consumption
+
 # firm_labor_home initial guess
 lv_ic_H = Matrix{Any}(undef, ni, nc) # home production home consumption
 # industry 1 county 2 has index [1,2]; row is industry and col is county
 lv_ic_Hx = Matrix{Any}(undef, ni, nc) # home production foreign consumption
-
+#
 # firm_labor_foreign initial guess
 lv_if_Fx = Matrix{Any}(undef, ni, 1) # foreign production foreign consumption
 lv_if_F = Matrix{Any}(undef, ni, 1) # foreign production home consumption
 
+
 # foreign_wage iniital guess
-w_F = 0
+w_F =
 
 
 # NLExpressions
 # expenditure_foreign
-E_F = @NLexpression(m, E_H * w_F)
-print(E_F)
+@NLexpression(m, E_F, E_H * w_F)
 
 # aggregate_labor matrix
 @NLexpression(m, L_ic_H[i = 1:ni, j = 1:nc],
@@ -155,14 +174,6 @@ register(m, :export_, dimension, export_, autodiff = true)
 
 
 # JuMP
-m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>100000))
-
-#@variable(model, initial guesses, start = 0.5)
-@variable(m, lv_ic_H[1:ni, 1:nc] >= 0, start = 0.5)
-@variable(m, lv_ci_Hx[1:ni, 1:nc] >= 0, start = 0.5)
-@variable(m, lv_ci_F[1:ni] >= 0, start = 0.5)
-@variable(m, lv_ci_Fx[1:ni] >= 0, start = 0.5)
-@variable(m, w_F, start = 0.5)
 
 @NLexpression(m, )
 
