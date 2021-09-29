@@ -45,13 +45,17 @@ m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>100000))
 # lv_if_F = Matrix{Any}(undef, ni, 1) # foreign production home consumption
 
 # firm_labor_home initial guess
-lv_ic_H = Matrix{Any}(undef, ni, nc) # home production home consumption
+lv_ic_H = Matrix{Float64}([0.125 0.125; 0.125 0.125]) # home production home consumption
 # industry 1 county 2 has index [1,2]; row is industry and col is county
-lv_ic_Hx = Matrix{Any}(undef, ni, nc) # home production foreign consumption
+lv_ic_Hx = Matrix{Float64}([0.125 0.125; 0.125 0.125]) # home production foreign consumption
 #
 # firm_labor_foreign initial guess
-lv_if_Fx = Matrix{Any}(undef, ni, 1) # foreign production foreign consumption
-lv_if_F = Matrix{Any}(undef, ni, 1) # foreign production home consumption
+lv_if_Fx = Matrix{Float64}([0.25 0.25])
+lv_if_Fx = reshape(lv_if_Fx, 2*1)
+# foreign production foreign consumption
+lv_if_F = Matrix{Float64}([0.25 0.25])
+lv_if_F = reshape(lv_if_F, 2*1)
+ # foreign production home consumption
 
 
 # foreign_wage iniital guess
@@ -68,7 +72,7 @@ w_F =
 
 # firm_price matrix
 @NLexpression(m, pv_ic_H[i = 1:ni, j = 1:nc],
-    (E_H * w_H) / (z_H[i,j] * (L_ic[i,j] ^ η))
+    (E_H * w_H) / (z_H[i,j] * (L_ic_H[i,j] ^ η))
 ) # firm_price home production home consumption
 @NLexpression(m, pv_ic_Hx[i = 1:ni, j = 1:nc],
     pv_ic_H[i,j]) # firm_price home production foreign consumption
@@ -190,7 +194,6 @@ register(m, :export_, dimension, export_, autodiff = true)
 @NLexpression(m, lv_ic_F_calc[1:ni],
     yv_ic_Fx[i]*((z_F[i])^(-1)))
 
-@NLconstraint(m, )
 
 
 
