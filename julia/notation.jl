@@ -209,3 +209,21 @@ JuMP.optimize!(#model name)
 @variable(m,x[1:M,1:N]>=0) # M by N array of variables
 # Finally, bounds can depend on variable indices:
 @variable(m,x[i=1:10]>=i)
+
+
+
+a = vec([1 2 3 4 5 6])
+a = reshape(a, 2 , 3)
+# first numner: number of rows; second number: number of columns
+# ni*nc
+
+2*a
+
+a = vec(reshape(a, 1, 6))
+
+function l_i_vF_(i, x...)
+    y = reshape(x, ni, nc)
+    i = trunc(Int, i)
+    y = vec(y)
+    return x[4nc*ni+4ni+i] / zF[i]
+end
