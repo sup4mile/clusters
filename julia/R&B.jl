@@ -3,9 +3,9 @@ using JuMP, JLD, Ipopt
 
 m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>100000))
 
-# File name and path for JLD file with results:
-fpath = pwd()
-fname = "/results/previous_solution.jld"
+# # File name and path for JLD file with results:
+# fpath = pwd()
+# fname = "/results/previous_solution.jld"
 
 # Enable (=1) / disable (=0) loading of previous solution:
 load_previous = 0
@@ -30,15 +30,27 @@ z_H = Matrix((ones(Int64, ni, nc))) # home productivity
 z_F= Matrix(ones(Int64, ni, 1)) # foreign productivity
 
 
-# Initial guesses
-# firm_labor_home initial guess
-lv_ic_H = Matrix{Any}(undef, ni, nc) # home production home consumption
-# industry 1 county 2 has index [1,2]; row is industry and col is county
-lv_ic_Hx = Matrix{Any}(undef, ni, nc) # home production foreign consumption
+#@variable(model, initial guesses, start = 0.5)
+@variable(m, lv_ic_H[1:ni, 1:nc] >= 0, start = 0.125)
+@variable(m, lv_ic_Hx[1:ni, 1:nc], start = 0.125)
+@variable(m, lv_if_F[1:ni], start = 0.5)
+@variable(m, lv_if_Fx[1:ni], start = 0.5)
+@variable(m, w_F >= 0, start = 1)
 
-# firm_labor_foreign initial guess
-lv_if_Fx = Matrix{Any}(undef, ni, 1) # foreign production foreign consumption
-lv_if_F = Matrix{Any}(undef, ni, 1) # foreign production home consumption
+# Initial guesses
+# # firm_labor_home initial guess
+# lv_ic_H = Matrix{Any}(undef, ni, nc) # home production home consumption
+# # industry 1 county 2 has index [1,2]; row is industry and col is county
+# lv_ic_Hx = Matrix{Any}(undef, ni, nc) # home production foreign consumption
+# # firm_labor_foreign initial guess
+# lv_if_Fx = Matrix{Any}(undef, ni, 1) # foreign production foreign consumption
+# lv_if_F = Matrix{Any}(undef, ni, 1) # foreign production home consumption
+
+# for test, manually input guesses
+lv_ic_H = [0.125 0.125; 0.125 0.125]
+lv_ic_Hx = [0.125 0.125; 0.125 0.125]
+lv_if_F = [0.5 0.5]
+lv_if_Fx = [0.5 0.5]
 
 # foreign_wage iniital guess
 w_F = 0
@@ -50,11 +62,11 @@ w_F = 0
 
 # aggregate_labor matrix
 @NLexpression(m, L_ic_H[i = 1:ni, j = 1:nc],
-    (μ_ub[i,j] - μ_lb[i,j]) * (lv_ic_H[i,j] + lv_ci_Hx[i,j]))
+    (μ_ub[i,j] - μ_lb[i,j]) * (lv_ic_H[i,j] + lv_ic_Hx[i,j]))
 
 # firm_price matrix
 @NLexpression(m, pv_ic_H[i = 1:ni, j = 1:nc],
-    E_H * w_H / (z_H[i,j] * (L_ic[i,j] ^ η))
+    E_H * w_H / (z_H[i,j] * (L_ic_H[i,j] ^ η))
 ) # firm_price home production home consumption
 @NLexpression(m, pv_ic_Hx[i = 1:ni, j = 1:nc],
     pv_ic_H[i,j]) # firm_price home production foreign consumption
@@ -136,57 +148,41 @@ register(m, :p_F_, dimension, p_F_, autodiff = true)
     τ * yv_ic_Fx[i] / z_F[i])
 
 # balanced Trade
-check variable name!!!
-function domestic_trd()
+function export_(pv_ic_Hx, yv_ic_Hx, x...)
     Hx_sum = 0
     Hx_i_sum = 0
     for i in 1:ni
-
         for j in 1:nc
-            Hx_i_sum += (μ_ub[] - μ_lb[]) * (τ * pv_ic_Hx[]) * (yv_ic_Hx[])
+            Hx_i_sum += (μ_ub[i, j] - μ_lb[i, j]) * (τ * pv_ic_Hx[i, j]) * (yv_ic_Hx[i, j])
         end
+            Hx_sum += Hx_i_sum
+        end
+    return Hx_sum
+end
 
-        Hx_sum += Hx_i_sum
-
-        return Hx_sum
+function import_(pv_if_F, yv_if_F, x...)
+    F_sum = 0
+    for i in i:ni
+        F_sum +=  (τ * pv_if_F[i]) * (yv_if_F[i])
     end
+    return Fx_sum
 end
 
-function foreign_trd():
-    Fx_sum = 0
-        for i in i:ni
-            Fx_sum += (yv_if_Fx[]) * (τ * pv_if_Fx[])
-
-            return Fx_sum
-        end
-end
-
-register()
-register()
-@NLexpression(
-@NLexpression()
+register(m, :import_, dimension, import_, autodiff = true )
+register(m, :export_, dimension, export_, autodiff = true)
+@NLexpression(m, import_, import_())
+@NLexpression(m, export_, export_())
 
 
-
-
-# JuMP
-#@variable(model, initial guesses, start = 0.5)
-@variable(m, lv_ic_H[1:ni, 1:nc] >= 0, start = 0.5)
-@variable(m, lv_ci_Hx[1:ni, 1:nc], start = 0.5)
-@variable(m, lv_ci_F[1:ni], start = 0.5)
-@variable(m, lv_ci_Fx[1:ni], start = 0.5)
-@variable(m, w_F >= 0, start = 1)
-
-@NLexpression(m, )
 
 # Optimization problem
 # labor supply = labor demand
 @NLconstraint(m, [i = 1:ni], [j = 1:nc], lv_ic_H[i,j] == lv_ic_H_calc[i,j])
 @NLconstraint(m, [i = 1:ni], [j = 1:nc], lv_ic_Hx[i,j] == lv_ic_Hx_calc[i,j])
 @NLconstraint(m, [i = 1:ni], lv_if_F[i] == lv_if_F_calc[i])
-@NLconstraint(m, [i = 1:ni], lv_if_Fx[i] == lv_ic_Fx_calc[i])
+@NLconstraint(m, [i = 1:ni], lv_if_Fx[i] == lv_if_Fx_calc[i])
 # trade balance condition
-@NLconstraint(m, [i = 1:ni], )
+@NLconstraint(m, import_ == export_ ) # domestic = foreign
 
 
 # run optimization
@@ -196,34 +192,40 @@ optimize!(m)
 print(solution_summary(m))
 value()
 
+# some values are not in JuMP but needs to be printed
 
 
-# test index
-function L_ic_H_(lv_ic_H, lv_ic_Hx, x...)
-    L_ic = Matrix{Any}(undef, ni, nc)
+# save values
 
-    for i in 1:ni
-        for j in 1:nc
-            temp1 = μ_ub[i, j]
-            temp2 = μ_lb[i, j]
-            temp3 = lv_ic_H[i, j]
-            temp4 = lv_ic_Hx[i, j]
-            println("μ_ub is $temp1")
-            println("μ_lb is $temp2")
-            println("lv_ic_H is $temp3")
-            println("lv_ic_Hx is $temp4")
 
-            L_ic[i, j] = (μ_ub[i, j] - μ_lb[i,j]) * (lv_ic_H[i, j] + lv_ic_Hx[i, j])
 
-            temp5 = L_ic[i, j]
-            println("L_ic[i,j] is $temp5")
-        end
-    end
 
-    return L_ic
-end
-# test functions
-a = Array([0.4 0.4; 0.6 0.6]) # home employment
-b = Array([0.6 0.6; 0.4 0.4]) # export employment
-total = L_ic_H_(a, b)
-print(total)
+# # test index
+# function L_ic_H_(lv_ic_H, lv_ic_Hx, x...)
+#     L_ic = Matrix{Any}(undef, ni, nc)
+#
+#     for i in 1:ni
+#         for j in 1:nc
+#             temp1 = μ_ub[i, j]
+#             temp2 = μ_lb[i, j]
+#             temp3 = lv_ic_H[i, j]
+#             temp4 = lv_ic_Hx[i, j]
+#             println("μ_ub is $temp1")
+#             println("μ_lb is $temp2")
+#             println("lv_ic_H is $temp3")
+#             println("lv_ic_Hx is $temp4")
+#
+#             L_ic[i, j] = (μ_ub[i, j] - μ_lb[i,j]) * (lv_ic_H[i, j] + lv_ic_Hx[i, j])
+#
+#             temp5 = L_ic[i, j]
+#             println("L_ic[i,j] is $temp5")
+#         end
+#     end
+#
+#     return L_ic
+# end
+# # test functions
+# a = Array([0.4 0.4; 0.6 0.6]) # home employment
+# b = Array([0.6 0.6; 0.4 0.4]) # export employment
+# total = L_ic_H_(a, b)
+# print(total)
