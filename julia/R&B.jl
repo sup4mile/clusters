@@ -14,6 +14,7 @@ load_previous = 0
 nc = 2 # number of counties
 ni = 2 # number of industries
 η = 0 # the spill-over effect
+τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
 σ = 2 # the elasiticity of substitution across industries
 L = 1 # total mass of labor at home country
@@ -26,12 +27,12 @@ E_H = (Markup_H + 1) * w_H # expenditure
 # the entries before the semi-colon is industry 1 for all counties
 μ_ub = Matrix{Float64}([0.5 1; 0.5 1])
 
-z_H = Matrix((ones(Int64, ni, nc))) # home productivity
-z_F= Matrix(ones(Int64, ni, 1)) # foreign productivity
+z_H = Matrix((ones(Float64, ni, nc))) # home productivity
+z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 
 #@variable(model, initial guesses, start = 0.5)
-@variable(m, lv_ic_H[1:ni, 1:nc] >= 0, start = 0.125)
+@variable(m, lv_ic_H[1:ni, 1:nc], start = 0.125)
 @variable(m, lv_ic_Hx[1:ni, 1:nc], start = 0.125)
 @variable(m, lv_if_F[1:ni], start = 0.5)
 @variable(m, lv_if_Fx[1:ni], start = 0.5)
@@ -47,14 +48,21 @@ z_F= Matrix(ones(Int64, ni, 1)) # foreign productivity
 # lv_if_F = Matrix{Any}(undef, ni, 1) # foreign production home consumption
 
 # for test, manually input guesses
-lv_ic_H = [0.125 0.125; 0.125 0.125]
-lv_ic_Hx = [0.125 0.125; 0.125 0.125]
-lv_if_F = [0.5 0.5]
-lv_if_Fx = [0.5 0.5]
+# lv_ic_H = [0.125 0.125; 0.125 0.125]
+# lv_ic_Hx = [0.125 0.125; 0.125 0.125]
+# lv_if_F = [0.5 0.5]
+# lv_if_Fx = [0.5 0.5]
 
 # foreign_wage iniital guess
 w_F = 0
 
+
+# Initialization
+# firm production matrix
+yv_ic_H = Matrix{Any}(undef, ni, nc)
+yv_ic_Hx = Matrix{Any}(undef, ni, nc)
+yv_if_F = Matrix{Any}(undef, ni, 1)
+yv_if_Fx = Matrix{Any}(undef, ni, 1)
 
 # NLExpressions
 # expenditure_foreign
@@ -76,7 +84,7 @@ w_F = 0
     pv_if_F[i]) # firm_price foreign production foreign consumption
 
 # industry_price_home matrix
-function p_i_H_(i, x...) # calculate industry price index at home
+function p_i_H_(i) # calculate industry price index at home
     i = trunc(Int, i)
     H_sum = 0 # domestic price aggregation
     F_sum = (τ * pv_if_F[i])^(1-ρ) # foreign price aggregation
@@ -86,10 +94,10 @@ function p_i_H_(i, x...) # calculate industry price index at home
     sum = (H_sum + F_sum)^(1/(1-ρ))
     return sum
 end
-register(m, :p_i_H_, dimension, p_i_H_, autodiff = true)
-@NLexpression(m, p_i_H[i in 1:ni], p_i_H_(i))
+register(m, :p_i_H_, 1, p_i_H_, autodiff = true)
+@NLexpression(m, p_i_H[i = 1:ni], p_i_H_(i))
 
-function p_i_F_(i, x...) # calculate industry price index at foreign
+function p_i_F_(i) # calculate industry price index at foreign
     i = trunc(Int, i)
     Hx_sum = 0
     Fx_sum = (pv_if_Fx[i])^(1-ρ)
@@ -99,68 +107,92 @@ function p_i_F_(i, x...) # calculate industry price index at foreign
     sum = (Hx_sum + Fx_sum)^(1/(1-ρ))
     return sum
 end
-register(m, :p_i_F_, dimension, p_i_F_, autodiff = true)
-@NLexpression(m, p_i_F[i in 1:ni], p_i_F_(i))
+register(m, :p_i_F_, 1, p_i_F_, autodiff = true)
+@NLexpression(m, p_i_F[i = 1:ni], p_i_F_(i))
 
 # aggregate price index
-function p_H_(x...) # calculate final good price index at home
+function p_H_() # calculate final good price index at home
     sum = 0
     for i in 1:ni
         sum += (p_i_H[i])^(1-σ)
     end
     return sum^(1/(1-σ))
 end
-register(m, :p_H_, dimension, p_H_, autodiff = true)
+register(m, :p_H_, 0, p_H_, autodiff = true)
 @NLexpression(m, p_H, p_H_())
 
-function p_F_(x...) # calculate final good price index at foreign
+function p_F_() # calculate final good price index at foreign
     sum = 0
     for i in 1:ni
         sum += (p_i_F[i])^(1-σ)
     end
     return sum^(1/(1-σ))
 end
-register(m, :p_F_, dimension, p_F_, autodiff = true)
+register(m, :p_F_, 0, p_F_, autodiff = true)
 @NLexpression(m, p_F, p_F_())
 
 # firm_output_home Matrix
-@NLexpression(m, yv_ic_H[i in 1:ni, j in 1:nc],
-    [pv_ic_H[i,j]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H)
-    # firm_home production for home consumption
-@NLexpression(m, yv_ic_Hx[i in 1:ni, j in 1:nc],
-    [pv_ic_Hx[i,j]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
-    # firm_home production for foreign consumption
-@NLexpression(m, pv_if_F[i in 1:ni],
-    [pv_if_F[i]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H)
-    # firm_foreign production for home consumption
-@NLexpression(m, yv_if_Fx[i in 1:ni],
-    [pv_if_Fx[i]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
-    # firm_foreign production for foreign consumption
+function yv_ic_H_(i, j)
+    return [pv_ic_H[i,j]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H
+end
+register(m, :yv_ic_H_, 2, yv_ic_H_, autodiff = true)
+@NLexpression(m, yv_ic_H[i = 1:ni, j = 1:nc], yv_ic_H_(i, j))
+
+function yv_ic_Hx_(i ,j)
+    return [pv_ic_Hx[i,j]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F
+end
+register(m, :yv_ic_Hx_, 2, yv_ic_Hx_, autodiff = true)
+@NLexpression(m, yv_ic_Hx[i = 1:ni, j = 1:nc], yv_ic_Hx_(i, j))
+
+function yv_ic_F_(i)
+    return [pv_if_F[i]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H
+end
+register(m, :yv_ic_F_, 1, yv_ic_F_, autodiff = true)
+@NLexpression(m, yv_ic_F[i = 1:ni], yv_ic_F_(i))
+
+function yv_ic_Fx_(i)
+    return [pv_if_Fx[i]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F
+end
+register(m, :yv_ic_Fx_, 1, yv_ic_Fx_, autodiff = true)
+@NLexpression(m, yv_ic_Fx[i = 1:ni], yv_ic_Fx_(i))
+
+# @NLexpressions(m, yv_ic_H[i = 1:ni, j = 1:nc],
+#     [pv_ic_H[i,j]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H)
+#     # firm_home production for home consumption
+# @NLexpression(m, yv_ic_Hx[i = 1:ni, j = 1:nc],
+#     [pv_ic_Hx[i,j]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
+#     # firm_home production for foreign consumption
+# @NLexpression(m, pv_if_F[i = 1:ni],
+#     [pv_if_F[i]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H)
+#     # firm_foreign production for home consumption
+# @NLexpression(m, yv_if_Fx[i = 1:ni],
+#     [pv_if_Fx[i]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F)
+#     # firm_foreign production for foreign consumption
 
 # labor inverse demand
-@NLexpression(m, lv_ic_H_calc[i in 1:ni, j in 1:nc],
+@NLexpression(m, lv_ic_H_calc[i = 1:ni, j = 1:nc],
     yv_ic_H[i,j] / (z_H[i] * (L_ic_H[i,j]) ^ η))
-@NLexpression(m, lv_ic_Hx_calc[i in 1:ni, j in 1:nc],
-    yv_ic_Hx[i,j] / (z_H[i] * (L_ic_Hx[i,j]) ^ η))
-@NLexpression(m, lv_if_F_calc[i in 1:ni],
-    τ * yv_ic_F[i,j] / z_F[i])
-@NLexpression(m, lv_if_Fx_calc[i in 1:ni],
+@NLexpression(m, lv_ic_Hx_calc[i = 1:ni, j = 1:nc],
+    yv_ic_Hx[i,j] / (z_H[i] * (L_ic_H[i,j]) ^ η))
+@NLexpression(m, lv_if_F_calc[i = 1:ni],
+    τ * yv_ic_F[i] / z_F[i])
+@NLexpression(m, lv_if_Fx_calc[i = 1:ni],
     τ * yv_ic_Fx[i] / z_F[i])
 
 # balanced Trade
-function export_(pv_ic_Hx, yv_ic_Hx, x...)
+function export_()
     Hx_sum = 0
     Hx_i_sum = 0
     for i in 1:ni
         for j in 1:nc
-            Hx_i_sum += (μ_ub[i, j] - μ_lb[i, j]) * (τ * pv_ic_Hx[i, j]) * (yv_ic_Hx[i, j])
+            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * (τ * pv_ic_Hx[i,j]) * (yv_ic_Hx[i,j])
         end
-            Hx_sum += Hx_i_sum
-        end
+        Hx_sum += Hx_i_sum
+    end
     return Hx_sum
 end
 
-function import_(pv_if_F, yv_if_F, x...)
+function import_()
     F_sum = 0
     for i in i:ni
         F_sum +=  (τ * pv_if_F[i]) * (yv_if_F[i])
@@ -168,21 +200,23 @@ function import_(pv_if_F, yv_if_F, x...)
     return Fx_sum
 end
 
-register(m, :import_, dimension, import_, autodiff = true )
-register(m, :export_, dimension, export_, autodiff = true)
-@NLexpression(m, import_, import_())
-@NLexpression(m, export_, export_())
+register(m, :import_, 0, import_, autodiff = true )
+register(m, :export_, 0, export_, autodiff = true)
+@NLexpression(m, total_import, import_())
+@NLexpression(m, total_export, export_())
 
 
 
 # Optimization problem
 # labor supply = labor demand
-@NLconstraint(m, [i = 1:ni], [j = 1:nc], lv_ic_H[i,j] == lv_ic_H_calc[i,j])
-@NLconstraint(m, [i = 1:ni], [j = 1:nc], lv_ic_Hx[i,j] == lv_ic_Hx_calc[i,j])
-@NLconstraint(m, [i = 1:ni], lv_if_F[i] == lv_if_F_calc[i])
-@NLconstraint(m, [i = 1:ni], lv_if_Fx[i] == lv_if_Fx_calc[i])
+@NLconstraints(m, begin
+    [i = 1:ni, j = 1:nc], lv_ic_H[i,j] == lv_ic_H_calc[i,j]
+    [i = 1:ni, j = 1:nc], lv_ic_Hx[i,j] == lv_ic_Hx_calc[i,j]
+    [i = 1:ni], lv_if_F[i] == lv_if_F_calc[i]
+    [i = 1:ni], lv_if_Fx[i] == lv_if_Fx_calc[i]
+end)
 # trade balance condition
-@NLconstraint(m, import_ == export_ ) # domestic = foreign
+@NLconstraint(m, total_import == total_export) # domestic = foreign
 
 
 # run optimization
