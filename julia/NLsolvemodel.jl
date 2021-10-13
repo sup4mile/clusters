@@ -21,51 +21,41 @@ E_H = (Markup_H + 1) * w_H # expenditure
 z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
-# labor initial guess
-l_initial = [ [0.125 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [0.5 for i = 1:ni]]
+# Initial guess: labor & foreign wage
+lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
+lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
+lv_if_F = [0.5 for i = 1:ni]
+lv_if_Fx = [0.5 for i = 1:ni]
+w_F = 0.6
+
+# concat into one single matrix as NLsolve input
+w_F_v = [w_F for i = 1:ni]
+l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
 
 
 function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
 end
 
-# L_ic_H(1,1,l_initial)
-
-
-# foreign wage
-# E_F = E_H * w_F
 function E_F(i,l)
     return E_H * l[i,2nc+3]
 end
-
-E_F(1,l_initial)
-
 
 function pv_ic_H(i,j,l)
     return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
-pv_ic_H(1,1,l_initial)
-
 function pv_ic_Hx(i,j,l)
     return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
-
-pv_ic_Hx(1,1,l_initial)
 
 function pv_if_F(i,l)
     return E_F(i,l) / z_F[i]
 end
 
-# pv_if_F = (ρ/(ρ-1))*w_F / z_F
-pv_if_F(1,l_initial)
-
 function pv_if_Fx(i,l)
     return  E_F(i,l) / z_F[i]
 end
-
-pv_if_Fx(1,l_initial)
-
 
 # industry_price_home matrix
 function p_i_H(i,l) # calculate industry price index at home
@@ -79,8 +69,6 @@ function p_i_H(i,l) # calculate industry price index at home
     return sum
 end
 
-p_i_H(1,l_initial)
-
 function p_i_F(i,l) # calculate industry price index at foreign
     i = trunc(Int, i)
     Hx_sum = 0
@@ -92,9 +80,7 @@ function p_i_F(i,l) # calculate industry price index at foreign
     return sum
 end
 
-p_i_F(1,l_initial)
-
-function p_H(i,l) # calculate final good price index at home
+function p_H(l) # calculate final good price index at home
     sum = 0
     for i in 1:ni
         sum += (p_i_H(i,l))^(1-σ)
@@ -102,9 +88,7 @@ function p_H(i,l) # calculate final good price index at home
     return sum^(1/(1-σ))
 end
 
-p_H(1,l_initial)
-
-function p_F(i,l) # calculate final good price index at foreign
+function p_F(l) # calculate final good price index at foreign
     sum = 0
     for i in 1:ni
         sum += (p_i_F(i,l))^(1-σ)
@@ -112,44 +96,27 @@ function p_F(i,l) # calculate final good price index at foreign
     return sum^(1/(1-σ))
 end
 
-p_F(1,l_initial)
-
-
 function yv_ic_H(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return pv_ic_H(i,j,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * (p_H(i,l)^(σ-1)) * E_H
+    return pv_ic_H(i,j,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * (p_H(l)^(σ-1)) * E_H
 end
-
-yv_ic_H(1,1,l_initial)
 
 function yv_ic_Hx(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(i,l)^(σ-1)) * E_F(i,l)
+    return pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l)
 end
-
-yv_ic_Hx(1,2,l_initial)
-
-yv_ic_H(2,2,l_initial)
-
 
 function yv_if_F(i,l)
         i = trunc(Int, i)
-    return pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(i,l)^(σ-1) * E_H
+    return pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H
 end
-
-yv_if_F(2,l_initial)
 
 function yv_if_Fx(i,l)
         i = trunc(Int, i)
-    return pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(i,l)^(σ-1) * E_F(i,l)
+    return pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(l)^(σ-1) * E_F(i,l)
 end
-
-yv_if_Fx(1,l_initial)
-
-
-
 
 # balanced Trade
 function ex(l)
@@ -164,8 +131,6 @@ function ex(l)
     return Hx_sum
 end
 
-ex(l_initial)
-
 function imp(l)
     F_sum = 0
     for i in 1:ni
@@ -174,29 +139,31 @@ function imp(l)
     return F_sum
 end
 
-imp(l_initial)
-
-
 function f!(F,l)
     for i in 1:ni
+        # fixed point for lv_ic_H
         for j in 1:nc
             F[i,j] = yv_ic_H(i,j,l) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
-
+        # fixed point for lv_ic_Hx
         for j in nc+1:2nc
-            F[i,j] = yv_ic_Hx(i,j,l)/ (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = yv_ic_Hx(i,j-nc,l)/ (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
-        # j = 2nc+1
-        F[i, 2nc+1] = τ * yv_ic_F(i,l) / z_F[i] - l[i,2nc+1]
+        # fixed point for lv_if_F
+        # lv_if_F starts at col = 2nc+1
+        F[i, 2nc+1] = τ * yv_if_F(i,l) / z_F[i] - l[i,2nc+1]
 
-        # j = 2nc+2
-        F[i, 2nc+2] = τ * yv_ic_Fx(i,l) / z_F[i] - l[i,2nc+2]
+        # fixed point for lv_if_Fx
+        # lv_if_Fx starts at col = 2nc+2
+        F[i, 2nc+2] = τ * yv_if_Fx(i,l) / z_F[i] - l[i,2nc+2]
 
+        # fixed point for foreign wage
         # j = 2nc+3
-        F[i,2nc+3] = ex(l) - im(l)
+        F[i,2nc+3] = ex(l) - imp(l)
     end
 end
 
-nlsolve(f!, l_initial, autodiff =:forward)
+result = nlsolve(f!, l_initial, autodiff =:forward)
+result.zero

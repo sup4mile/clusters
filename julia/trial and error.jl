@@ -1,6 +1,6 @@
 # tests
 using JuMP, Ipopt, NLsolve
-m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>1000))
+# m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>1000))
 
 ni = 2
 nc = 2
@@ -39,8 +39,6 @@ function f!(F, initial_guess)
 end
 nlsolve(f!, initial_guess, autodiff = :forward)
 
-
-
 """
 Tests for NLsolve 2-d without reshape
 """
@@ -57,6 +55,44 @@ function g!(F, initial_guess)
 #    initial_guess = reshape(x, ni*nc, 1)
 end
 nlsolve(g!, initial_guess, autodiff = :forward)
+
+"""
+Test for NLsolve with an array of different object as input
+Results: Fails
+Error: MethodError: no constructors have been defined for Any
+Reflection: different types of objects in initial guess lead to nondifferentiable function
+    have to use 3-d array, but just use part of the array.
+"""
+x1 = Matrix{Float64}(undef, ni, nc)
+x2 = Matrix{Float64}(undef, ni, 1)
+x3 = 0.0
+
+initial_guess = [[-0.1 -0.1; -0.1 -0.1], [-0.1; -0.1], -0.1]
+
+function f!(F, initial_guess)
+#    x = reshape(initial_guess, ni, nc)
+    x1 = initial_guess[1]
+    x2 = initial_guess[2]
+    x3 = initial_guess[3]
+
+# the first nc*ni constraints are for x1
+    for i in 1:ni
+        for j in 1:nc
+            F[i+j] = x1[i, j]^2 + 1/x1[i, j] + 1
+        end
+    end
+
+# the constraints [ni*nc+1, ni*nc+ni] are for x2
+    for i in 1:initial_guess
+        F[ni*nc + i] = x2[i]^2 + 1/x2[i] + 1
+    end
+
+# the last constraint is for x3
+    F[ni*nc + ni + 1] = x2[i]^2 + 1/x2[i] + 1
+
+    initial_guess = [x1, x2, x3]
+end
+nlsolve(f!, initial_guess, autodiff = :forward)
 
 
 
