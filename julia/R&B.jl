@@ -23,9 +23,9 @@ w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
 E_H = (Markup_H + 1) * w_H # expenditure
 
-μ_lb = Matrix{Float64}([0 0.5; 0 0.5])
+μ_lb = Matrix{Real}([0 0.5; 0 0.5])
 # the entries before the semi-colon is industry 1 for all counties
-μ_ub = Matrix{Float64}([0.5 1; 0.5 1])
+μ_ub = Matrix{Real}([0.5 1; 0.5 1])
 
 z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
@@ -269,3 +269,7 @@ value()
 # b = Array([0.6 0.6; 0.4 0.4]) # export employment
 # total = L_ic_H_(a, b)
 # print(total)
+
+typeof(μ_lb)
+typeof(pv_ic_Hx)
+typeof(yv_ic_Hx)
