@@ -2,18 +2,27 @@
 using NLsolve
 
 
-function aux(i,j,x)
-    return x[i,j]^2
-
+function aux(k,i,j,x)
+    if k == 1
+        return x[k][i,j]^2
+    else
+        return x[k]^2
+    end
 end
 
-function f!(F,x)
+# aux(1,1,1,initial_x)
+
+function f2!(F,x)
     for i in 1:2
         for j in 1:2
-        F[i,j] =aux2(i,j,x)+ 1/x[i,j] + 1
+                F[1][i,j] = aux(k,i,j,x)+ 1/x[1][i,j] + 1 - x[1][i,j]
+                F[2] = aux(k,i,j,x)+ 1/x[2]+ 1 - x[2]
+            end
         end
     end
 end
 
-initial_x = [-1.0 -1.0; -1.0 -1.0]
-res = nlsolve(f3!, initial_x, autodiff =:forward)
+initial_x = Array([[-1.0 for i = 1:2, j = 1:2],1.0])
+initial_x[2]
+
+nlsolve(f2!, initial_x; autodiff =:forward)

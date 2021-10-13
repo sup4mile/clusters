@@ -105,3 +105,7 @@ res = nlsolve(f_5!, initial_x, autodiff =:forward)
 
 res.zero
 z(res.zero)
+
+
+
+function reshp(matrix)

@@ -22,7 +22,18 @@ z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 # labor initial guess
-l_initial = [ [0.125 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [0.5 for i = 1:ni]]
+l_initial = [ [0.25 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [[0.5]; [ 0 for i = 2:ni]] ]
+
+# # Initial guess: labor & foreign wage
+# lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
+# lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
+# lv_if_F = [0.5 for i = 1:ni]
+# lv_if_Fx = [0.5 for i = 1:ni]
+# w_F = 0.5
+#
+# # concat into one single matrix as NLsolve input
+# w_F_v = [[w_F]; [missing for i = 2:ni]]
+# l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
 
 
 function L_ic_H(i,j,l)
@@ -185,18 +196,20 @@ function f!(F,l)
 
 
         for j in nc+1:2nc
-            F[i,j] = yv_ic_Hx(i,j,l)/ (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = yv_ic_Hx(i,j-nc,l)/ (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
         # j = 2nc+1
-        F[i, 2nc+1] = τ * yv_ic_F(i,l) / z_F[i] - l[i,2nc+1]
+        F[i, 2nc+1] = τ * yv_if_F(i,l) / z_F[i] - l[i,2nc+1]
 
         # j = 2nc+2
-        F[i, 2nc+2] = τ * yv_ic_Fx(i,l) / z_F[i] - l[i,2nc+2]
+        F[i, 2nc+2] = τ * yv_if_Fx(i,l) / z_F[i] - l[i,2nc+2]
 
-        # j = 2nc+3
-        F[i,2nc+3] = ex(l) - im(l)
+
     end
+    # j = 2nc+3
+    F[1,2nc+3] = ex(l) - imp(l)
 end
 
-nlsolve(f!, l_initial, autodiff =:forward)
+result = nlsolve(f!, l_initial, autodiff =:forward)
+result.zero
