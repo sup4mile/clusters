@@ -23,7 +23,6 @@ z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 # labor initial guess
 l_initial = [ [0.125 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [0.5 for i = 1:ni]]
-w_F = 0
 
 
 function L_ic_H(i,j,l)
@@ -58,6 +57,7 @@ function pv_if_F(i,l)
     return E_F(i,l) / z_F[i]
 end
 
+# pv_if_F = (ρ/(ρ-1))*w_F / z_F
 pv_if_F(1,l_initial)
 
 function pv_if_Fx(i,l)
@@ -68,116 +68,134 @@ pv_if_Fx(1,l_initial)
 
 
 # industry_price_home matrix
-function p_i_H(i) # calculate industry price index at home
-    i = trunc(Int, i)
+function p_i_H(i,l) # calculate industry price index at home
+    i = trunc(Int,i)
     H_sum = 0 # domestic price aggregation
-    F_sum = (τ * pv_if_F[i])^(1-ρ) # foreign price aggregation
+    F_sum = τ * pv_if_F(i,l)^(1-ρ) # foreign price aggregation
     for j in 1:nc
-        H_sum += ((μ_ub[i,j] - μ_lb[i,j])*(pv_ic_H(i,j))^(1-ρ))
+        H_sum += (μ_ub[i,j]-μ_lb[i,j]) * pv_ic_H(i,j,l)^(1-ρ)
     end
     sum = (H_sum + F_sum)^(1/(1-ρ))
     return sum
 end
 
+p_i_H(1,l_initial)
 
-function p_i_F(i) # calculate industry price index at foreign
+function p_i_F(i,l) # calculate industry price index at foreign
     i = trunc(Int, i)
     Hx_sum = 0
-    Fx_sum = (pv_if_Fx(i))^(1-ρ)
+    Fx_sum = (pv_if_Fx(i,l))^(1-ρ)
     for j in 1:nc
-        Hx_sum += ((μ_ub[i,j] - μ_lb[i,j])*(τ * pv_ic_Hx(i,j))^(1-ρ))
+        Hx_sum += ((μ_ub[i,j] - μ_lb[i,j])*(τ * pv_ic_Hx(i,j,l))^(1-ρ))
     end
     sum = (Hx_sum + Fx_sum)^(1/(1-ρ))
     return sum
 end
 
-function p_H() # calculate final good price index at home
+p_i_F(1,l_initial)
+
+function p_H(i,l) # calculate final good price index at home
     sum = 0
     for i in 1:ni
-        sum += (p_i_H(i))^(1-σ)
+        sum += (p_i_H(i,l))^(1-σ)
     end
     return sum^(1/(1-σ))
 end
 
-function p_F() # calculate final good price index at foreign
+p_H(1,l_initial)
+
+function p_F(i,l) # calculate final good price index at foreign
     sum = 0
     for i in 1:ni
-        sum += (p_i_F(i))^(1-σ)
+        sum += (p_i_F(i,l))^(1-σ)
     end
     return sum^(1/(1-σ))
 end
 
-function yv_ic_H(i::Any, j::Any)
+p_F(1,l_initial)
+
+
+function yv_ic_H(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return [pv_ic_H(i,j)^(-ρ)] * [p_i_H(i)^(ρ-σ)] * [(p_H()^(σ-1))] * E_H
+    return pv_ic_H(i,j,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * (p_H(i,l)^(σ-1)) * E_H
 end
 
-function yv_ic_Hx(i::Any, j::Any)
+yv_ic_H(1,1,l_initial)
+
+function yv_ic_Hx(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return [pv_ic_Hx(i,j)^(-ρ)] * [p_i_F(i)^(ρ-σ)] * [(p_F()^(σ-1))] * E_F
+    return pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(i,l)^(σ-1)) * E_F(i,l)
 end
 
-function yv_ic_F(i::Any)
+yv_ic_Hx(1,2,l_initial)
+
+yv_ic_H(2,2,l_initial)
+
+
+function yv_if_F(i,l)
         i = trunc(Int, i)
-    return [pv_if_F(i)^(-ρ)] * [p_i_H(i)(ρ-σ)] * [(p_H()^(σ-1))] * E_H
+    return pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(i,l)^(σ-1) * E_H
 end
 
-function yv_ic_Fx(i::Any)
+yv_if_F(2,l_initial)
+
+function yv_if_Fx(i,l)
         i = trunc(Int, i)
-    return [pv_if_Fx(i)^(-ρ)] * [p_i_F(i)^(ρ-σ)] * [(p_F()^(σ-1))] * E_F
+    return pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(i,l)^(σ-1) * E_F(i,l)
 end
+
+yv_if_Fx(1,l_initial)
+
 
 
 
 # balanced Trade
-function ex()
+function ex(l)
     Hx_sum = 0
     Hx_i_sum = 0
     for i in 1:ni
         for j in 1:nc
-            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * (τ * pv_ic_Hx(i,j)) * (yv_ic_Hx(i,j))
+            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * (τ * pv_ic_Hx(i,j,l)) * (yv_ic_Hx(i,j,l))
         end
         Hx_sum += Hx_i_sum
     end
     return Hx_sum
 end
 
-function im()
+ex(l_initial)
+
+function imp(l)
     F_sum = 0
-    for i in i:ni
-        F_sum +=  (τ * pv_if_F(i)) * (yv_if_F(i))
+    for i in 1:ni
+        F_sum +=  (τ * pv_if_F(i,l)) * (yv_if_F(i,l))
     end
-    return Fx_sum
+    return F_sum
 end
+
+imp(l_initial)
 
 
 function f!(F,l)
     for i in 1:ni
         for j in 1:nc
-            F[i,j] = yv_ic_H(i,j) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = yv_ic_H(i,j,l) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
 
         for j in nc+1:2nc
-            F[i,j] = yv_ic_Hx(i,j)/ (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[ij]
+            F[i,j] = yv_ic_Hx(i,j,l)/ (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
         # j = 2nc+1
-        F[i, 2nc+1] = τ * yv_ic_F(i) / z_F[i] - l[i,2nc+1]
+        F[i, 2nc+1] = τ * yv_ic_F(i,l) / z_F[i] - l[i,2nc+1]
 
         # j = 2nc+2
-        F[i, 2nc+2] = τ * yv_ic_Fx(i) / z_F[i] - l[i,2nc+2]
+        F[i, 2nc+2] = τ * yv_ic_Fx(i,l) / z_F[i] - l[i,2nc+2]
 
         # j = 2nc+3
-        F[i,2nc+3] = ex() - im()
-    end
-
-
-    # place holder
-    for i in 2:ni
-        F[i,2nc+3] = 0
+        F[i,2nc+3] = ex(l) - im(l)
     end
 end
 
