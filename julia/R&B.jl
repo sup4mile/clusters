@@ -23,20 +23,22 @@ w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
 E_H = (Markup_H + 1) * w_H # expenditure
 
-μ_lb = Matrix{Float64}([0 0.5; 0 0.5])
+μ_lb = Matrix{Real}([0 0.5; 0 0.5])
 # the entries before the semi-colon is industry 1 for all counties
-μ_ub = Matrix{Float64}([0.5 1; 0.5 1])
+μ_ub = Matrix{Real}([0.5 1; 0.5 1])
 
-z_H = Matrix((ones(Float64, ni, nc))) # home productivity
-z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
+z_H = Matrix((ones(Int64, ni, nc))) # home productivity
+z_F= Matrix(ones(Int64, ni, 1)) # foreign productivity
 
 
 #@variable(model, initial guesses, start = 0.5)
-@variable(m, lv_ic_H[1:ni, 1:nc], start = 0.125)
-@variable(m, lv_ic_Hx[1:ni, 1:nc], start = 0.125)
-@variable(m, lv_if_F[1:ni], start = 0.5)
-@variable(m, lv_if_Fx[1:ni], start = 0.5)
+@variable(m, lv_ic_H[1:ni, 1:nc] >= 0, start = 0.125)
+@variable(m, lv_ic_Hx[1:ni, 1:nc] >= 0, start = 0.125)
+@variable(m, lv_if_F[1:ni] >= 0, start = 0.5)
+@variable(m, lv_if_Fx[1:ni] >= 0, start = 0.5)
 @variable(m, w_F >= 0, start = 1)
+
+
 
 # Initial guesses
 # # firm_labor_home initial guess
@@ -54,15 +56,16 @@ z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 # lv_if_Fx = [0.5 0.5]
 
 # foreign_wage iniital guess
-w_F = 0
+# w_F = 0
 
 
 # Initialization
 # firm production matrix
-yv_ic_H = Matrix{Any}(undef, ni, nc)
-yv_ic_Hx = Matrix{Any}(undef, ni, nc)
-yv_if_F = Matrix{Any}(undef, ni, 1)
-yv_if_Fx = Matrix{Any}(undef, ni, 1)
+# yv_ic_H = Matrix{Any}(undef, ni, nc)
+# yv_ic_Hx = Matrix{Any}(undef, ni, nc)
+# yv_if_F = Matrix{Any}(undef, ni, 1)
+# yv_if_Fx = Matrix{Any}(undef, ni, 1)
+
 
 # NLExpressions
 # expenditure_foreign
@@ -132,17 +135,17 @@ register(m, :p_F_, 0, p_F_, autodiff = true)
 @NLexpression(m, p_F, p_F_())
 
 # firm_output_home Matrix
-function yv_ic_H_(i, j)
+function yv_ic_H_(i,j)
     return [pv_ic_H[i,j]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H
 end
 register(m, :yv_ic_H_, 2, yv_ic_H_, autodiff = true)
-@NLexpression(m, yv_ic_H[i = 1:ni, j = 1:nc], yv_ic_H_(i, j))
+@NLexpression(m, yv_ic_H[i = 1:ni, j = 1:nc], yv_ic_H_(i,j))
 
-function yv_ic_Hx_(i ,j)
+function yv_ic_Hx_(i,j)
     return [pv_ic_Hx[i,j]^(-ρ)] * [p_i_F[i]^(ρ-σ)] * [(p_F^(σ-1))] * E_F
 end
 register(m, :yv_ic_Hx_, 2, yv_ic_Hx_, autodiff = true)
-@NLexpression(m, yv_ic_Hx[i = 1:ni, j = 1:nc], yv_ic_Hx_(i, j))
+@NLexpression(m, yv_ic_Hx[i = 1:ni, j = 1:nc], yv_ic_Hx_(i,j))
 
 function yv_ic_F_(i)
     return [pv_if_F[i]^(-ρ)] * [p_i_H[i]^(ρ-σ)] * [(p_H^(σ-1))] * E_H
@@ -200,7 +203,7 @@ function import_()
     return Fx_sum
 end
 
-register(m, :import_, 0, import_, autodiff = true )
+register(m, :import_, 0, import_, autodiff = true)
 register(m, :export_, 0, export_, autodiff = true)
 @NLexpression(m, total_import, import_())
 @NLexpression(m, total_export, export_())

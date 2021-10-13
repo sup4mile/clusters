@@ -1,8 +1,66 @@
 # tests
-using JuMP, Ipopt
+using JuMP, Ipopt, NLsolve
 m = Model(optimizer_with_attributes(Ipopt.Optimizer, "max_iter" =>1000))
 
 ni = 2
+nc = 2
+
+"""
+Tests for NLsolve 1-d
+"""
+function f!(F, x)
+    for i in 1:ni
+        F[i] = x[i]^2 + 1/x[i] + 1
+    end
+end
+
+results = nlsolve(f!, [-0.1; -0.1], autodiff = :forward)
+println("converged=$(NLsolve.converged(results)) at root=$(results.zero)
+in $(results.iterations) iterations and $(results.f_calls) function calls")
+results
+
+"""
+Tests for NLsolve 2-d with reshape
+"""
+test = [1 2; 3 4]
+test_v = reshape(test, 4, 1)
+test_m = reshape(test_v, 2, 2)
+
+initial_guess = [-0.1 -0.1; -0.1 -0.1]
+
+function f!(F, initial_guess)
+    x = reshape(initial_guess, ni, nc)
+    for i in 1:ni
+        for j in 1:nc
+            F[i, j] = x[i, j]^2 + 1/x[i, j] + 1
+        end
+    end
+    initial_guess = reshape(x, ni*nc, 1)
+end
+nlsolve(f!, initial_guess, autodiff = :forward)
+
+
+
+"""
+Tests for NLsolve 2-d without reshape
+"""
+
+initial_guess = [-0.1 -0.1; -0.1 -0.1]
+
+function g!(F, initial_guess)
+#    x = reshape(initial_guess, ni, nc)
+    for i in 1:ni
+        for j in 1:nc
+            F[i, j] = initial_guess[i, j]^2 + 1/initial_guess[i, j] + 1
+        end
+    end
+#    initial_guess = reshape(x, ni*nc, 1)
+end
+nlsolve(g!, initial_guess, autodiff = :forward)
+
+
+
+# Tests for JuMP
 
 """
 Test
@@ -14,7 +72,7 @@ Reflection
     the numerical value of JuMP variable/expression is not evaluated in a function
 """
 
-@variable(m, x[i = 1:ni], start = 0)
+@variable(m, x[i = 1:ni], start = 0
 function calc_(i)
     i = trunc(Int64, i)
     return x[i]^2 + 1/x[i] + 1
