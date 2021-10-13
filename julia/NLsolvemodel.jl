@@ -7,7 +7,7 @@ ni = 2 # number of industries
 η = 0 # the spill-over effect
 τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
-σ = 2 # the elasiticity of substitution across industries
+σ = 1.9 # the elasiticity of substitution across industries
 L = 1 # total mass of labor at home country
 Lx = 1 # total mass of labor at foreign country
 w_H = 1 # wage at home normalized to 1
@@ -22,7 +22,7 @@ z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 # labor initial guess
-l_initial = [ [0.125 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [0.5 ; [0.0 for i = 2:ni]]]
+l_initial = [ [0.125 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [0.5 for i = 1:ni]]
 w_F = 0
 
 
@@ -30,21 +30,43 @@ function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
 end
 
-function pv_ic_H(i,j)
-    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j) ^ η)
+# L_ic_H(1,1,l_initial)
+
+
+# foreign wage
+# E_F = E_H * w_F
+function E_F(i,l)
+    return E_H * l[i,2nc+3]
 end
 
-function pv_ic_Hx(i,j)
-    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j) ^ η)
+E_F(1,l_initial)
+
+
+function pv_ic_H(i,j,l)
+    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
-function pv_if_F(i)
-    return E_F / z_F[i]
+pv_ic_H(1,1,l_initial)
+
+function pv_ic_Hx(i,j,l)
+    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
-function pv_if_Fx(i)
-    return  E_F / z_F[i]
+pv_ic_Hx(1,1,l_initial)
+
+function pv_if_F(i,l)
+    return E_F(i,l) / z_F[i]
 end
+
+pv_if_F(1,l_initial)
+
+function pv_if_Fx(i,l)
+    return  E_F(i,l) / z_F[i]
+end
+
+pv_if_Fx(1,l_initial)
+
+
 # industry_price_home matrix
 function p_i_H(i) # calculate industry price index at home
     i = trunc(Int, i)
@@ -134,22 +156,29 @@ end
 function f!(F,l)
     for i in 1:ni
         for j in 1:nc
-            F[i,j] = yv_ic_H(i,j) / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+            F[i,j] = yv_ic_H(i,j) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
 
         for j in nc+1:2nc
-            F[i,j] = yv_ic_Hx(i,j)/ (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+            F[i,j] = yv_ic_Hx(i,j)/ (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[ij]
         end
 
         # j = 2nc+1
-        F[i, 2nc+1] = τ * yv_ic_F(i) / z_F[i]
+        F[i, 2nc+1] = τ * yv_ic_F(i) / z_F[i] - l[i,2nc+1]
 
         # j = 2nc+2
-        f[i, 2nc+2] = τ * yv_ic_Fx(i) / z_F[i]
+        F[i, 2nc+2] = τ * yv_ic_Fx(i) / z_F[i] - l[i,2nc+2]
+
+        # j = 2nc+3
+        F[i,2nc+3] = ex() - im()
     end
 
-    F[1,2nc+3] = ex() - im()
+
+    # place holder
+    for i in 2:ni
+        F[i,2nc+3] = 0
+    end
 end
 
 nlsolve(f!, l_initial, autodiff =:forward)
