@@ -1,111 +1,169 @@
 using NLsolve
 
-# notes on nlsolve
-# a function name ending with a ! indicates that it will mutate or destroy the value of one or more of its arguments
 
-# https://docs.julialang.org/en/v1/manual/arrays/
-# concatenation
-    # [A; B; C; ...]	vcat	shorthand for `cat(A...; dims=1)
-    # [A B C ...]	hcat	shorthand for `cat(A...; dims=2)
-    # [A B; C D; ...]	hvcat	simultaneous vertical and horizontal concatenation
-# comprehension
-# A = [ F(x,y,...) for x=rx, y=ry, ... ]
+# parameters
+nc = 2 # number of counties
+ni = 2 # number of industries
+η = 0 # the spill-over effect
+τ = 1 # trade frictions
+ρ = 2 # the elasiticity of substitution within industry
+σ = 1.9 # the elasiticity of substitution across industries
+L = 1 # total mass of labor at home country
+Lx = 1 # total mass of labor at foreign country
+w_H = 1 # wage at home normalized to 1
+Markup_H = 1/(ρ-1) # markup of firm
+E_H = (Markup_H + 1) * w_H # expenditure
 
-# trial 1
-# simple nonlinear system of equationswith roots (0,1) and (1,2)
-# run successfully, initial guesses need to be in float, not integer
+μ_lb = Matrix{Real}([0 0.5; 0 0.5])
+# the entries before the semi-colon is industry 1 for all counties
+μ_ub = Matrix{Real}([0.5 1; 0.5 1])
 
-function f!(F,x)
-    F[1] = x[1]-x[2]+1
-    F[2] = x[1]^2 -x[2] +1
+z_H = Matrix((ones(Float64, ni, nc))) # home productivity
+z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
+
+# Initial guess: labor & foreign wage
+lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
+lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
+lv_if_F = [0.5 for i = 1:ni]
+lv_if_Fx = [0.5 for i = 1:ni]
+w_F = 0.6
+
+# concat into one single matrix as NLsolve input
+w_F_v = [w_F for i = 1:ni]
+l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+
+
+function L_ic_H(i,j,l)
+    return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
 end
 
-initial_x = [-1.0, 1.0]
-
-nlsolve(f!, initial_x, autodiff =:forward)
-
-# trial 2
-# add a parameter
-# result: if parameter with fixed values, define it outside of f!(), and call inside the f!()
-
-α = 2
-function f_2!(F,x)
-    F[1] = x[1]-x[2]+α
-    F[2] = x[1]^2 -x[2] +α
+function E_F(i,l)
+    return E_H * l[i,2nc+3]
 end
 
-
-initial_x = [-1.0, 1.0]
-
-nlsolve(f_2!, initial_x, autodiff =:forward)
-
-
-# trial 3
-# add another axuliary function and variable into the model
-# result: worked
-
-α = 2
-function f_3!(F,x)
-    z = x[1]-x[2]
-    F[1] = z + α
-    F[2] = x[1]^2 -x[2] +α
+function pv_ic_H(i,j,l)
+    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
-initial_x = [-1.0, 1.0]
-
-nlsolve(f_3!, initial_x, autodiff =:forward)
-
-# trial 4
-# write z as a funtion
-# result: write aux function outside, after optimization, call z with the zeros to get the value of the z() function
-α = 2
-function z(x)
-    return z = x[1] - x[2]
+function pv_ic_Hx(i,j,l)
+    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
-function f_4!(F,x)
-    F[1] = z(x) + α
-    F[2] = x[1]^2 -x[2] +α
-end
-initial_x = [-1.0, 1.0]
-res = nlsolve(f_4!, initial_x, autodiff =:forward)
-
-res.zero
-z(res.zero)
-
-# Trial 5
-# take matrix as an input
-# one way: define the function corresponding to each matrix input outside the objective function
-    # call the defined function fn() inside the objective function in the form F[1] = func()
-α = 2
-# aux function
-function z(x,i)
-    return z = x[1,i] - x[1,i]
+function pv_if_F(i,l)
+    return E_F(i,l) / z_F[i]
 end
 
-# objective function
-function f(x,i)
-    if i == 1
-        return z(x,i)+α
+function pv_if_Fx(i,l)
+    return  E_F(i,l) / z_F[i]
+end
+
+# industry_price_home matrix
+function p_i_H(i,l) # calculate industry price index at home
+    i = trunc(Int,i)
+    H_sum = 0 # domestic price aggregation
+    F_sum = τ * pv_if_F(i,l)^(1-ρ) # foreign price aggregation
+    for j in 1:nc
+        H_sum += (μ_ub[i,j]-μ_lb[i,j]) * pv_ic_H(i,j,l)^(1-ρ)
     end
-    if i == 2
-        return x[1,i]^2-x[1,i] +α
+    sum = (H_sum + F_sum)^(1/(1-ρ))
+    return sum
+end
+
+function p_i_F(i,l) # calculate industry price index at foreign
+    i = trunc(Int, i)
+    Hx_sum = 0
+    Fx_sum = (pv_if_Fx(i,l))^(1-ρ)
+    for j in 1:nc
+        Hx_sum += ((μ_ub[i,j] - μ_lb[i,j])*(τ * pv_ic_Hx(i,j,l))^(1-ρ))
+    end
+    sum = (Hx_sum + Fx_sum)^(1/(1-ρ))
+    return sum
+end
+
+function p_H(l) # calculate final good price index at home
+    sum = 0
+    for i in 1:ni
+        sum += (p_i_H(i,l))^(1-σ)
+    end
+    return sum^(1/(1-σ))
+end
+
+function p_F(l) # calculate final good price index at foreign
+    sum = 0
+    for i in 1:ni
+        sum += (p_i_F(i,l))^(1-σ)
+    end
+    return sum^(1/(1-σ))
+end
+
+function yv_ic_H(i,j,l)
+        i = trunc(Int, i)
+        j = trunc(Int, j)
+    return pv_ic_H(i,j,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * (p_H(l)^(σ-1)) * E_H
+end
+
+function yv_ic_Hx(i,j,l)
+        i = trunc(Int, i)
+        j = trunc(Int, j)
+    return pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l)
+end
+
+function yv_if_F(i,l)
+        i = trunc(Int, i)
+    return pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H
+end
+
+function yv_if_Fx(i,l)
+        i = trunc(Int, i)
+    return pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(l)^(σ-1) * E_F(i,l)
+end
+
+# balanced Trade
+function ex(l)
+    Hx_sum = 0
+    Hx_i_sum = 0
+    for i in 1:ni
+        for j in 1:nc
+            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * (τ * pv_ic_Hx(i,j,l)) * (yv_ic_Hx(i,j,l))
+        end
+        Hx_sum += Hx_i_sum
+    end
+    return Hx_sum
+end
+
+function imp(l)
+    F_sum = 0
+    for i in 1:ni
+        F_sum +=  (τ * pv_if_F(i,l)) * (yv_if_F(i,l))
+    end
+    return F_sum
+end
+
+function f!(F,l)
+    for i in 1:ni
+        # fixed point for lv_ic_H
+        for j in 1:nc
+            F[i,j] = yv_ic_H(i,j,l) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+        end
+
+        # fixed point for lv_ic_Hx
+        for j in nc+1:2nc
+            F[i,j] = yv_ic_Hx(i,j-nc,l)/ (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+        end
+
+        # fixed point for lv_if_F
+        # lv_if_F starts at col = 2nc+1
+        F[i, 2nc+1] = τ * yv_if_F(i,l) / z_F[i] - l[i,2nc+1]
+
+        # fixed point for lv_if_Fx
+        # lv_if_Fx starts at col = 2nc+2
+        F[i, 2nc+2] = τ * yv_if_Fx(i,l) / z_F[i] - l[i,2nc+2]
+
+        # fixed point for foreign wage
+        # j = 2nc+3
+        F[i,2nc+3] = ex(l) - imp(l)
     end
 end
 
-function f_5!(F,x)
-    #labor equation ni*nc F[1:ni*nc] = f(i=ni*nc, x(i))
-    for i in 1:2
-        F[i] = f(x,i)
-    end
-
-end
-initial_x = [-1.0 1.0]
-res = nlsolve(f_5!, initial_x, autodiff =:forward)
-
-res.zero
-z(res.zero)
-
-
-
-function reshp(matrix)
+result = nlsolve(f!, l_initial, autodiff =:forward)
+result.zero

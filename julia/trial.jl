@@ -26,3 +26,7 @@ initial_x = Array([[-1.0 for i = 1:2, j = 1:2],1.0])
 initial_x[2]
 
 nlsolve(f2!, initial_x; autodiff =:forward)
+
+
+
+l_initial = [ [0.125 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [0.5 for i = 1:ni]]

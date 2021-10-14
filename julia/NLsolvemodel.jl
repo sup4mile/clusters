@@ -1,13 +1,19 @@
 using NLsolve
 
+"""
+Yet to be done
+    1. comment
+    2. auxiliary function output print
+    3. JLD save results
+"""
 
 # parameters
 nc = 2 # number of counties
 ni = 2 # number of industries
 η = 0 # the spill-over effect
 τ = 1 # trade frictions
-ρ = 2 # the elasiticity of substitution within industry
-σ = 1.9 # the elasiticity of substitution across industries
+ρ = 2.5 # the elasiticity of substitution within industry
+σ = 1.7 # the elasiticity of substitution across industries
 L = 1 # total mass of labor at home country
 Lx = 1 # total mass of labor at foreign country
 w_H = 1 # wage at home normalized to 1
@@ -21,62 +27,36 @@ E_H = (Markup_H + 1) * w_H # expenditure
 z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
-# labor initial guess
-l_initial = [ [0.25 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [[0.5]; [ 0 for i = 2:ni]] ]
-
-# # Initial guess: labor & foreign wage
-# lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
-# lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
-# lv_if_F = [0.5 for i = 1:ni]
-# lv_if_Fx = [0.5 for i = 1:ni]
-# w_F = 0.5
-#
-# # concat into one single matrix as NLsolve input
-# w_F_v = [[w_F]; [missing for i = 2:ni]]
-# l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
-
+# Initial guess: labor & foreign wage
+lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
+lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
+lv_if_F = [0.25 for i = 1:ni]
+lv_if_Fx = [0.25 for i = 1:ni]
+w_F = 1.1
 
 function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
 end
 
-# L_ic_H(1,1,l_initial)
-
-
-# foreign wage
-# E_F = E_H * w_F
 function E_F(i,l)
     return E_H * l[i,2nc+3]
 end
-
-E_F(1,l_initial)
-
 
 function pv_ic_H(i,j,l)
     return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
-pv_ic_H(1,1,l_initial)
-
 function pv_ic_Hx(i,j,l)
     return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
-
-pv_ic_Hx(1,1,l_initial)
 
 function pv_if_F(i,l)
     return E_F(i,l) / z_F[i]
 end
 
-# pv_if_F = (ρ/(ρ-1))*w_F / z_F
-pv_if_F(1,l_initial)
-
 function pv_if_Fx(i,l)
     return  E_F(i,l) / z_F[i]
 end
-
-pv_if_Fx(1,l_initial)
-
 
 # industry_price_home matrix
 function p_i_H(i,l) # calculate industry price index at home
@@ -90,8 +70,6 @@ function p_i_H(i,l) # calculate industry price index at home
     return sum
 end
 
-p_i_H(1,l_initial)
-
 function p_i_F(i,l) # calculate industry price index at foreign
     i = trunc(Int, i)
     Hx_sum = 0
@@ -103,19 +81,17 @@ function p_i_F(i,l) # calculate industry price index at foreign
     return sum
 end
 
-p_i_F(1,l_initial)
-
-function p_H(i,l) # calculate final good price index at home
+function p_H(l) # calculate final good price index at home
     sum = 0
+
     for i in 1:ni
         sum += (p_i_H(i,l))^(1-σ)
     end
+
     return sum^(1/(1-σ))
 end
 
-p_H(1,l_initial)
-
-function p_F(i,l) # calculate final good price index at foreign
+function p_F(l) # calculate final good price index at foreign
     sum = 0
     for i in 1:ni
         sum += (p_i_F(i,l))^(1-σ)
@@ -123,44 +99,27 @@ function p_F(i,l) # calculate final good price index at foreign
     return sum^(1/(1-σ))
 end
 
-p_F(1,l_initial)
-
-
 function yv_ic_H(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return pv_ic_H(i,j,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * (p_H(i,l)^(σ-1)) * E_H
+    return pv_ic_H(i,j,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * (p_H(l)^(σ-1)) * E_H
 end
-
-yv_ic_H(1,1,l_initial)
 
 function yv_ic_Hx(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(i,l)^(σ-1)) * E_F(i,l)
+    return pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l)
 end
-
-yv_ic_Hx(1,2,l_initial)
-
-yv_ic_H(2,2,l_initial)
-
 
 function yv_if_F(i,l)
         i = trunc(Int, i)
-    return pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(i,l)^(σ-1) * E_H
+    return pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H
 end
-
-yv_if_F(2,l_initial)
 
 function yv_if_Fx(i,l)
         i = trunc(Int, i)
-    return pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(i,l)^(σ-1) * E_F(i,l)
+    return pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(l)^(σ-1) * E_F(i,l)
 end
-
-yv_if_Fx(1,l_initial)
-
-
-
 
 # balanced Trade
 function ex(l)
@@ -175,8 +134,6 @@ function ex(l)
     return Hx_sum
 end
 
-ex(l_initial)
-
 function imp(l)
     F_sum = 0
     for i in 1:ni
@@ -185,31 +142,116 @@ function imp(l)
     return F_sum
 end
 
-imp(l_initial)
-
-
 function f!(F,l)
     for i in 1:ni
+        # fixed point for lv_ic_H
         for j in 1:nc
             F[i,j] = yv_ic_H(i,j,l) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
-
+        # fixed point for lv_ic_Hx
         for j in nc+1:2nc
             F[i,j] = yv_ic_Hx(i,j-nc,l)/ (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
-        # j = 2nc+1
+        # fixed point for lv_if_F
+        # lv_if_F starts at col = 2nc+1
         F[i, 2nc+1] = τ * yv_if_F(i,l) / z_F[i] - l[i,2nc+1]
 
-        # j = 2nc+2
+        # fixed point for lv_if_Fx
+        # lv_if_Fx starts at col = 2nc+2
         F[i, 2nc+2] = τ * yv_if_Fx(i,l) / z_F[i] - l[i,2nc+2]
 
-
     end
+    # fixed point for foreign wage
     # j = 2nc+3
     F[1,2nc+3] = ex(l) - imp(l)
+    F[2,2nc+3] = l[1,2nc+3] - l[2, 2nc+3]
 end
 
-result = nlsolve(f!, l_initial, autodiff =:forward)
+
+# concat into one single matrix as NLsolve input
+w_F_v = [w_F for i = 1:ni]
+l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+
+result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000)
 result.zero
+
+# extract optimal labor from optimization result
+lv_ic_H_opt = result.zero[1:ni, 1:nc]
+lv_ic_Hx_opt = result.zero[1:ni, nc+1:2nc]
+lv_if_F_opt = result.zero[1:ni, 2nc+1]
+lv_if_Fx_opt = result.zero[1:ni, 2nc+2]
+w_F_opt = result.zero[1, 2nc+3]
+
+# initiatiation
+L_ic_H_opt = Matrix{Any}(undef, ni, nc)
+
+pv_ic_H_opt = Matrix{Any}(undef, ni, nc)
+pv_ic_Hx_opt = Matrix{Any}(undef, ni, nc)
+pv_if_F_opt = Matrix{Any}(undef, ni, 1)
+pv_if_Fx_opt = Matrix{Any}(undef, ni, 1)
+p_i_H_opt = Matrix{Any}(undef, ni, 1)
+p_i_F_opt = Matrix{Any}(undef, ni, 1)
+p_H_opt = 0.0
+p_F_opt = 0.0
+export_opt = 0
+import_opt = 0
+
+yv_ic_H_opt = Matrix{Any}(undef, ni, nc)
+yv_ic_Hx_opt = Matrix{Any}(undef, ni, nc)
+yv_if_F_opt = Matrix{Any}(undef, ni, 1)
+yv_if_Fx_opt = Matrix{Any}(undef, ni, 1)
+export_opt = ex(result.zero)
+import_opt = imp(result.zero)
+
+# calculate all auxiliary functions
+for i in 1:ni
+    for j in 1:nc
+        L_ic_H_opt[i,j] = L_ic_H(i,j, result.zero)
+        pv_ic_H_opt[i,j] = pv_ic_H(i,j, result.zero)
+        pv_ic_Hx_opt[i,j] = pv_ic_Hx(i,j, result.zero)
+        pv_if_F_opt[i] = pv_if_F(i,result.zero)
+        pv_if_Fx_opt[i] = pv_if_Fx(i,result.zero)
+        p_i_H_opt[i] = p_i_H(i,result.zero)
+        p_i_F_opt[i] = p_i_F(i,result.zero)
+        p_H_opt = p_H(result.zero)
+        p_F_opt = p_F(result.zero)
+
+        yv_ic_H_opt[i,j] = yv_ic_H(i,j,result.zero)
+        yv_ic_Hx_opt[i,j] = yv_ic_Hx(i,j,result.zero)
+        yv_if_F_opt[i] = yv_if_F(i,result.zero)
+        yv_if_Fx_opt[i] = yv_if_Fx(i,result.zero)
+    end
+end
+
+# print all relevant values
+println()
+println("level at optimum: ")
+println("Labor at Home for Home production is ")
+display(lv_ic_H_opt)
+println("Labor at Home for Foreign production is ")
+display(lv_ic_Hx_opt)
+println("Labor at Foreign for Home production is ", lv_if_F_opt)
+println("Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
+println("Foreign wage at optimal is $w_F_opt")
+println("Aggregate labor at Home is ")
+display(L_ic_H_opt)
+println("Price at Home for Home consumption is ")
+display(pv_ic_H_opt)
+println("Price at Home for Foreign consumption is ")
+display(pv_ic_Hx_opt)
+println("Price at Foreign for Home consumption is ", pv_if_F_opt)
+println("Price at Foreign for Foreign consumption is ", pv_if_Fx_opt)
+println("Price aggregation by industry at Home is ", p_i_H_opt)
+println("Price aggregation by industry at Foreign is ", p_i_F_opt)
+println("Price of final good at Home is $p_H_opt")
+println("Price of final good at Foreign is $p_F_opt")
+println("Production at Home for Home consumption is  is ")
+display(yv_ic_H_opt)
+println("Production at Home for Foreign consumption is ")
+display(yv_ic_Hx_opt)
+println("Production at Foreign for Home consumption is ", yv_if_F_opt)
+println("Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
+println("Total trade from Home to Foreign is $export_opt")
+println("Total trade from Foreign to Home is $import_opt")
