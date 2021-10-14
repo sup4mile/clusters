@@ -39,7 +39,7 @@ function L_ic_H(i,j,l)
 end
 
 function E_F(i,l)
-    return E_H * l[i,2nc+3]
+    return E_H * l[i,2nc+3] / w_H
 end
 
 function pv_ic_H(i,j,l)
@@ -167,6 +167,9 @@ function f!(F,l)
     # j = 2nc+3
     F[1,2nc+3] = ex(l) - imp(l)
     F[2,2nc+3] = l[1,2nc+3] - l[2, 2nc+3]
+
+    # labor sum to 1 constraint
+
 end
 
 
@@ -206,52 +209,52 @@ export_opt = ex(result.zero)
 import_opt = imp(result.zero)
 
 # calculate all auxiliary functions
+
 for i in 1:ni
     for j in 1:nc
         L_ic_H_opt[i,j] = L_ic_H(i,j, result.zero)
         pv_ic_H_opt[i,j] = pv_ic_H(i,j, result.zero)
         pv_ic_Hx_opt[i,j] = pv_ic_Hx(i,j, result.zero)
-        pv_if_F_opt[i] = pv_if_F(i,result.zero)
-        pv_if_Fx_opt[i] = pv_if_Fx(i,result.zero)
-        p_i_H_opt[i] = p_i_H(i,result.zero)
-        p_i_F_opt[i] = p_i_F(i,result.zero)
-        p_H_opt = p_H(result.zero)
-        p_F_opt = p_F(result.zero)
-
         yv_ic_H_opt[i,j] = yv_ic_H(i,j,result.zero)
         yv_ic_Hx_opt[i,j] = yv_ic_Hx(i,j,result.zero)
-        yv_if_F_opt[i] = yv_if_F(i,result.zero)
-        yv_if_Fx_opt[i] = yv_if_Fx(i,result.zero)
     end
+    pv_if_F_opt[i] = pv_if_F(i,result.zero)
+    pv_if_Fx_opt[i] = pv_if_Fx(i,result.zero)
+    p_i_H_opt[i] = p_i_H(i,result.zero)
+    p_i_F_opt[i] = p_i_F(i,result.zero)
+    yv_if_F_opt[i] = yv_if_F(i,result.zero)
+    yv_if_Fx_opt[i] = yv_if_Fx(i,result.zero)
 end
+p_H_opt = p_H(result.zero)
+p_F_opt = p_F(result.zero)
 
 # print all relevant values
 println()
 println("level at optimum: ")
-println("Labor at Home for Home production is ")
+println("lv_ic_H: Labor at Home for Home production is ")
 display(lv_ic_H_opt)
-println("Labor at Home for Foreign production is ")
+println("lv_ic_Hx: Labor at Home for Foreign production is ")
 display(lv_ic_Hx_opt)
-println("Labor at Foreign for Home production is ", lv_if_F_opt)
-println("Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
-println("Foreign wage at optimal is $w_F_opt")
-println("Aggregate labor at Home is ")
+println("lv_if_F: Labor at Foreign for Home production is ", lv_if_F_opt)
+println("lv_if_Fx: Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
+println("w_F: Foreign wage at optimal is $w_F_opt")
+println("L_ic_H: Aggregate labor at Home is ")
 display(L_ic_H_opt)
-println("Price at Home for Home consumption is ")
+println("pv_ic_H: Price at Home for Home consumption is ")
 display(pv_ic_H_opt)
-println("Price at Home for Foreign consumption is ")
+println("pv_ic_Hx: Price at Home for Foreign consumption is ")
 display(pv_ic_Hx_opt)
-println("Price at Foreign for Home consumption is ", pv_if_F_opt)
-println("Price at Foreign for Foreign consumption is ", pv_if_Fx_opt)
-println("Price aggregation by industry at Home is ", p_i_H_opt)
-println("Price aggregation by industry at Foreign is ", p_i_F_opt)
-println("Price of final good at Home is $p_H_opt")
-println("Price of final good at Foreign is $p_F_opt")
-println("Production at Home for Home consumption is  is ")
+println("pv_if_F: Price at Foreign for Home consumption is ", pv_if_F_opt)
+println("pv_if_Fx: Price at Foreign for Foreign consumption is ", pv_if_Fx_opt)
+println("p_i_H: Price aggregation by industry at Home is ", p_i_H_opt)
+println("p_i_F: Price aggregation by industry at Foreign is ", p_i_F_opt)
+println("p_H: Price of final good at Home is $p_H_opt")
+println("p_F: Price of final good at Foreign is $p_F_opt")
+println("yv_ic_H: Production at Home for Home consumption is  is ")
 display(yv_ic_H_opt)
-println("Production at Home for Foreign consumption is ")
+println("yv_ic_Hx: Production at Home for Foreign consumption is ")
 display(yv_ic_Hx_opt)
-println("Production at Foreign for Home consumption is ", yv_if_F_opt)
-println("Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
+println("yv_if_F: Production at Foreign for Home consumption is ", yv_if_F_opt)
+println("yv_if_Fx: Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
 println("Total trade from Home to Foreign is $export_opt")
 println("Total trade from Foreign to Home is $import_opt")
