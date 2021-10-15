@@ -285,7 +285,7 @@ p_{i,c,t}^H(j)=\frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j) \mathcal{L}_{i,c,t}^
 The corresponding output is: 
 \begin{align}
 y_{i,c,t}^H(j) & =\left( \frac{p_{i,c,t}^H(j)}{p_{i,t}}\right) ^{-\rho} \left( \frac{p_{i,t}}{P_t} \right)^{-\sigma} \frac{X_{t}}{P_{t}} \nonumber \\
-& =\left( \frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j)}\right) ^{-\rho } p_{i,t}^{\rho-\sigma} P_t^{\sigma-1} X_t
+& =\left( \frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j) \mathcal{L}_{i,c,t}^\eta}\right) ^{-\rho } p_{i,t}^{\rho-\sigma} P_t^{\sigma-1} X_t
 \label{eq:monopolist_output}
 \end{align}%
 where $X_{t}$ is aggregate expenditure, $P_{t}$ is the price of the final good, and $p_{i,t}$ is the price of the sectoral composite $y_{i,t}$ in {\it Home}.
@@ -296,14 +296,14 @@ The price and output associated with the ``export'' problem are given by:
 \begin{align}
 \label{}
 p_{i,c,t}^{H*}(j) & =\frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j) \mathcal{L}_{i,c,t}^\eta} = p_{i,c,t}^{H}(j)  \\
-y_{i,c,t}^{H*}(j) &  =\left( \frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j)} \right) ^{-\rho } {p_{i,t}^*}^{\rho-\sigma} {P_t^*}^{\sigma-1} X_t^*,
+y_{i,c,t}^{H*}(j) &  =\left( \frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j) \mathcal{L}_{i,c,t}^\eta} \right) ^{-\rho } {p_{i,t}^*}^{\rho-\sigma} {P_t^*}^{\sigma-1} X_t^*,
 \end{align}
 where $X_{t}^*$, $P_{t}^*$, and $p_{i,t}^*$ are the foreign counterparts to the expenditures and prices above.
 
 The sectoral price index is given by
 \begin{equation}
 \label{ }
-p_{i,t} = \left( \sum_c \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} p_{i,c,t}^H(j)^{1-\rho} + \left( \tau p_{i,t}^F(j) \right)^{1-\rho} \right)^{\frac{1}{1-\rho}},
+p_{i,t} = \left( \sum_c \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} p_{i,c,t}^H(j)^{1-\rho} dj + \int_0^1 \left( \tau p_{i,t}^F(j) \right)^{1-\rho} dj \right)^{\frac{1}{1-\rho}},
 \end{equation}
 where $p_{i,t}^F(j)$ is the factory gate price (f.o.b.) of the foreign variety $j$ in industry $i$ and $\tau p_{i,t}^F(j)$ is the corresponding c.i.f.~price at the destination.\footnote{The profit maximization problems of foreign producers mirror those of domestic producers. Recall, however, that $\eta=0$ and the foreign wage $w_t^*$ cannot be normalized to unity. The latter is determined in equilibrium and is pinned down by a balanced trade condition. We will fill in these details in the next version of the manuscript.} The final good price is a power mean over the sectoral indices:
 \begin{equation}
@@ -323,7 +323,7 @@ We choose domestic labor to be the numeraire, so that $w_t=1$ in all periods. Si
 
 Trade is balanced each period, that is,
 \begin{equation}
-\sum_i \sum_c \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} p_{i,c,t}^{H*}(j)  y_{i,c,t}^{H*}(j) dj = 
+\sum_i \sum_c \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} \tau p_{i,c,t}^{H*}(j)  y_{i,c,t}^{H*}(j) dj = 
 \sum_i \int_0^1 \tau p_{i,t}^{F}(j) y_{i,t}^{F}(j) dj.  \label{eq:trade_balance}
 \end{equation}
 
