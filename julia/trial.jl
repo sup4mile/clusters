@@ -1,5 +1,9 @@
 # tests
-using NLsolve
+using NLsolve,
+
+using Pkg
+Pkg.add("Missings")
+using Missings
 
 
 function aux(k,i,j,x)
@@ -30,3 +34,21 @@ nlsolve(f2!, initial_x; autodiff =:forward)
 
 
 l_initial = [ [0.125 for i=1:ni, j = 1:2nc] [0.5 for i = 1:ni, j = (2nc+1):(2nc+2)] [0.5 for i = 1:ni]]
+
+
+x = allowmissing([12; missing])
+y = Matrix{Any}(undef, 2,1)
+
+function f(i)
+    return (x[i])^2
+end
+
+for i in 1:2
+    y[i] = (f(i))
+end
+
+typeof(y)
+print(y)
+skipmissing(f(1))
+
+2*x
