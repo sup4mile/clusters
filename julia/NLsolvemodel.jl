@@ -3,7 +3,7 @@ using NLsolve
 """
 Yet to be done
     1. comment
-    2. auxiliary function output print
+    2. figure out w_F != 1 and labor doesn't sum up to 1
     3. JLD save results
 """
 
@@ -12,7 +12,7 @@ nc = 2 # number of counties
 ni = 2 # number of industries
 η = 0 # the spill-over effect
 τ = 1 # trade frictions
-ρ = 2.5 # the elasiticity of substitution within industry
+ρ = 2 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
 L = 1 # total mass of labor at home country
 Lx = 1 # total mass of labor at foreign country
@@ -29,10 +29,18 @@ z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 # Initial guess: labor & foreign wage
 lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
-lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
-lv_if_F = [0.25 for i = 1:ni]
+#lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
+#lv_if_F = [0.25 for i = 1:ni]
 lv_if_Fx = [0.25 for i = 1:ni]
-w_F = 1.1
+w_F = 2
+
+"""
+all prices are factory-gate prices;
+all printed labor and production should have τ incorporated
+"""
+lv_ic_Hx = τ * lv_ic_H
+lv_if_F = τ * lv_if_Fx
+
 
 function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
@@ -62,7 +70,7 @@ end
 function p_i_H(i,l) # calculate industry price index at home
     i = trunc(Int,i)
     H_sum = 0 # domestic price aggregation
-    F_sum = τ * pv_if_F(i,l)^(1-ρ) # foreign price aggregation
+    F_sum = (τ * pv_if_F(i,l))^(1-ρ) # foreign price aggregation
     for j in 1:nc
         H_sum += (μ_ub[i,j]-μ_lb[i,j]) * pv_ic_H(i,j,l)^(1-ρ)
     end
@@ -108,12 +116,12 @@ end
 function yv_ic_Hx(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l)
+    return (τ * pv_ic_Hx(i,j,l))^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l)
 end
 
 function yv_if_F(i,l)
         i = trunc(Int, i)
-    return pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H
+    return (τ * pv_if_F(i,l))^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H
 end
 
 function yv_if_Fx(i,l)
@@ -127,7 +135,7 @@ function ex(l)
     Hx_i_sum = 0
     for i in 1:ni
         for j in 1:nc
-            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * (τ * pv_ic_Hx(i,j,l)) * (yv_ic_Hx(i,j,l))
+            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * pv_ic_Hx(i,j,l) * (yv_ic_Hx(i,j,l))
         end
         Hx_sum += Hx_i_sum
     end
@@ -137,7 +145,7 @@ end
 function imp(l)
     F_sum = 0
     for i in 1:ni
-        F_sum +=  (τ * pv_if_F(i,l)) * (yv_if_F(i,l))
+        F_sum +=  pv_if_F(i,l) * (yv_if_F(i,l))
     end
     return F_sum
 end
@@ -151,16 +159,16 @@ function f!(F,l)
 
         # fixed point for lv_ic_Hx
         for j in nc+1:2nc
-            F[i,j] = yv_ic_Hx(i,j-nc,l)/ (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+            F[i,j] = yv_ic_Hx(i,j-nc,l) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_if_F
         # lv_if_F starts at col = 2nc+1
-        F[i, 2nc+1] = τ * yv_if_F(i,l) / z_F[i] - l[i,2nc+1]
+        F[i, 2nc+1] = yv_if_F(i,l) / z_F[i] - l[i,2nc+1]
 
         # fixed point for lv_if_Fx
         # lv_if_Fx starts at col = 2nc+2
-        F[i, 2nc+2] = τ * yv_if_Fx(i,l) / z_F[i] - l[i,2nc+2]
+        F[i, 2nc+2] = yv_if_Fx(i,l) / z_F[i] - l[i,2nc+2]
 
     end
     # fixed point for foreign wage
@@ -177,7 +185,7 @@ end
 w_F_v = [w_F for i = 1:ni]
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
 
-result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000)
+result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:trust_region)
 result.zero
 
 # extract optimal labor from optimization result
@@ -250,7 +258,7 @@ println("p_i_H: Price aggregation by industry at Home is ", p_i_H_opt)
 println("p_i_F: Price aggregation by industry at Foreign is ", p_i_F_opt)
 println("p_H: Price of final good at Home is $p_H_opt")
 println("p_F: Price of final good at Foreign is $p_F_opt")
-println("yv_ic_H: Production at Home for Home consumption is  is ")
+println("yv_ic_H: Production at Home for Home consumption is ")
 display(yv_ic_H_opt)
 println("yv_ic_Hx: Production at Home for Foreign consumption is ")
 display(yv_ic_Hx_opt)
