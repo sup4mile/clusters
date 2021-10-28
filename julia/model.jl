@@ -11,13 +11,14 @@ Yet to be done
 nc = 2 # number of counties
 ni = 2 # number of industries
 η = 0 # the spill-over effect
-τ = 1 # trade frictions
-ρ = 2.5 # the elasiticity of substitution within industry
+τ = 100 # trade frictions
+ρ = 2 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
 L = 1 # total mass of labor at home country
 Lx = 1 # total mass of labor at foreign country
-w_H = 1 # wage at home normalized to 1
-E_H = ρ/(ρ-1) #expenditure
+w_H = 1
+markup = 1\(ρ-1)# wage at home normalized to 1
+E_H = (markup + 1)*w_H #expenditure
 
 # the entries before the semi-colon is industry 1 for all counties
 μ_lb = Matrix{Real}([0 0.5; 0 0.5])
@@ -41,17 +42,44 @@ function E_F(l)
     return E_H * l[1,2nc+3]
 end
 
+# println(E_F(g))
+
+#
+# for i in 1:ni
+#     for j in 1:nc
+#         println(L_ic_H(i,j,g))
+#     end
+# end
+
+
 function pv_ic_H(i,j,l)
-    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+    return E_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
+# for i in 1:ni
+#     for j in 1:nc
+#         println(pv_ic_H(i,j,g))
+#     end
+# end
+
 function pv_ic_Hx(i,j,l)
-    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+    return E_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
+
+# for i in 1:ni
+#     for j in 1:nc
+#         println(pv_ic_Hx(i,j,g))
+#     end
+# end
 
 function pv_if_F(i,l)
     return E_F(l) / z_F[i]
 end
+
+#
+# for i in 1:ni
+#     println(pv_if_F(i,g))
+# end
 
 function pv_if_Fx(i,l)
     return  E_F(l) / z_F[i]
@@ -61,12 +89,18 @@ end
 function p_i_H(i,l) # calculate industry price index at home
     i = trunc(Int,i)
     H_sum = 0 # domestic price aggregation
-    F_sum = τ * pv_if_F(i,l)^(1-ρ) # foreign price aggregation
+    F_sum = (τ * pv_if_F(i,l))^(1-ρ) # foreign price aggregation
     for j in 1:nc
         H_sum += (μ_ub[i,j]-μ_lb[i,j]) * pv_ic_H(i,j,l)^(1-ρ)
     end
     return (H_sum + F_sum)^(1/(1-ρ))
 end
+
+# for i in 1:ni
+#     println(p_i_H(i,g))
+# end
+
+# p_i_H(2,g)
 
 function p_i_F(i,l) # calculate industry price index at foreign
     i = trunc(Int, i)
@@ -105,12 +139,12 @@ end
 function yv_ic_Hx(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(l)
+    return τ * pv_ic_Hx(i,j,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(l)
 end
 
 function yv_if_F(i,l)
         i = trunc(Int, i)
-    return pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H
+    return τ * pv_if_F(i,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H
 end
 
 function yv_if_Fx(i,l)
@@ -124,7 +158,7 @@ function ex(l)
     Hx_i_sum = 0
     for i in 1:ni
         for j in 1:nc
-            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * (pv_ic_Hx(i,j,l)) * (yv_ic_Hx(i,j,l))
+            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * (τ * pv_ic_Hx(i,j,l)) * (yv_ic_Hx(i,j,l))
         end
         Hx_sum += Hx_i_sum
     end
@@ -163,6 +197,7 @@ function f!(F,l)
     # fixed point for foreign wage
     # j = 2nc+3
     F[1,2nc+3] = ex(l) - imp(l)
+    # F[2,2nc+3] = ex(l) - imp(l)
 
     # force w_F to equal w_L
     F[2,2nc+3] = l[1,2nc+3] - l[2, 2nc+3]
@@ -197,7 +232,7 @@ w_F_v = [w_F for i = 1:ni]
 
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
 
-result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, xtol = 1e-8, ftol = 1e-8)
+result = nlsolve(f!, l_initial, autodiff =:forward, show_trace = true, iterations = 10000, xtol = 1e-8, ftol = 1e-8)
 result.zero
 
 # extract optimal labor from optimization result

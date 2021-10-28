@@ -1,12 +1,18 @@
 using NLsolve
 
 """
-Yet to be done
-    1. comment
-    2. figure out w_F != 1 and labor doesn't sum up to 1
-    3. JLD save results
+This version:
+set w_F equal to 1, does not include w_F or τ in the optimization
 """
 
+
+"""
+some thoughts: when w_F=1 and no trade balance condition, everything is symmetric.
+But domestic labor sum up to 2, not 1
+The printed domestic labor is at the firm level,
+But the actual labor used in each county industry should include μ distribution)
+
+"""
 
 # parameters
 nc = 2 # number of counties
@@ -29,7 +35,7 @@ z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 # Initial guess: labor & foreign wage
-lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
+lv_ic_H = [0.1 for i=1:ni, j = 1:nc]
 #lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
 #lv_if_F = [0.25 for i = 1:ni]
 lv_if_Fx = [0.25 for i = 1:ni]
@@ -48,7 +54,7 @@ function L_ic_H(i,j,l)
 end
 
 function E_F(i,l)
-    return (E_H * l[1, 2*nc+3]) / w_H
+    return E_H * w_F / w_H
 end
 
 function pv_ic_H(i,j,l)
@@ -82,7 +88,7 @@ end
 function p_i_F(i,l) # calculate industry price index at foreign
     i = trunc(Int, i)
     Hx_sum = 0
-    Fx_sum = pv_if_Fx(i,l)^(1-ρ)
+    Fx_sum = (pv_if_Fx(i,l))^(1-ρ)
     for j in 1:nc
         Hx_sum += ((μ_ub[i,j] - μ_lb[i,j])*(τ * pv_ic_Hx(i,j,l))^(1-ρ))
     end
@@ -155,27 +161,27 @@ function f!(F,l)
     for i in 1:ni
         # fixed point for lv_ic_H
         for j in 1:nc
-            F[i,j] = (yv_ic_H(i,j,l) * E_H) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = (pv_ic_H(i,j,l)^(-ρ) * p_i_H(i,l)^(ρ-σ) * (p_H(l)^(σ-1)) * E_H) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_ic_Hx
         for j in nc+1:2nc
-            F[i,j] = (yv_ic_Hx(i,j-nc,l) * E_F(i,l)) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+            F[i,j] = ((τ * pv_ic_Hx(i,j-nc,l))^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l)) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_if_F
         # lv_if_F starts at col = 2nc+1
-        F[i, 2nc+1] = (yv_if_F(i,l) * E_H) / z_F[i] - l[i,2nc+1]
+        F[i, 2nc+1] = ((τ * pv_if_F(i,l))^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H) / z_F[i] - l[i,2nc+1]
 
         # fixed point for lv_if_Fx
         # lv_if_Fx starts at col = 2nc+2
-        F[i, 2nc+2] = (yv_if_Fx(i,l) * E_F(i,l)) / z_F[i] - l[i,2nc+2]
+        F[i, 2nc+2] = (pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(l)^(σ-1)) * E_F(i,l) / z_F[i] - l[i,2nc+2]
 
     end
     # fixed point for foreign wage
     # j = 2nc+3
-    F[1,2nc+3] = ex(l) - imp(l)
-    F[2,2nc+3] = l[1,2nc+3] - l[2, 2nc+3]
+    # F[1,2nc+3] = ex(l) - imp(l)
+    # F[2,2nc+3] = l[1,2nc+3] - l[2, 2nc+3]
 
     # labor sum to 1 constraint
 
@@ -184,7 +190,7 @@ end
 
 # concat into one single matrix as NLsolve input
 w_F_v = [w_F for i = 1:ni]
-l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx)
 
 result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:trust_region)
 result.zero
@@ -194,7 +200,7 @@ lv_ic_H_opt = result.zero[1:ni, 1:nc]
 lv_ic_Hx_opt = result.zero[1:ni, nc+1:2nc]
 lv_if_F_opt = result.zero[1:ni, 2nc+1]
 lv_if_Fx_opt = result.zero[1:ni, 2nc+2]
-w_F_opt = result.zero[1, 2nc+3]
+# w_F_opt = result.zero[1, 2nc+3]
 
 # initiatiation
 L_ic_H_opt = Matrix{Any}(undef, ni, nc)
@@ -246,7 +252,8 @@ println("lv_ic_Hx: Labor at Home for Foreign production is ")
 display(0.5 * τ * lv_ic_Hx_opt)
 println("lv_if_F: Labor at Foreign for Home production is ", τ * lv_if_F_opt)
 println("lv_if_Fx: Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
-println("w_F: Foreign wage at optimal is $w_F_opt")
+# println("w_F: Foreign wage at optimal is $w_F_opt")
+println("w_F: Foreign wage at optimal is ", w_F)
 
 println("L_ic_H: Aggregate labor at Home is ")
 display(L_ic_H_opt)
