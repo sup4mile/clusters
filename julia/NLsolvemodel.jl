@@ -52,11 +52,11 @@ function E_F(i,l)
 end
 
 function pv_ic_H(i,j,l)
-    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+    return E_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
 function pv_ic_Hx(i,j,l)
-    return E_H * w_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+    return E_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
 end
 
 function pv_if_F(i,l)
@@ -136,7 +136,7 @@ function ex(l)
     Hx_i_sum = 0
     for i in 1:ni
         for j in 1:nc
-            Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * pv_ic_Hx(i,j,l) * ((τ * pv_ic_Hx(i,j,l))^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l))
+            Hx_i_sum += τ * (μ_ub[i,j] - μ_lb[i,j]) * pv_ic_Hx(i,j,l) * ((τ * pv_ic_Hx(i,j,l))^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l))
         end
         Hx_sum += Hx_i_sum
     end
@@ -146,7 +146,7 @@ end
 function imp(l)
     F_sum = 0
     for i in 1:ni
-        F_sum +=  pv_if_F(i,l) * ((τ * pv_if_F(i,l))^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H)
+        F_sum +=  τ * pv_if_F(i,l) * ((τ * pv_if_F(i,l))^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H)
     end
     return F_sum
 end
@@ -155,21 +155,21 @@ function f!(F,l)
     for i in 1:ni
         # fixed point for lv_ic_H
         for j in 1:nc
-            F[i,j] = (yv_ic_H(i,j,l) * E_H) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_H(i,j,l)) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_ic_Hx
         for j in nc+1:2nc
-            F[i,j] = (yv_ic_Hx(i,j-nc,l) * E_F(i,l)) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+            F[i,j] = (τ * yv_ic_Hx(i,j-nc,l)) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_if_F
         # lv_if_F starts at col = 2nc+1
-        F[i, 2nc+1] = (yv_if_F(i,l) * E_H) / z_F[i] - l[i,2nc+1]
+        F[i, 2nc+1] = (τ * yv_if_F(i,l)) / z_F[i] - l[i,2nc+1]
 
         # fixed point for lv_if_Fx
         # lv_if_Fx starts at col = 2nc+2
-        F[i, 2nc+2] = (yv_if_Fx(i,l) * E_F(i,l)) / z_F[i] - l[i,2nc+2]
+        F[i, 2nc+2] = (yv_if_Fx(i,l)) / z_F[i] - l[i,2nc+2]
 
     end
     # fixed point for foreign wage
