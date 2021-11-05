@@ -147,6 +147,8 @@ function imp(l)
 end
 
 function f!(F,l)
+    display(l)
+    println()
     for i in 1:ni
         # fixed point for lv_ic_H
         for j in 1:nc
@@ -212,7 +214,7 @@ w_F_v = [w_F for i = 1:ni]
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
 
 # result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
-result = fixedpoint(f!, l_initial, autodiff =:forward, iterations = 100, show_trace = true, ftol = 1e-20)
+result = fixedpoint(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
 result.zero
 
 # extract optimal labor from optimization result
