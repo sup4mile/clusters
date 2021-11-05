@@ -10,7 +10,7 @@ Yet to be done
 # parameters
 nc = 2 # number of counties
 ni = 2 # number of industries
-η = 0 # the spill-over effect
+η = 0.1 # the spill-over effect
 τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
@@ -132,8 +132,8 @@ end
 # balanced Trade
 function ex(l)
     Hx_sum = 0
-    Hx_i_sum = 0
     for i in 1:ni
+        Hx_i_sum = 0
         for j in 1:nc
             Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * pv_ic_Hx(i,j,l) * (yv_ic_Hx(i,j,l))
         end
@@ -177,9 +177,36 @@ function f!(F,l)
     F[2,2nc+3] = l[1,2nc+3] - l[2, 2nc+3]
 
     # labor sum to 1 constraint
-
 end
 
+function g!(F,l)
+    for i in 1:ni
+        # fixed point for lv_ic_H
+        for j in 1:nc
+            F[i,j] = yv_ic_H(i,j,l) / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+        end
+
+        # fixed point for lv_ic_Hx
+        for j in nc+1:2nc
+            F[i,j] = yv_ic_Hx(i,j-nc,l) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η)
+        end
+
+        # fixed point for lv_if_F
+        # lv_if_F starts at col = 2nc+1
+        F[i, 2nc+1] = yv_if_F(i,l) / z_F[i]
+
+        # fixed point for lv_if_Fx
+        # lv_if_Fx starts at col = 2nc+2
+        F[i, 2nc+2] = yv_if_Fx(i,l) / z_F[i]
+
+    end
+    # fixed point for foreign wage
+    # j = 2nc+3
+    F[1,2nc+3] = ex(l) - imp(l)
+    F[2,2nc+3] = l[1,2nc+3] - l[2, 2nc+3]
+
+    # labor sum to 1 constraint
+end
 
 # concat into one single matrix as NLsolve input
 w_F_v = [w_F for i = 1:ni]
@@ -239,30 +266,23 @@ p_F_opt = p_F(result.zero)
 # print all relevant values
 println()
 println("level at optimum: ")
-println("lv_ic_H: Labor at Home for Home production is ")
-display(lv_ic_H_opt)
-println("lv_ic_Hx: Labor at Home for Foreign production is ")
-display(lv_ic_Hx_opt)
-println("lv_if_F: Labor at Foreign for Home production is ", lv_if_F_opt)
-println("lv_if_Fx: Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
+println("lv_ic_H: Labor at Home for Home production is $lv_ic_H_opt")
+println("lv_ic_Hx: Labor at Home for Foreign production is $lv_ic_Hx_opt")
+println("lv_if_F: Labor at Foreign for Home production is $lv_if_F_opt")
+println("lv_if_Fx: Labor at Foreign for Foreign production is $lv_if_Fx_opt")
 println("w_F: Foreign wage at optimal is $w_F_opt")
-println("L_ic_H: Aggregate labor at Home is ")
-display(L_ic_H_opt)
-println("pv_ic_H: Price at Home for Home consumption is ")
-display(pv_ic_H_opt)
-println("pv_ic_Hx: Price at Home for Foreign consumption is ")
-display(pv_ic_Hx_opt)
-println("pv_if_F: Price at Foreign for Home consumption is ", pv_if_F_opt)
-println("pv_if_Fx: Price at Foreign for Foreign consumption is ", pv_if_Fx_opt)
-println("p_i_H: Price aggregation by industry at Home is ", p_i_H_opt)
-println("p_i_F: Price aggregation by industry at Foreign is ", p_i_F_opt)
+println("L_ic_H: Aggregate labor at Home is $L_ic_H_opt")
+println("pv_ic_H: Price at Home for Home consumption is $pv_ic_H_opt")
+println("pv_ic_Hx: Price at Home for Foreign consumption is $pv_ic_Hx_opt")
+println("pv_if_F: Price at Foreign for Home consumption is $pv_if_F_opt")
+println("pv_if_Fx: Price at Foreign for Foreign consumption is $pv_if_Fx_opt" )
+println("p_i_H: Price aggregation by industry at Home is $p_i_H_opt")
+println("p_i_F: Price aggregation by industry at Foreign is $p_i_F_opt")
 println("p_H: Price of final good at Home is $p_H_opt")
 println("p_F: Price of final good at Foreign is $p_F_opt")
-println("yv_ic_H: Production at Home for Home consumption is ")
-display(yv_ic_H_opt)
-println("yv_ic_Hx: Production at Home for Foreign consumption is ")
-display(yv_ic_Hx_opt)
-println("yv_if_F: Production at Foreign for Home consumption is ", yv_if_F_opt)
-println("yv_if_Fx: Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
+println("yv_ic_H: Production at Home for Home consumption is $yv_ic_H_opt")
+println("yv_ic_Hx: Production at Home for Foreign consumption is $yv_ic_Hx_opt")
+println("yv_if_F: Production at Foreign for Home consumption is $yv_if_F_opt")
+println("yv_if_Fx: Production at Foreign for Foreign consumption is $yv_if_Fx_opt")
 println("Total trade from Home to Foreign is $export_opt")
 println("Total trade from Foreign to Home is $import_opt")
