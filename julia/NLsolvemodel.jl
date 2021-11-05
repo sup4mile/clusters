@@ -11,7 +11,7 @@ Yet to be done
 # parameters
 nc = 2 # number of counties
 ni = 2 # number of industries
-η = 0 # the spill-over effect
+η = 0.1 # the spill-over effect
 τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
@@ -21,15 +21,15 @@ w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
 E_H = (Markup_H + 1) * w_H # expenditure
 
-μ_lb = Matrix{Real}([0 0.5; 0 0.5])
+μ_lb = Matrix{Real}([0 0.25; 0 0.5])
 # the entries before the semi-colon is industry 1 for all counties
-μ_ub = Matrix{Real}([0.5 1; 0.5 1])
+μ_ub = Matrix{Real}([0.25 1; 0.5 1])
 
 z_H = Matrix((ones(Float64, ni, nc))) # home productivity
-z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
+z_F= 1.1*Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 # Initial guess: labor & foreign wage
-lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
+lv_ic_H = [0.25 for i=1:ni, j = 1:nc]
 #lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
 #lv_if_F = [0.25 for i = 1:ni]
 lv_if_Fx = [0.25 for i = 1:ni]
@@ -135,8 +135,9 @@ function ex(l)
     Hx_sum = 0
     Hx_i_sum = 0
     for i in 1:ni
+        Hx_i_sum = 0
         for j in 1:nc
-            Hx_i_sum += τ * (μ_ub[i,j] - μ_lb[i,j]) * pv_ic_Hx(i,j,l) * ((τ * pv_ic_Hx(i,j,l))^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l))
+            Hx_i_sum += τ * (μ_ub[i,j] - μ_lb[i,j]) * pv_ic_Hx(i,j,l) * (yv_ic_Hx(i,j,l))
         end
         Hx_sum += Hx_i_sum
     end
@@ -146,7 +147,7 @@ end
 function imp(l)
     F_sum = 0
     for i in 1:ni
-        F_sum +=  τ * pv_if_F(i,l) * ((τ * pv_if_F(i,l))^(-ρ) * p_i_H(i,l)^(ρ-σ) * p_H(l)^(σ-1) * E_H)
+        F_sum +=  τ * pv_if_F(i,l) * yv_if_F(i,l)
     end
     return F_sum
 end
