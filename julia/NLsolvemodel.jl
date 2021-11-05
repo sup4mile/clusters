@@ -14,11 +14,11 @@ ni = 2 # number of industries
 τ = 1 # trade frictions
 ρ = 2.5 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
-L = 1 # total mass of labor at home country
-Lx = 1 # total mass of labor at foreign country
+L = 1.1 # total mass of labor at home country
+Lx = 1.5 # total mass of labor at foreign country
 w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
-E_H = (Markup_H + 1) * w_H # expenditure
+E_H = (Markup_H + 1) * w_H * L# expenditure
 
 μ_lb = Matrix{Real}([0 0.5; 0 0.5])
 # the entries before the semi-colon is industry 1 for all counties
@@ -28,18 +28,18 @@ z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 # Initial guess: labor & foreign wage
-lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
-lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
-lv_if_F = [0.25 for i = 1:ni]
-lv_if_Fx = [0.25 for i = 1:ni]
-w_F = 1.1
+lv_ic_H = [0.1 for i=1:ni, j = 1:nc]
+lv_ic_Hx = [0.1 for i=1:ni, j = 1:nc]
+lv_if_F = [0.2 for i = 1:ni]
+lv_if_Fx = [0.2 for i = 1:ni]
+w_F = 2
 
 function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
 end
 
 function E_F(i,l)
-    return E_H * l[i,2nc+3]
+    return E_H * l[i,2nc+3] * Lx
 end
 
 function pv_ic_H(i,j,l)
@@ -251,7 +251,9 @@ println("Production at Home for Home consumption is  is ")
 display(yv_ic_H_opt)
 println("Production at Home for Foreign consumption is ")
 display(yv_ic_Hx_opt)
-println("Production at Foreign for Home consumption is ", yv_if_F_opt)
-println("Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
+println("Production at Foreign for Home consumption is ")
+display(yv_if_F_opt)
+println("Production at Foreign for Foreign consumption is ")
+display(yv_if_Fx_opt)
 println("Total trade from Home to Foreign is $export_opt")
 println("Total trade from Foreign to Home is $import_opt")
