@@ -32,7 +32,7 @@ lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
 lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
 lv_if_F = [0.25 for i = 1:ni]
 lv_if_Fx = [0.25 for i = 1:ni]
-w_F = 1.1
+w_F = 1
 
 function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
@@ -213,8 +213,8 @@ end
 w_F_v = [w_F for i = 1:ni]
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
 
-# result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
-result = fixedpoint(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
+result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
+# result = fixedpoint(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
 result.zero
 
 # extract optimal labor from optimization result
