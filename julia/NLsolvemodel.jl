@@ -130,6 +130,7 @@ function ex(l)
     Hx_sum = 0
     Hx_i_sum = 0
     for i in 1:ni
+        Hx_i_sum = 0
         for j in 1:nc
             Hx_i_sum += (μ_ub[i,j] - μ_lb[i,j]) * (τ * pv_ic_Hx(i,j,l)) * (yv_ic_Hx(i,j,l))
         end
