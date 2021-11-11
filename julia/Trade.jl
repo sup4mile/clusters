@@ -264,10 +264,8 @@ yv_if_F_opt = Matrix{Any}(undef, ni, 1)
 yv_if_Fx_opt = Matrix{Any}(undef, ni, 1)
 export_opt = ex(result.zero)
 import_opt = imp(result.zero)
-import_sec = Matrix{Any}(undef, ni, 1)
 
 # calculate all auxiliary functions
-
 for i in 1:ni
     for j in 1:nc
         L_ic_H_opt[i,j] = L_ic_H(i,j, result.zero)
@@ -289,11 +287,18 @@ p_F_opt = p_F(result.zero)
 
 ################################################################
 # actual import to GDP share
+"""
 import_sec = Matrix{Any}(undef, ni, 1)
+gdp_H_sec = Matrix{Any}(undef, ni, nc)
 for i in 1:ni
-    import_sec[i] = yv_if_F(i,result.zero) * pv_if_F(i,result.zero)
+    import_sec[i] = yv_if_F_opt[i] * pv_if_F[i]
+    gdp_H[i] = 0
+    for j in 1:nc
+        gdp_H[i] += (μ_ub[i,j] - μ_lb[i,j]) * yv_ic_H_opt[i,j] * pv_ic_H[i,j]
+    end
 end
 
+"""
 import_gdp_ratio = import_opt/E_H
 
 
