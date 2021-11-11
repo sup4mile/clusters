@@ -1,10 +1,29 @@
 using NLsolve
 
+"""
+three industries
+ni=3
+
+Fixed parameters:
+z_H[1,nc] = 1 # domestic agriculture productivity normalized to 1
+z_F[ni] = 1 # foreign productivities
+
+new variables:
+z_H[2,nc] # domestic manufacturing productivity
+z_H[3,nc] #domestic service productivity
+
+Target:
+1. total import/GDP ratio (one constraint)
+2. agriculture, manufacture, service sectorial import/GDP ratio (three constraint)
+"""
+
+
+
 
 # parameters
 nc = 2 # number of counties
-ni = 2 # number of industries
-η = 0 # the spill-over effect
+ni = 4 # number of industries
+η = 0.2 # the spill-over effect
 τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
@@ -14,12 +33,40 @@ w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
 E_H = (Markup_H + 1) * w_H # expenditure
 
-μ_lb = Matrix{Real}([0 0.5; 0 0.5])
+# need to fill in the blank
+# target import share
+r = 0 # total import share of GDP
+r1 = 0 # agriculture import share of GDP
+r2 = 0 # manufacturing import share of GDP
+r3 = 0 # service import share of GDP
+r4 = 0 # others import share of GDP
+
+μ_lb = Matrix{Real}([0 0.5; 0 0.5; 0 0.5; 0 0.5])
 # the entries before the semi-colon is industry 1 for all counties
-μ_ub = Matrix{Real}([0.5 1; 0.5 1])
+μ_ub = Matrix{Real}([0.5 1; 0.5 1; 0.5 1; 0.5 1])
+
+# productivity
+# productivity parameters
+z_H1 = 1
+z_Fk = 1
 
 z_H = Matrix((ones(Float64, ni, nc))) # home productivity
-z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
+z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
+
+
+function z_H_var(i,z)
+    for j in 1:nc
+        z_H[i,j]= z
+    end
+end
+
+# change sectorial productivity
+for i in 2:ni
+    z_H_var(i,0.5)
+end
+
+# set domestic productivity in manufacturing and service
+
 
 # Initial guess: labor & foreign wage
 lv_ic_H = [0.25 for i=1:ni, j = 1:nc]
@@ -36,6 +83,8 @@ lv_ic_Hx = τ * lv_ic_H
 lv_if_F = τ * lv_if_Fx
 
 
+
+# auxiliary functions
 function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
 end
@@ -231,11 +280,15 @@ end
 p_H_opt = p_H(result.zero)
 p_F_opt = p_F(result.zero)
 
-# import to GDP share
+
+################################################################
+# actual import to GDP share
 import_gdp = import_opt/E_H
+    # four sectorial import share
 
 
 
+################################################################
 # print all relevant values
 println()
 println("level at optimum: ")
