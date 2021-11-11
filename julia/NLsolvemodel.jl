@@ -1,17 +1,10 @@
 using NLsolve
 
-"""
-Yet to be done
-    1. comment
-    2. figure out w_F != 1 and labor doesn't sum up to 1
-    3. JLD save results
-"""
-
 
 # parameters
 nc = 2 # number of counties
 ni = 2 # number of industries
-η = 0.1 # the spill-over effect
+η = 0 # the spill-over effect
 τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
@@ -21,12 +14,12 @@ w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
 E_H = (Markup_H + 1) * w_H # expenditure
 
-μ_lb = Matrix{Real}([0 0.25; 0 0.5])
+μ_lb = Matrix{Real}([0 0.5; 0 0.5])
 # the entries before the semi-colon is industry 1 for all counties
-μ_ub = Matrix{Real}([0.25 1; 0.5 1])
+μ_ub = Matrix{Real}([0.5 1; 0.5 1])
 
 z_H = Matrix((ones(Float64, ni, nc))) # home productivity
-z_F= 1.1*Matrix(ones(Float64, ni, 1)) # foreign productivity
+z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 # Initial guess: labor & foreign wage
 lv_ic_H = [0.25 for i=1:ni, j = 1:nc]
@@ -47,7 +40,7 @@ function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
 end
 
-function E_F(i,l)
+function E_F(l)
     return (E_H * l[1, 2*nc+3]) / w_H
 end
 
@@ -60,11 +53,11 @@ function pv_ic_Hx(i,j,l)
 end
 
 function pv_if_F(i,l)
-    return E_F(i,l) / z_F[i]
+    return E_F(l) / z_F[i]
 end
 
 function pv_if_Fx(i,l)
-    return  E_F(i,l) / z_F[i]
+    return  E_F(l) / z_F[i]
 end
 
 # industry_price_home matrix
@@ -117,7 +110,7 @@ end
 function yv_ic_Hx(i,j,l)
         i = trunc(Int, i)
         j = trunc(Int, j)
-    return (τ * pv_ic_Hx(i,j,l))^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(i,l)
+    return (τ * pv_ic_Hx(i,j,l))^(-ρ) * p_i_F(i,l)^(ρ-σ) * (p_F(l)^(σ-1)) * E_F(l)
 end
 
 function yv_if_F(i,l)
@@ -127,7 +120,7 @@ end
 
 function yv_if_Fx(i,l)
         i = trunc(Int, i)
-    return pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(l)^(σ-1) * E_F(i,l)
+    return pv_if_Fx(i,l)^(-ρ) * p_i_F(i,l)^(ρ-σ) * p_F(l)^(σ-1) * E_F(l)
 end
 
 # balanced Trade
@@ -241,12 +234,12 @@ p_F_opt = p_F(result.zero)
 # print all relevant values
 println()
 println("level at optimum: ")
-println("lv_ic_H: Labor at Home for Home production is ")
+println("lv_ic_H: Firm level labor at Home for Home production is ")
 display(0.5 * lv_ic_H_opt)
-println("lv_ic_Hx: Labor at Home for Foreign production is ")
+println("lv_ic_Hx: Firm level labor at Home for Foreign production is ")
 display(0.5 * τ * lv_ic_Hx_opt)
-println("lv_if_F: Labor at Foreign for Home production is ", τ * lv_if_F_opt)
-println("lv_if_Fx: Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
+println("lv_if_F: Firm level labor at Foreign for Home production is ", τ * lv_if_F_opt)
+println("lv_if_Fx: Firm level labor at Foreign for Foreign production is ", lv_if_Fx_opt)
 println("w_F: Foreign wage at optimal is $w_F_opt")
 
 println("L_ic_H: Aggregate labor at Home is ")
