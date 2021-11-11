@@ -23,7 +23,7 @@ Target:
 # parameters
 nc = 2 # number of counties
 ni = 4 # number of industries
-η = 0.2 # the spill-over effect
+η = 0 # the spill-over effect
 τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
@@ -33,28 +33,32 @@ w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
 E_H = (Markup_H + 1) * w_H # expenditure
 
-# need to fill in the blank
-# target import share
-r = 0 # total import share of GDP
-r1 = 0 # agriculture import share of GDP
-r2 = 0 # manufacturing import share of GDP
-r3 = 0 # service import share of GDP
-r4 = 0 # others import share of GDP
-
-μ_lb = Matrix{Real}([0 0.5; 0 0.5; 0 0.5; 0 0.5])
-# the entries before the semi-colon is industry 1 for all counties
-μ_ub = Matrix{Real}([0.5 1; 0.5 1; 0.5 1; 0.5 1])
-
-# productivity
 # productivity parameters
 z_H1 = 1
 z_Fk = 1
 
+# need to fill in the blank
+# target import share
+r = 0 # total import share of GDP
+r1 = 0 # agriculture import/value added
+r2 = 0 # manufacturing import/valued added
+r3 = 0 # service import/value added
+r4 = 0 # others import/value added
+
+# diff1= r1-actualr1
+
+
+μ_lb = Matrix{Real}([0 0.5; 0 0.5; 0 0.5; 0 0.5])
+# the entries before the semi-colon is industry 1 for all counties
+μ_ub = Matrix{Real}([0.5 1; 0.5 1; 0.5 1; 0.5 1])
 z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 
-function z_H_var(i,z)
+
+
+# productivity
+function set_z_H(i,z)
     for j in 1:nc
         z_H[i,j]= z
     end
@@ -62,7 +66,7 @@ end
 
 # change sectorial productivity
 for i in 2:ni
-    z_H_var(i,0.5)
+    set_z_H(i,1)
 end
 
 # set domestic productivity in manufacturing and service
@@ -225,6 +229,7 @@ function f!(F,l)
 end
 
 
+
 # concat into one single matrix as NLsolve input
 w_F_v = [w_F for i = 1:ni]
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
@@ -261,7 +266,6 @@ export_opt = ex(result.zero)
 import_opt = imp(result.zero)
 
 # calculate all auxiliary functions
-
 for i in 1:ni
     for j in 1:nc
         L_ic_H_opt[i,j] = L_ic_H(i,j, result.zero)
@@ -283,8 +287,19 @@ p_F_opt = p_F(result.zero)
 
 ################################################################
 # actual import to GDP share
-import_gdp = import_opt/E_H
-    # four sectorial import share
+"""
+import_sec = Matrix{Any}(undef, ni, 1)
+gdp_H_sec = Matrix{Any}(undef, ni, nc)
+for i in 1:ni
+    import_sec[i] = yv_if_F_opt[i] * pv_if_F[i]
+    gdp_H[i] = 0
+    for j in 1:nc
+        gdp_H[i] += (μ_ub[i,j] - μ_lb[i,j]) * yv_ic_H_opt[i,j] * pv_ic_H[i,j]
+    end
+end
+
+"""
+import_gdp_ratio = import_opt/E_H
 
 
 
@@ -320,4 +335,5 @@ println("yv_if_F: Production at Foreign for Home consumption is ", yv_if_F_opt)
 println("yv_if_Fx: Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
 println("Total trade from Home to Foreign is $export_opt")
 println("Total trade from Foreign to Home is $import_opt")
-println("import to GDP ratio is $import_gdp")
+println("import in each industry is $import_sec")
+println("import to GDP ratio is $import_gdp_ratio")
