@@ -6,6 +6,26 @@ ni = 2
 nc = 2
 
 """
+Tests for allowmissing
+"""
+
+x = allowmissing([2, missing])
+y = Matrix{Any}(undef, 2, 1)
+
+function f(i, x)
+    return x[i]^2
+end
+
+for i in 1:2
+    y[i] = f(i, x)
+end
+
+println(y)
+display(y)
+
+
+
+"""
 Tests for NLsolve 1-d
 """
 function f!(F, x)
@@ -13,6 +33,7 @@ function f!(F, x)
         F[i] = x[i]^2 + 1/x[i] + 1
     end
 end
+
 
 results = nlsolve(f!, [-0.1; -0.1], autodiff = :forward)
 println("converged=$(NLsolve.converged(results)) at root=$(results.zero)
