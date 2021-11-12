@@ -1,4 +1,4 @@
-using NLsolve
+@time using NLsolve
 
 """
 Yet to be done
@@ -8,31 +8,24 @@ Yet to be done
 """
 
 # parameters
-nc = 2 # number of counties
-ni = 2 # number of industries
-η = 0 # the spill-over effect
-τ = 1 # trade frictions
-ρ = 2.5 # the elasiticity of substitution within industry
-σ = 1.7 # the elasiticity of substitution across industries
-L = 1 # total mass of labor at home country
-Lx = 1 # total mass of labor at foreign country
-w_H = 1 # wage at home normalized to 1
-Markup_H = 1/(ρ-1) # markup of firm
-E_H = (Markup_H + 1) * w_H # expenditure
+global nc = 2 # number of counties
+global ni = 2 # number of industries
+global η = 0 # the spill-over effect
+global τ = 1 # trade frictions
+global ρ = 2.5 # the elasiticity of substitution within industry
+global σ = 1.7 # the elasiticity of substitution across industries
+global L = 1 # total mass of labor at home country
+global Lx = 1 # total mass of labor at foreign country
+global w_H = 1 # wage at home normalized to 1
+global Markup_H = 1/(ρ-1) # markup of firm
+global E_H = (Markup_H + 1) * w_H # expenditure
 
 μ_lb = Matrix{Real}([0 0.5; 0 0.5])
 # the entries before the semi-colon is industry 1 for all counties
 μ_ub = Matrix{Real}([0.5 1; 0.5 1])
 
-z_H = Matrix((ones(Float64, ni, nc))) # home productivity
-z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
-
-# Initial guess: labor & foreign wage
-lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
-lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
-lv_if_F = [0.25 for i = 1:ni]
-lv_if_Fx = [0.25 for i = 1:ni]
-w_F = 1
+global z_H = Matrix((ones(Float64, ni, nc))) # home productivity
+global z_F= Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
@@ -148,8 +141,8 @@ function imp(l)
 end
 
 function f!(F,l)
-    display(l)
-    println()
+    #display(l)
+    #println()
     for i in 1:ni
         # fixed point for lv_ic_H
         for j in 1:nc
@@ -210,89 +203,113 @@ function f!(F,l)
 end
 
 
-# concat into one single matrix as NLsolve input
-w_F_v = [w_F for i = 1:ni]
-l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+function printResult(result)
+    # extract optimal labor from optimization result
+    lv_ic_H_opt = result.zero[1:ni, 1:nc]
+    lv_ic_Hx_opt = result.zero[1:ni, nc+1:2nc]
+    lv_if_F_opt = result.zero[1:ni, 2nc+1]
+    lv_if_Fx_opt = result.zero[1:ni, 2nc+2]
+    w_F_opt = result.zero[1, 2nc+3]
 
-result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
-# result = fixedpoint(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
-result.zero
+    # initiatiation
+    L_ic_H_opt = Matrix{Any}(undef, ni, nc)
 
-# extract optimal labor from optimization result
-lv_ic_H_opt = result.zero[1:ni, 1:nc]
-lv_ic_Hx_opt = result.zero[1:ni, nc+1:2nc]
-lv_if_F_opt = result.zero[1:ni, 2nc+1]
-lv_if_Fx_opt = result.zero[1:ni, 2nc+2]
-w_F_opt = result.zero[1, 2nc+3]
+    pv_ic_H_opt = Matrix{Any}(undef, ni, nc)
+    pv_ic_Hx_opt = Matrix{Any}(undef, ni, nc)
+    pv_if_F_opt = Matrix{Any}(undef, ni, 1)
+    pv_if_Fx_opt = Matrix{Any}(undef, ni, 1)
+    p_i_H_opt = Matrix{Any}(undef, ni, 1)
+    p_i_F_opt = Matrix{Any}(undef, ni, 1)
+    p_H_opt = 0.0
+    p_F_opt = 0.0
+    export_opt = 0
+    import_opt = 0
 
-# initiatiation
-L_ic_H_opt = Matrix{Any}(undef, ni, nc)
+    yv_ic_H_opt = Matrix{Any}(undef, ni, nc)
+    yv_ic_Hx_opt = Matrix{Any}(undef, ni, nc)
+    yv_if_F_opt = Matrix{Any}(undef, ni, 1)
+    yv_if_Fx_opt = Matrix{Any}(undef, ni, 1)
+    export_opt = ex(result.zero)
+    import_opt = imp(result.zero)
 
-pv_ic_H_opt = Matrix{Any}(undef, ni, nc)
-pv_ic_Hx_opt = Matrix{Any}(undef, ni, nc)
-pv_if_F_opt = Matrix{Any}(undef, ni, 1)
-pv_if_Fx_opt = Matrix{Any}(undef, ni, 1)
-p_i_H_opt = Matrix{Any}(undef, ni, 1)
-p_i_F_opt = Matrix{Any}(undef, ni, 1)
-p_H_opt = 0.0
-p_F_opt = 0.0
-export_opt = 0
-import_opt = 0
+    # calculate all auxiliary functions
+    for i in 1:ni
+        for j in 1:nc
+            L_ic_H_opt[i,j] = L_ic_H(i,j, result.zero)
+            pv_ic_H_opt[i,j] = pv_ic_H(i,j, result.zero)
+            pv_ic_Hx_opt[i,j] = pv_ic_Hx(i,j, result.zero)
+            yv_ic_H_opt[i,j] = yv_ic_H(i,j,result.zero)
+            yv_ic_Hx_opt[i,j] = yv_ic_Hx(i,j,result.zero)
+            
+        end
 
-yv_ic_H_opt = Matrix{Any}(undef, ni, nc)
-yv_ic_Hx_opt = Matrix{Any}(undef, ni, nc)
-yv_if_F_opt = Matrix{Any}(undef, ni, 1)
-yv_if_Fx_opt = Matrix{Any}(undef, ni, 1)
-export_opt = ex(result.zero)
-import_opt = imp(result.zero)
-
-# calculate all auxiliary functions
-for i in 1:ni
-    for j in 1:nc
-        L_ic_H_opt[i,j] = L_ic_H(i,j, result.zero)
-        pv_ic_H_opt[i,j] = pv_ic_H(i,j, result.zero)
-        pv_ic_Hx_opt[i,j] = pv_ic_Hx(i,j, result.zero)
         pv_if_F_opt[i] = pv_if_F(i,result.zero)
         pv_if_Fx_opt[i] = pv_if_Fx(i,result.zero)
         p_i_H_opt[i] = p_i_H(i,result.zero)
         p_i_F_opt[i] = p_i_F(i,result.zero)
-        p_H_opt = p_H(result.zero)
-        p_F_opt = p_F(result.zero)
-
-        yv_ic_H_opt[i,j] = yv_ic_H(i,j,result.zero)
-        yv_ic_Hx_opt[i,j] = yv_ic_Hx(i,j,result.zero)
         yv_if_F_opt[i] = yv_if_F(i,result.zero)
         yv_if_Fx_opt[i] = yv_if_Fx(i,result.zero)
     end
+
+    p_H_opt = p_H(result.zero)
+    p_F_opt = p_F(result.zero)
+
+    # print all relevant values
+    println()
+    println("level at optimum: ")
+    println("Labor at Home for Home production is ")
+    display(lv_ic_H_opt)
+    println("Labor at Home for Foreign production is ")
+    display(lv_ic_Hx_opt)
+    println("Labor at Foreign for Home production is ", lv_if_F_opt)
+    println("Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
+    println("Foreign wage at optimal is $w_F_opt")
+    println("Aggregate labor at Home is ")
+    display(L_ic_H_opt)
+    println("Price at Home for Home consumption is ")
+    display(pv_ic_H_opt)
+    println("Price at Home for Foreign consumption is ")
+    display(pv_ic_Hx_opt)
+    println("Price at Foreign for Home consumption is ", pv_if_F_opt)
+    println("Price at Foreign for Foreign consumption is ", pv_if_Fx_opt)
+    println("Price aggregation by industry at Home is ", p_i_H_opt)
+    println("Price aggregation by industry at Foreign is ", p_i_F_opt)
+    println("Price of final good at Home is $p_H_opt")
+    println("Price of final good at Foreign is $p_F_opt")
+    println("Production at Home for Home consumption is  is ")
+    display(yv_ic_H_opt)
+    println("Production at Home for Foreign consumption is ")
+    display(yv_ic_Hx_opt)
+    println("Production at Foreign for Home consumption is ", yv_if_F_opt)
+    println("Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
+    println("Total trade from Home to Foreign is $export_opt")
+    println("Total trade from Foreign to Home is $import_opt")
 end
 
-# print all relevant values
-println()
-println("level at optimum: ")
-println("Labor at Home for Home production is ")
-display(lv_ic_H_opt)
-println("Labor at Home for Foreign production is ")
-display(lv_ic_Hx_opt)
-println("Labor at Foreign for Home production is ", lv_if_F_opt)
-println("Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
-println("Foreign wage at optimal is $w_F_opt")
-println("Aggregate labor at Home is ")
-display(L_ic_H_opt)
-println("Price at Home for Home consumption is ")
-display(pv_ic_H_opt)
-println("Price at Home for Foreign consumption is ")
-display(pv_ic_Hx_opt)
-println("Price at Foreign for Home consumption is ", pv_if_F_opt)
-println("Price at Foreign for Foreign consumption is ", pv_if_Fx_opt)
-println("Price aggregation by industry at Home is ", p_i_H_opt)
-println("Price aggregation by industry at Foreign is ", p_i_F_opt)
-println("Price of final good at Home is $p_H_opt")
-println("Price of final good at Foreign is $p_F_opt")
-println("Production at Home for Home consumption is  is ")
-display(yv_ic_H_opt)
-println("Production at Home for Foreign consumption is ")
-display(yv_ic_Hx_opt)
-println("Production at Foreign for Home consumption is ", yv_if_F_opt)
-println("Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
-println("Total trade from Home to Foreign is $export_opt")
-println("Total trade from Foreign to Home is $import_opt")
+function initial_guess()
+    # Initial guess: labor & foreign wage
+    lv_ic_H = [0.125 for i=1:ni, j = 1:nc]
+    lv_ic_Hx = [0.125 for i=1:ni, j = 1:nc]
+    lv_if_F = [0.25 for i = 1:ni]
+    lv_if_Fx = [0.25 for i = 1:ni]
+    w_F = 1
+
+    # concat into one single matrix as NLsolve input
+    w_F_v = [w_F for i = 1:ni]
+    l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+    return l_initial
+end
+
+function main()
+    @time result = nlsolve(f!, initial_guess(), autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
+    # result = fixedpoint(f!, l_initial, autodiff =:forward, iterations = 10, show_trace = true, ftol = 1e-20)
+    #result.zero
+
+    @time printResult(result)
+end
+
+# Checks that file is being run using "julia NLsolvemodel.jl"
+# If not, does not execute code by default
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
+end

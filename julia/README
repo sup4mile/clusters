@@ -1,0 +1,3 @@
+The current model being used is NLsolvemodel.jl
+
+The other files should REALLY not be in this folder, they're plainly confusing and it is not obvious which one does what.
