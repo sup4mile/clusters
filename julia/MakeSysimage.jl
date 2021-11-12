@@ -1,3 +1,5 @@
+#Requires recent version of Julia, possibly compiled from source
+
 #This script creates a Sysimage, essentially a snapshot of a Julia runtime 
 #environment where NLsolve has already been compiled.
 #This Sysimage, which must be created on a local machine, can be passed as
