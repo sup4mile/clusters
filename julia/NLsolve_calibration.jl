@@ -19,7 +19,6 @@ Target:
 
 
 
-
 # parameters
 nc = 2 # number of counties
 ni = 4 # number of industries
