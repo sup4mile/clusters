@@ -238,7 +238,7 @@ println("lv_ic_H: Firm level labor at Home for Home production is ")
 display(lv_ic_H_opt)
 println("lv_ic_Hx: Firm level labor at Home for Foreign production is ")
 display(lv_ic_Hx_opt)
-println("lv_if_F: Firm level labor at Foreign for Home production is ", τ * lv_if_F_opt)
+println("lv_if_F: Firm level labor at Foreign for Home production is ", lv_if_F_opt)
 println("lv_if_Fx: Firm level labor at Foreign for Foreign production is ", lv_if_Fx_opt)
 println("w_F: Foreign wage at optimal is $w_F_opt")
 
