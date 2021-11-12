@@ -5,6 +5,7 @@ Force_NoSysimage = false
 FLAGS =
 
 run: | decide
+	@echo "Running now!"
 	julia $(FLAGS) NLsolvemodel.jl
 test: | decide
 	julia $(FLAGS) NLsolvemodel_tester.jl
@@ -13,10 +14,13 @@ sysimage:
 	julia MakeSysimage.jl
 decide:
 ifndef nosysimage
-ifneq (,$(wildcard ./SysimageEnvironments/NLsolveSysimage.so))
-FLAGS += --sysimage "NLsolveSysimage.so"
-	#echo "Sysimage NLsolveSysimage.so found, will be used"
+$(info Looking for available sysimage...)
+ifneq (,$(wildcard ./Sysimages/NLsolveSysimage.so))
+$(info Sysimage NLsolveSysimage.so found)
+FLAGS += --sysimage "./Sysimages/NLsolveSysimage.so"
 else
-	#echo "No Sysimage found, default Julia will be used"
+$(info No Sysimage found, default Julia will be used)
 endif
+else
+$(info <<nosysimage=true detected. Will not use available sysimages.>>)
 endif
