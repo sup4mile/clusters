@@ -40,8 +40,12 @@ z_H1 = 1
 z_Fk = 1
 
 # need to fill in the blank
-# target import share
-r = 0 # total import share of GDP
+# target import share (change into matrix form )
+r0 = 0.5 # total import share of GDP
+target_ratio = Matrix(ones(Float64, ni, 1))
+for i in 1:ni
+    target_ratio[i] = 0.5
+end
 r1 = 0 # agriculture import/value added
 r2 = 0 # manufacturing import/valued added
 r3 = 0 # service import/value added
@@ -192,7 +196,15 @@ function imp(l)
     end
     return F_sum
 end
-
+"""
+function import_ratio(i,l)
+    gdp_H_sec = 0
+    for j in 1:nc
+        gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l)+ yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
+    end
+    return import_sec/gdp_H_sec
+end
+"""
 function f!(F,l)
     for i in 1:ni
         # fixed point for lv_ic_H
@@ -213,25 +225,39 @@ function f!(F,l)
         # lv_if_Fx starts at col = 2nc+2
         F[i, 2nc+2] = (yv_if_Fx(i,l)) / z_F[i] - l[i,2nc+2]
 
+
     end
     # fixed point for foreign wage
     # j = 2nc+3
-    F[1,2nc+3] = ex(l) - imp(l)
 
+    F[1,2nc+3] = ex(l) - imp(l) # trade balance condition
+    F[1,3nc+3+1] = imp(l)/E_H -r0 # target total import GDP ratio
+
+"""
+    # agriculture productivity is 1 across counties
+    for j in 2nc+3+1:3nc+3
+        F[1,j] = l[1,j]-1
+    end
+    # sectorial productivity meet import target
+    for i in 2:ni
+        for j in 2nc+3+2:3nc+3
+            F[i,2nc+3+1] = import_ratio(i,l) - target_ratio[i]
+            F[i,j] = l[1,j]-l[i,j]
+        end
+    end
+"""
     # unused constraints
     for i in 2:ni
-        F[i, 2nc+3] = l[i, 2nc+3] - l[1, 2nc+3]
+        F[i, 2nc+3] = l[i, 2nc+3] - l[1, 2nc+3] # foreign wage
+        f[i,3nc+3+1] = l[i,3nc+3+1] - l[1, 3nc+3+1] # foreign productivity
     end
-
-    # labor sum to 1 constraint
-
 end
 
 
 
 # concat into one single matrix as NLsolve input
 w_F_v = [w_F for i = 1:ni]
-l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
 
 result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:trust_region)
 result.zero
@@ -291,6 +317,7 @@ import_sec = Matrix{Any}(undef, ni, 1)
 gdp_H_sec = Matrix{Any}(undef, ni, 1)
 import_gdp_ratio = Matrix{Any}(undef, ni, 1)
 
+
 for i in 1:ni
     import_sec[i] = yv_if_F_opt[i] * pv_if_F_opt[i]
     gdp_H_sec[i] = 0
@@ -299,6 +326,18 @@ for i in 1:ni
     end
     import_gdp_ratio[i] = import_sec[i]/gdp_H_sec[i]
 end
+import_gdp_ratio
+################################################################
+# try function
+# function import_ratio(i,l) #output the actual import ratio in the model for each industry
+#     import_sec = yv_if_F(i,l)*pv_if_F(i,l)
+#     gdp_H_sec = 0
+#     for j in 1:nc
+#         gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l)+ yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
+#     end
+#     return import_sec/gdp_H_sec
+# end
+
 
 
 ################################################################

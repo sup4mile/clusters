@@ -5,7 +5,7 @@ using NLsolve
 nc = 2 # number of counties
 ni = 2 # number of industries
 η = 0 # the spill-over effect
-τ = 1.2 # trade frictions
+τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
 σ = 1.7 # the elasiticity of substitution across industries
 L = 1 # total mass of labor at home country
