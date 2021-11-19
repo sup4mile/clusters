@@ -1,13 +1,15 @@
 using NLsolve
 
+# no county level productivity
+
 """
 Fixed parameters:
-z_H[1,nc] = 1 # domestic agriculture productivity normalized to 1
+z_H[1] = 1 # domestic agriculture productivity normalized to 1
 z_F[ni] = k # foreign productivities
 
 new variables:
-z_H[2,nc] # domestic manufacturing productivity
-z_H[3,nc] #domestic service productivity
+z_H[2] # domestic manufacturing productivity
+z_H[3] #domestic service productivity
 
 Target:
 1. total import/GDP ratio (one constraint)
@@ -41,36 +43,32 @@ z_Fk = 1
 
 # need to fill in the blank
 # target import share (change into matrix form )
-r0 = 0.5 # total import share of GDP
-target_ratio = Matrix(ones(Float64, ni, 1))
+
+"""
+# read in data
+target_H = Matrix(ones(Float64, ni, 1))
 for i in 1:ni
-    target_ratio[i] = 0.5
+    target_H[i] = 0.5
 end
-r1 = 0 # agriculture import/value added
-r2 = 0 # manufacturing import/valued added
-r3 = 0 # service import/value added
-r4 = 0 # others import/value added
+
+target_F = 0
+
+# make a column of keys
+
+"""
+
+target_H = Matrix(ones(Float64, ni, 1))
+for i in 1:ni
+    target_H[i] = 0.5
+end
+target_F = 0.5
 
 # calibration errors
 # diff1= r1-actualr1
 
 
-z_H = Matrix((ones(Float64, ni, nc))) # home productivity
+z_H = Matrix((ones(Float64, ni, 1))) # home productivity
 z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
-
-# productivity
-function set_z_H(i,z)
-    for j in 1:nc
-        z_H[i,j]= z
-    end
-end
-
-# change sectorial productivity
-for i in 2:ni
-    set_z_H(i,1)
-end
-
-# set domestic productivity in manufacturing and service
 
 
 # Initial guess: labor & foreign wage
@@ -86,7 +84,6 @@ all printed labor and production should have τ incorporated
 """
 
 
-
 # auxiliary functions
 function L_ic_H(i,j,l)
     return (μ_ub[i,j] - μ_lb[i,j]) * (l[i,j] + l[i,j+nc])
@@ -97,11 +94,11 @@ function E_F(l)
 end
 
 function pv_ic_H(i,j,l)
-    return E_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+    return E_H / (z_H[i] * L_ic_H(i,j,l) ^ η)
 end
 
 function pv_ic_Hx(i,j,l)
-    return E_H / (z_H[i,j] * L_ic_H(i,j,l) ^ η)
+    return E_H / (z_H[i] * L_ic_H(i,j,l) ^ η)
 end
 
 function pv_if_F(i,l)
@@ -196,25 +193,27 @@ function imp(l)
     end
     return F_sum
 end
-"""
+
 function import_ratio(i,l)
+    import_sec = yv_if_F(i,l) * pv_if_F(i,l)
     gdp_H_sec = 0
     for j in 1:nc
         gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l)+ yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
     end
     return import_sec/gdp_H_sec
 end
-"""
+
+
 function f!(F,l)
     for i in 1:ni
         # fixed point for lv_ic_H
         for j in 1:nc
-            F[i,j] = (yv_ic_H(i,j,l)) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_H(i,j,l)) / (z_H[i] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_ic_Hx
         for j in nc+1:2nc
-            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (z_H[i] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_if_F
@@ -225,31 +224,22 @@ function f!(F,l)
         # lv_if_Fx starts at col = 2nc+2
         F[i, 2nc+2] = (yv_if_Fx(i,l)) / z_F[i] - l[i,2nc+2]
 
-
     end
-    # fixed point for foreign wage
-    # j = 2nc+3
 
-    F[1,2nc+3] = ex(l) - imp(l) # trade balance condition
-    F[1,3nc+3+1] = imp(l)/E_H -r0 # target total import GDP ratio
+    # trade balance condition
+    F[1,2nc+3] = ex(l) - imp(l)
+    # z_H[1] agriculture productivity at home normalized to 1
+    F[1,2nc+4] = l[1,2nc+4] -1
+    # target total import GDP ratio
+    F[1,2nc+5] = imp(l)/E_H - target_F
 
-"""
-    # agriculture productivity is 1 across counties
-    for j in 2nc+3+1:3nc+3
-        F[1,j] = l[1,j]-1
-    end
-    # sectorial productivity meet import target
+
     for i in 2:ni
-        for j in 2nc+3+2:3nc+3
-            F[i,2nc+3+1] = import_ratio(i,l) - target_ratio[i]
-            F[i,j] = l[1,j]-l[i,j]
-        end
-    end
-"""
-    # unused constraints
-    for i in 2:ni
+
         F[i, 2nc+3] = l[i, 2nc+3] - l[1, 2nc+3] # foreign wage
-        f[i,3nc+3+1] = l[i,3nc+3+1] - l[1, 3nc+3+1] # foreign productivity
+
+        F[i, 2nc+4] = import_ratio(i,l) - target_H[i]
+        F[i, 2nc+5] = l[i, 2nc+5] - l[1, 2nc+5] # foreign productivity
     end
 end
 
@@ -309,34 +299,10 @@ end
 p_H_opt = p_H(result.zero)
 p_F_opt = p_F(result.zero)
 
-
-################################################################
-# actual import to GDP share
-
-import_sec = Matrix{Any}(undef, ni, 1)
-gdp_H_sec = Matrix{Any}(undef, ni, 1)
-import_gdp_ratio = Matrix{Any}(undef, ni, 1)
-
-
+import_ratio_opt = Matrix{Any}(undef, ni, 1)
 for i in 1:ni
-    import_sec[i] = yv_if_F_opt[i] * pv_if_F_opt[i]
-    gdp_H_sec[i] = 0
-    for j in 1:nc
-        gdp_H_sec[i] += (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H_opt[i,j] * pv_ic_H_opt[i,j]+ yv_ic_Hx_opt[i,j] * pv_ic_Hx_opt[i,j])
-    end
-    import_gdp_ratio[i] = import_sec[i]/gdp_H_sec[i]
+    import_ratio_opt[i]=import_ratio(i,result.zero)
 end
-import_gdp_ratio
-################################################################
-# try function
-# function import_ratio(i,l) #output the actual import ratio in the model for each industry
-#     import_sec = yv_if_F(i,l)*pv_if_F(i,l)
-#     gdp_H_sec = 0
-#     for j in 1:nc
-#         gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l)+ yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
-#     end
-#     return import_sec/gdp_H_sec
-# end
 
 
 
@@ -374,5 +340,4 @@ println("yv_if_Fx: Production at Foreign for Foreign consumption is ", yv_if_Fx_
 println("w_F: Foreign wage at optimal is $w_F_opt")
 println("Total trade from Home to Foreign is $export_opt")
 println("Total trade from Foreign to Home is $import_opt")
-println("Import in each industry is $import_sec")
-println("Import to GDP ratio is $import_gdp_ratio")
+println("Import to GDP ratio by industry is $import_ratio_opt")
