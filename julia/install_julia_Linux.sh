@@ -12,4 +12,4 @@ sudo apt remove julia
 
 #THIS ONE IS ESPECIALLY DANGEROUS, PLEASE CONSULT THE INTERNET IF UNSURE
 #3. Add PATH/TO/julia/bin to $PATH so that running Julia uses that one
-#echo "PATH=$PATH:/usr/bin/julia/bin" >> ~/.bashrc
+#echo "PATH=\"$PATH:/usr/bin/julia/bin\"" >> ~/.bashrc

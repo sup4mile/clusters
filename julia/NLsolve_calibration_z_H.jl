@@ -92,7 +92,7 @@ target_H = target_import_shares
 # diff1= r1-actualr1
 
 
-z_H = Matrix((ones(Float64, ni, nc))) # home productivity
+z_H = Matrix((ones(Float64, ni, 1))) # home productivity
 z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 
@@ -274,12 +274,12 @@ function f!Basic(F,l)
     for i in 1:ni
         # fixed point for lv_ic_H
         for j in 1:nc
-            F[i,j] = (yv_ic_H(i,j,l)) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_H(i,j,l)) / (z_H[i] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_ic_Hx
         for j in nc+1:2nc
-            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (z_H[i] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_if_F
@@ -301,12 +301,6 @@ function f!Basic(F,l)
     # labor sum to 1 constraint
 
 end
-
-
-
-# concat into one single matrix as NLsolve input
-w_F_v = [w_F for i = 1:ni]
-l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
 
 
 #function kindLikeF(x)
@@ -373,12 +367,18 @@ prod_guess_foreign = Matrix(ones(Float64, ni, 1)) # foreign productivity
 prod_guess_all = hcat(prod_guess_home, prod_guess_foreign)
 display(prod_guess_all)
 
-old = false
-if(old)
+run_type = "group"
+if(run_type == "old")
     l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
     result = nlsolve(f!Basic, l_initial, autodiff =:forward, iterations =:10000, method =:trust_region)
-else
+elseif(run_type == "mine")
     finalResult = nlsolve(F2, prod_guess_all, autodiff =:forward, iterations =:10000, method =:trust_region)
+elseif(run_type == "group")
+    # concat into one single matrix as NLsolve input
+    w_F_v = [w_F for i = 1:ni]
+    l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
+    #l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+    result = nlsolve(f!, l_initial, autodiff =:forward, iterations =:10000, method =:trust_region)
 end
 
 

@@ -6,15 +6,15 @@ FLAGS =
 
 run: | decide
 	@echo "Running now!"
-	julia $(FLAGS) NLsolvemodel.jl
+	julia$(FLAGS) NLsolvemodel.jl
 test: | decide
-	julia $(FLAGS) NLsolvemodel_tester.jl
+	julia$(FLAGS) NLsolvemodel_tester.jl
 sysimage:
 	#This must build the image entirely independently
 	julia MakeSysimage.jl
 decide:
 ifndef nosysimage
-$(info Looking for available sysimage...)
+$(info Looking for available Sysimage...)
 ifneq (,$(wildcard ./Sysimages/NLsolveSysimage.so))
 $(info Sysimage NLsolveSysimage.so found)
 FLAGS += --sysimage "./Sysimages/NLsolveSysimage.so"
