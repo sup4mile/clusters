@@ -1,13 +1,26 @@
 using NLsolve
 
-# #EXPERIMENT
-# import XLSX
-#
-# xf = XLSX.readxlsx("../Calibration/Processed/Import to GDP_2019.xlsx")
-#
-# #display(XLSX.sheetnames(xf))
-#
-# sh = xf["2019final"]
+#EXPERIMENT
+import XLSX
+
+xf = XLSX.readxlsx("../Calibration/processed/Import_to_GDP_2019.xlsx")
+
+#display(XLSX.sheetnames(xf))
+
+sh = xf["2019final"]
+
+#display(sh)
+
+#display(sh["F2:F5"])
+
+target_import_shares = sh["F2:F5"]
+target_import_shares = [1.0 for num=1:4]
+target_F = sh["F6"]
+target_F = 1.0
+
+#END OF EXPERIMENT
+
+
 
 # no county level productivity
 
@@ -65,25 +78,21 @@ target_F = 0
 # make a column of keys
 
 """
-#
+
 # target_H = Matrix(ones(Float64, ni, 1))
 # for i in 1:ni
-#     target_H[i] = 0.5
+#     target_H[i] = 0.4
 # end
-# target_F = 0.5
+# #target_F = 0.4
 
-target_H[1] = 0.377
-target_H[2] = 0.0377
-target_H[3] = 0.1623
-target_H[4] = 0.1135
 
-target_F = 0.1352
+target_H = target_import_shares
 
 # calibration errors
 # diff1= r1-actualr1
 
 
-z_H = Matrix((ones(Float64, ni, 1))) # home productivity
+z_H = Matrix((ones(Float64, ni, nc))) # home productivity
 z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 
@@ -214,7 +223,7 @@ function import_ratio(i,l)
     import_sec = yv_if_F(i,l) * pv_if_F(i,l)
     gdp_H_sec = 0
     for j in 1:nc
-        gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l) + yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
+        gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l)+ yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
     end
     return import_sec/gdp_H_sec
 end
@@ -245,16 +254,52 @@ function f!(F,l)
     # trade balance condition
     F[1,2nc+3] = ex(l) - imp(l)
     # z_H[1] agriculture productivity at home normalized to 1
-    F[1,2nc+4] = l[1,2nc+4] - 1
+    F[1,2nc+4] = l[1,2nc+4] -1
     # target total import GDP ratio
     F[1,2nc+5] = imp(l)/E_H - target_F
 
 
     for i in 2:ni
+
         F[i, 2nc+3] = l[i, 2nc+3] - l[1, 2nc+3] # foreign wage
+
         F[i, 2nc+4] = import_ratio(i,l) - target_H[i]
         F[i, 2nc+5] = l[i, 2nc+5] - l[1, 2nc+5] # foreign productivity
     end
+end
+
+#Same as it was before the addition of endogenous productivity
+function f!Basic(F,l)
+    println(typeof(l))
+    for i in 1:ni
+        # fixed point for lv_ic_H
+        for j in 1:nc
+            F[i,j] = (yv_ic_H(i,j,l)) / (z_H[i,j] * L_ic_H(i,j,l) ^ η) - l[i,j]
+        end
+
+        # fixed point for lv_ic_Hx
+        for j in nc+1:2nc
+            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (z_H[i,j-nc] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+        end
+
+        # fixed point for lv_if_F
+        # lv_if_F starts at col = 2nc+1
+        F[i, 2nc+1] = (yv_if_F(i,l)) / z_F[i] - l[i,2nc+1]
+
+        # fixed point for lv_if_Fx
+        # lv_if_Fx starts at col = 2nc+2
+        F[i, 2nc+2] = (yv_if_Fx(i,l)) / z_F[i] - l[i,2nc+2]
+
+    end
+    # fixed point for foreign wage
+    # j = 2nc+3
+    F[1,2nc+3] = ex(l) - imp(l)
+
+    for i in 2:ni
+        F[i,2nc+3] = l[i-1,2nc+3] - l[i, 2nc+3]
+    end
+    # labor sum to 1 constraint
+
 end
 
 
@@ -263,8 +308,80 @@ end
 w_F_v = [w_F for i = 1:ni]
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
 
-result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 1000, method = :anderson, xtol = 1e-3, ftol = 1e-3)
-result.zero
+
+#function kindLikeF(x)
+function F2(F,l)
+    println("F2 iter: ", typeof(l))
+    #set global productivities to x, which is producitivity guess
+    #display(l)
+    print("Displaying l:")
+    display(l)
+    #TODO transpose matrices
+
+    l_copy = copy(l)
+    #We put our Differentiating object back into a usable form (into a Matrix, that is)
+    global z_H = [l_copy[i,j].value for i=1:ni, j=1:nc]
+    print("z_H:")
+    display(z_H)
+    global z_F = [l_copy[i,j].value for i=1:ni, j=nc+1:nc+1]
+    print("z_F:")
+    display(z_F)
+
+    p_initial = hcat(z_H, z_F)
+    print("hcat(z_H, z_F):")
+    display(p_initial)
+
+    l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+    display(l_initial)
+
+    #numerically approximate labor for productivity guess
+    result = nlsolve(f!Basic, l_initial, autodiff =:forward, iterations = 10000, method =:trust_region)
+
+    #obtain normal for productivity guess by using real-world data vs incomeShare(productivity guess, labor approximation)
+    #you won't calculate prod relative to expected prod. You don't have that data. Rather, you'll compare guess imports with
+    #respect to real imports
+
+    #define l based on result.zero, which really should be result.zero itself
+
+    labor = result.zero
+    #print("Labor:\n")
+    #display(labor)
+    #for each industry prod guess, there is industry import share guess
+        #home
+        #for each prod in range 1 to ni
+        for i in 1:ni
+            F[i] = import_ratio(i,labor) - target_H[i]
+        end
+
+        #foreign
+        #for each prod in range ni+1 to ni*2
+        for i in ni+1:ni*2
+            F[i] = imp(labor)/E_H - target_F
+        end
+
+    #print("F:\n")
+    #display(F)
+
+    #print("(2) Displaying l:")
+    #display(l)
+end
+
+#guess of productivities
+prod_guess = 1.0
+prod_guess_home =  Matrix((ones(Float64, ni, nc))) # home productivity
+prod_guess_foreign = Matrix(ones(Float64, ni, 1)) # foreign productivity
+prod_guess_all = hcat(prod_guess_home, prod_guess_foreign)
+display(prod_guess_all)
+
+old = false
+if(old)
+    l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+    result = nlsolve(f!Basic, l_initial, autodiff =:forward, iterations =:10000, method =:trust_region)
+else
+    finalResult = nlsolve(F2, prod_guess_all, autodiff =:forward, iterations =:10000, method =:trust_region)
+end
+
+
 
 # extract optimal labor from optimization result
 lv_ic_H_opt = result.zero[1:ni, 1:nc]
