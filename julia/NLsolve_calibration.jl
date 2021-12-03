@@ -18,8 +18,8 @@ E_H = (Markup_H + 1) * w_H # expenditure
 μ_ub = Matrix{Real}([0.5 1; 0.5 1; 0.5 1; 0.5 1])
 
 
-
-
+#
+#
 # target_H = Matrix(ones(Float64, ni, 1))
 # for i in 1:ni
 #     target_H[i] = 0.5
@@ -30,41 +30,42 @@ E_H = (Markup_H + 1) * w_H # expenditure
 target_H = [0.377, 0.0377, 0.1623, 0.1135]
 target_F = 0.1352
 
+###########################################################
 
-# calibration parameters
+# # calibration parameters
 # z_H1 = 1
 # z_Fk = 1
 # z_H = z_H1 * Matrix((ones(Float64, ni, 1))) # home productivity
 # z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
-
-
+#
+#
 # # Initial guess: labor & foreign wage
 # lv_ic_H = [1/(ni*nc) for i=1:ni, j = 1:nc]
 # lv_ic_Hx = [1/(ni*nc) for i=1:ni, j = 1:nc]
-# lv_if_F = [1/(2*ni) for i = 1:ni]
-# lv_if_Fx = [1/(2*ni) for i = 1:ni]
+# lv_if_F = [1/(ni) for i = 1:ni]
+# lv_if_Fx = [1/(ni) for i = 1:ni]
 # w_F = 1
 
+###########################################################
+
 # productivity initial guess from manual calibration
-z_H = [1.165, 11, 2.5, 3.5]
-z_F = 0.061 * Matrix(ones(Float64, ni, 1))
+z_H = [1.2, 11, 2.5, 3.5]
+z_F = 0.06 * Matrix(ones(Float64, ni, 1))
 
-
-l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
-
-result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:newton, xtol = 10e-3, ftol = 10e-3)
-result.zero
-
-l = result.zero
-import_ratio_result = Matrix{Any}(undef, ni+1, 1)
-for i in 1:ni
-    import_ratio_result[i] = import_ratio(i, l)
-end
-import_ratio_result[5] = imp(l)/E_H
-
-display(import_ratio_result)
-
-
+# #
+# l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
+#
+# result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:newton, xtol = 10e-3, ftol = 10e-3)
+# result.zero
+#
+# l = result.zero
+# import_ratio_result = Matrix{Any}(undef, ni+1, 1)
+# for i in 1:ni
+#     import_ratio_result[i] = import_ratio(i, l)
+# end
+# import_ratio_result[5] = imp(l)/E_H
+#
+# display(import_ratio_result)
 
 
 
@@ -94,19 +95,19 @@ function E_F(l)
 end
 
 function pv_ic_H(i,j,l)
-    return E_H / (z_H[i] * L_ic_H(i,j,l) ^ η)
+    return E_H / (l[i,2nc+4] * L_ic_H(i,j,l) ^ η)
 end
 
 function pv_ic_Hx(i,j,l)
-    return E_H / (z_H[i] * L_ic_H(i,j,l) ^ η)
+    return E_H / (l[i,2nc+4] * L_ic_H(i,j,l) ^ η)
 end
 
 function pv_if_F(i,l)
-    return E_F(l) / z_F[i]
+    return E_F(l) / l[i,2nc+5]
 end
 
 function pv_if_Fx(i,l)
-    return  E_F(l) / z_F[i]
+    return  E_F(l) / l[i,2nc+5]
 end
 
 # industry_price_home matrix
@@ -208,21 +209,21 @@ function f!(F,l)
     for i in 1:ni
         # fixed point for lv_ic_H
         for j in 1:nc
-            F[i,j] = (yv_ic_H(i,j,l)) / (z_H[i] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_H(i,j,l)) / (l[i,2nc+4] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_ic_Hx
         for j in nc+1:2nc
-            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (z_H[i] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (l[i,2nc+4] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_if_F
         # lv_if_F starts at col = 2nc+1
-        F[i, 2nc+1] = (yv_if_F(i,l)) / z_F[i] - l[i,2nc+1]
+        F[i, 2nc+1] = (yv_if_F(i,l)) / l[i,2nc+5] - l[i,2nc+1]
 
         # fixed point for lv_if_Fx
         # lv_if_Fx starts at col = 2nc+2
-        F[i, 2nc+2] = (yv_if_Fx(i,l)) / z_F[i] - l[i,2nc+2]
+        F[i, 2nc+2] = (yv_if_Fx(i,l)) / l[i,2nc+5] - l[i,2nc+2]
 
     end
 
@@ -249,7 +250,7 @@ end
 w_F_v = [w_F for i = 1:ni]
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
 
-result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:trust_region, xtol = 10e-3, ftol = 10e-3)
+result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 100000, method =:newton, xtol = 10e-4, ftol = 10e-4)
 result.zero
 
 # extract optimal labor from optimization result
