@@ -1,24 +1,5 @@
 using NLsolve
 
-# no county level productivity
-
-"""
-Fixed parameters:
-z_H[1] = 1 # domestic agriculture productivity normalized to 1
-z_F[ni] = k # foreign productivities
-
-new variables:
-z_H[2] # domestic manufacturing productivity
-z_H[3] #domestic service productivity
-
-Target:
-1. total import/GDP ratio (one constraint)
-2. agriculture, manufacture, service, others sectorial import/GDP ratio (four constraints)
-"""
-
-
-
-
 # model parameters
 nc = 2 # number of counties
 ni = 4 # number of industries
@@ -37,46 +18,65 @@ E_H = (Markup_H + 1) * w_H # expenditure
 μ_ub = Matrix{Real}([0.5 1; 0.5 1; 0.5 1; 0.5 1])
 
 
+
+
+# target_H = Matrix(ones(Float64, ni, 1))
+# for i in 1:ni
+#     target_H[i] = 0.5
+# end
+#
+# target_F = 0.5
+
+target_H = [0.377, 0.0377, 0.1623, 0.1135]
+target_F = 0.1352
+
+
 # calibration parameters
-z_H1 = 1
-z_Fk = 1
+# z_H1 = 1
+# z_Fk = 1
+# z_H = z_H1 * Matrix((ones(Float64, ni, 1))) # home productivity
+# z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
 
-# need to fill in the blank
-# target import share (change into matrix form )
 
-"""
-# read in data
-target_H = Matrix(ones(Float64, ni, 1))
+# # Initial guess: labor & foreign wage
+# lv_ic_H = [1/(ni*nc) for i=1:ni, j = 1:nc]
+# lv_ic_Hx = [1/(ni*nc) for i=1:ni, j = 1:nc]
+# lv_if_F = [1/(2*ni) for i = 1:ni]
+# lv_if_Fx = [1/(2*ni) for i = 1:ni]
+# w_F = 1
+
+# productivity initial guess from manual calibration
+z_H = [1.165, 11, 2.5, 3.5]
+z_F = 0.061 * Matrix(ones(Float64, ni, 1))
+
+
+l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
+
+result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:newton, xtol = 10e-3, ftol = 10e-3)
+result.zero
+
+l = result.zero
+import_ratio_result = Matrix{Any}(undef, ni+1, 1)
 for i in 1:ni
-    target_H[i] = 0.5
+    import_ratio_result[i] = import_ratio(i, l)
 end
+import_ratio_result[5] = imp(l)/E_H
 
-target_F = 0
-
-# make a column of keys
-
-"""
-
-target_H = Matrix(ones(Float64, ni, 1))
-for i in 1:ni
-    target_H[i] = 0.5
-end
-target_F = 0.5
-
-# calibration errors
-# diff1= r1-actualr1
+display(import_ratio_result)
 
 
-z_H = Matrix((ones(Float64, ni, 1))) # home productivity
-z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 
-# Initial guess: labor & foreign wage
-lv_ic_H = [1/(ni*nc) for i=1:ni, j = 1:nc]
-lv_ic_Hx = [1/(ni*nc) for i=1:ni, j = 1:nc]
-lv_if_F = [1/ni for i = 1:ni]
-lv_if_Fx = [1/ni for i = 1:ni]
-w_F = 1
+
+# initial guess from manual calibration
+
+lv_ic_H = [0.0875208 0.0875208; 0.450736 0.450736; 0.15353 0.15353; 0.197069 0.197069]
+lv_ic_Hx = [0.0109438 0.0109438; 0.0563608 0.0563608; 0.0191976 0.0191976; 0.0246419 0.0246419]
+lv_if_F = [0.27988; 0.157243; 0.235664; 0.216069]
+lv_if_Fx = [0.0349966; 0.0196619; 0.0294679; 0.0270176]
+w_F = 0.125042
+
+
 
 """
 all prices are factory-gate prices;
@@ -229,7 +229,7 @@ function f!(F,l)
     # trade balance condition
     F[1,2nc+3] = ex(l) - imp(l)
     # z_H[1] agriculture productivity at home normalized to 1
-    F[1,2nc+4] = l[1,2nc+4] -1
+    F[1,2nc+4] = l[1,2nc+4] -1.2
     # target total import GDP ratio
     F[1,2nc+5] = imp(l)/E_H - target_F
 
@@ -249,7 +249,7 @@ end
 w_F_v = [w_F for i = 1:ni]
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
 
-result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:trust_region)
+result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:trust_region, xtol = 10e-3, ftol = 10e-3)
 result.zero
 
 # extract optimal labor from optimization result
