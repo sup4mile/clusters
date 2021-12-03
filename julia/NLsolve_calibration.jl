@@ -1,33 +1,5 @@
 using NLsolve
 
-# #EXPERIMENT
-# import XLSX
-#
-# xf = XLSX.readxlsx("../Calibration/Processed/Import to GDP_2019.xlsx")
-#
-# #display(XLSX.sheetnames(xf))
-#
-# sh = xf["2019final"]
-
-# no county level productivity
-
-"""
-Fixed parameters:
-z_H[1] = 1 # domestic agriculture productivity normalized to 1
-z_F[ni] = k # foreign productivities
-
-new variables:
-z_H[2] # domestic manufacturing productivity
-z_H[3] #domestic service productivity
-
-Target:
-1. total import/GDP ratio (one constraint)
-2. agriculture, manufacture, service, others sectorial import/GDP ratio (four constraints)
-"""
-
-
-
-
 # model parameters
 nc = 2 # number of counties
 ni = 4 # number of industries
@@ -46,53 +18,66 @@ E_H = (Markup_H + 1) * w_H # expenditure
 μ_ub = Matrix{Real}([0.5 1; 0.5 1; 0.5 1; 0.5 1])
 
 
-# calibration parameters
-z_H1 = 1
-z_Fk = 1
-
-# need to fill in the blank
-# target import share (change into matrix form )
-
-"""
-# read in data
-target_H = Matrix(ones(Float64, ni, 1))
-for i in 1:ni
-    target_H[i] = 0.5
-end
-
-target_F = 0
-
-# make a column of keys
-
-"""
+#
 #
 # target_H = Matrix(ones(Float64, ni, 1))
 # for i in 1:ni
 #     target_H[i] = 0.5
 # end
+#
 # target_F = 0.5
 
-target_H[1] = 0.377
-target_H[2] = 0.0377
-target_H[3] = 0.1623
-target_H[4] = 0.1135
-
+target_H = [0.377, 0.0377, 0.1623, 0.1135]
 target_F = 0.1352
 
-# calibration errors
-# diff1= r1-actualr1
+###########################################################
+
+# # calibration parameters
+# z_H1 = 1
+# z_Fk = 1
+# z_H = z_H1 * Matrix((ones(Float64, ni, 1))) # home productivity
+# z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
+#
+#
+# # Initial guess: labor & foreign wage
+# lv_ic_H = [1/(ni*nc) for i=1:ni, j = 1:nc]
+# lv_ic_Hx = [1/(ni*nc) for i=1:ni, j = 1:nc]
+# lv_if_F = [1/(ni) for i = 1:ni]
+# lv_if_Fx = [1/(ni) for i = 1:ni]
+# w_F = 1
+
+###########################################################
+
+# productivity initial guess from manual calibration
+z_H = [1.15, 11, 2.5, 3.5]
+z_F = 0.06 * Matrix(ones(Float64, ni, 1))
+
+# #
+# l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
+#
+# result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 10000, method =:newton, xtol = 10e-3, ftol = 10e-3)
+# result.zero
+#
+# l = result.zero
+# import_ratio_result = Matrix{Any}(undef, ni+1, 1)
+# for i in 1:ni
+#     import_ratio_result[i] = import_ratio(i, l)
+# end
+# import_ratio_result[5] = imp(l)/E_H
+#
+# display(import_ratio_result)
 
 
-z_H = Matrix((ones(Float64, ni, 1))) # home productivity
-z_F= z_Fk * Matrix(ones(Float64, ni, 1)) # foreign productivity
+
+# initial guess from manual calibration
+
+lv_ic_H = [0.0875208 0.0875208; 0.450736 0.450736; 0.15353 0.15353; 0.197069 0.197069]
+lv_ic_Hx = [0.0109438 0.0109438; 0.0563608 0.0563608; 0.0191976 0.0191976; 0.0246419 0.0246419]
+lv_if_F = [0.27988; 0.157243; 0.235664; 0.216069]
+lv_if_Fx = [0.0349966; 0.0196619; 0.0294679; 0.0270176]
+w_F = 0.125042
 
 
-# Initial guess: labor & foreign wage
-lv_ic_H = [1/(ni*nc) for i=1:ni, j = 1:nc]
-lv_ic_Hx = [1/(ni*nc) for i=1:ni, j = 1:nc]
-lv_if_F = [1/ni for i = 1:ni]
-lv_if_Fx = [1/ni for i = 1:ni]
-w_F = 1
 
 """
 all prices are factory-gate prices;
@@ -110,19 +95,19 @@ function E_F(l)
 end
 
 function pv_ic_H(i,j,l)
-    return E_H / (z_H[i] * L_ic_H(i,j,l) ^ η)
+    return E_H / (l[i,2nc+4] * L_ic_H(i,j,l) ^ η)
 end
 
 function pv_ic_Hx(i,j,l)
-    return E_H / (z_H[i] * L_ic_H(i,j,l) ^ η)
+    return E_H / (l[i,2nc+4] * L_ic_H(i,j,l) ^ η)
 end
 
 function pv_if_F(i,l)
-    return E_F(l) / z_F[i]
+    return E_F(l) / l[i,2nc+5]
 end
 
 function pv_if_Fx(i,l)
-    return  E_F(l) / z_F[i]
+    return  E_F(l) / l[i,2nc+5]
 end
 
 # industry_price_home matrix
@@ -214,7 +199,7 @@ function import_ratio(i,l)
     import_sec = yv_if_F(i,l) * pv_if_F(i,l)
     gdp_H_sec = 0
     for j in 1:nc
-        gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l) + yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
+        gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l)+ yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
     end
     return import_sec/gdp_H_sec
 end
@@ -224,28 +209,28 @@ function f!(F,l)
     for i in 1:ni
         # fixed point for lv_ic_H
         for j in 1:nc
-            F[i,j] = (yv_ic_H(i,j,l)) / (z_H[i] * L_ic_H(i,j,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_H(i,j,l)) / (l[i,2nc+4] * L_ic_H(i,j,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_ic_Hx
         for j in nc+1:2nc
-            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (z_H[i] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
+            F[i,j] = (yv_ic_Hx(i,j-nc,l)) / (l[i,2nc+4] * L_ic_H(i,j-nc,l) ^ η) - l[i,j]
         end
 
         # fixed point for lv_if_F
         # lv_if_F starts at col = 2nc+1
-        F[i, 2nc+1] = (yv_if_F(i,l)) / z_F[i] - l[i,2nc+1]
+        F[i, 2nc+1] = (yv_if_F(i,l)) / l[i,2nc+5] - l[i,2nc+1]
 
         # fixed point for lv_if_Fx
         # lv_if_Fx starts at col = 2nc+2
-        F[i, 2nc+2] = (yv_if_Fx(i,l)) / z_F[i] - l[i,2nc+2]
+        F[i, 2nc+2] = (yv_if_Fx(i,l)) / l[i,2nc+5] - l[i,2nc+2]
 
     end
 
     # trade balance condition
     F[1,2nc+3] = ex(l) - imp(l)
     # z_H[1] agriculture productivity at home normalized to 1
-    F[1,2nc+4] = l[1,2nc+4] - 1
+    F[1,2nc+4] = l[1,2nc+4] - 1.15
     # target total import GDP ratio
     F[1,2nc+5] = imp(l)/E_H - target_F
 
@@ -263,7 +248,7 @@ end
 w_F_v = [w_F for i = 1:ni]
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v, z_H, z_F)
 
-result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 1000, method = :anderson, xtol = 1e-3, ftol = 1e-3)
+result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 100000, method =:newton, xtol = 1e-3, ftol = 1e-3)
 result.zero
 
 # extract optimal labor from optimization result
@@ -271,7 +256,11 @@ lv_ic_H_opt = result.zero[1:ni, 1:nc]
 lv_ic_Hx_opt = result.zero[1:ni, nc+1:2nc]
 lv_if_F_opt = result.zero[1:ni, 2nc+1]
 lv_if_Fx_opt = result.zero[1:ni, 2nc+2]
+
 w_F_opt = result.zero[1, 2nc+3]
+
+z_H_opt = result.zero[1:ni, 2nc+4]
+z_F_opt = result.zero[1, 2nc+5]
 
 # initiatiation
 L_ic_H_opt = Matrix{Any}(undef, ni, nc)
@@ -291,8 +280,10 @@ yv_ic_H_opt = Matrix{Any}(undef, ni, nc)
 yv_ic_Hx_opt = Matrix{Any}(undef, ni, nc)
 yv_if_F_opt = Matrix{Any}(undef, ni, 1)
 yv_if_Fx_opt = Matrix{Any}(undef, ni, 1)
+
 export_opt = ex(result.zero)
 import_opt = imp(result.zero)
+import_ratio_opt = Matrix{Any}(undef, ni, 1)
 
 # calculate all auxiliary functions
 for i in 1:ni
@@ -307,18 +298,16 @@ for i in 1:ni
     pv_if_Fx_opt[i] = pv_if_Fx(i,result.zero)
     p_i_H_opt[i] = p_i_H(i,result.zero)
     p_i_F_opt[i] = p_i_F(i,result.zero)
+
     yv_if_F_opt[i] = yv_if_F(i,result.zero)
     yv_if_Fx_opt[i] = yv_if_Fx(i,result.zero)
+
+    import_ratio_opt[i] = import_ratio(i,result.zero)
 end
+
 p_H_opt = p_H(result.zero)
 p_F_opt = p_F(result.zero)
-
-import_ratio_opt = Matrix{Any}(undef, ni, 1)
-for i in 1:ni
-    import_ratio_opt[i]=import_ratio(i,result.zero)
-end
-
-
+total_import_ratio_opt = imp(result.zero)/E_H
 
 ################################################################
 # print all relevant values
@@ -328,8 +317,10 @@ println("lv_ic_H: Labor at Home for Home production is ")
 display(lv_ic_H_opt)
 println("lv_ic_Hx: Labor at Home for Foreign production is ")
 display(lv_ic_Hx_opt)
-println("lv_if_F: Labor at Foreign for Home production is ", lv_if_F_opt)
-println("lv_if_Fx: Labor at Foreign for Foreign production is ", lv_if_Fx_opt)
+println("lv_if_F: Labor at Foreign for Home production is ")
+display(lv_if_F_opt)
+println("lv_if_Fx: Labor at Foreign for Foreign production is ")
+display(lv_if_Fx_opt)
 println("L_ic_H: Aggregate labor at Home is ")
 display(L_ic_H_opt)
 
@@ -337,21 +328,35 @@ println("pv_ic_H: Price at Home for Home consumption is ")
 display(pv_ic_H_opt)
 println("pv_ic_Hx: Factory gate price at Home for Foreign consumption is ")
 display(pv_ic_Hx_opt)
-println("pv_if_F: Factory gate price at Foreign for Home consumption is ", pv_if_F_opt)
-println("pv_if_Fx: Price at Foreign for Foreign consumption is ", pv_if_Fx_opt)
-println("p_i_H: Price aggregation by industry at Home is ", p_i_H_opt)
-println("p_i_F: Price aggregation by industry at Foreign is ", p_i_F_opt)
-println("p_H: Price of final good at Home is $p_H_opt")
-println("p_F: Price of final good at Foreign is $p_F_opt")
+println("pv_if_F: Factory gate price at Foreign for Home consumption is ")
+display(pv_if_F_opt)
+println("pv_if_Fx: Price at Foreign for Foreign consumption is ")
+display(pv_if_Fx_opt)
+println("p_i_H: Price aggregation by industry at Home is ")
+display(p_i_H_opt)
+println("p_i_F: Price aggregation by industry at Foreign is ")
+display(p_i_F_opt)
+println("p_H: Price of final good at Home is")
+display(p_H_opt)
+println("p_F: Price of final good at Foreign is")
+display(p_F_opt)
 
 println("yv_ic_H: Production at Home for Home consumption is ")
 display(yv_ic_H_opt)
 println("yv_ic_Hx: Production at Home for Foreign consumption is ")
 display(yv_ic_Hx_opt)
-println("yv_if_F: Production at Foreign for Home consumption is ", yv_if_F_opt)
-println("yv_if_Fx: Production at Foreign for Foreign consumption is ", yv_if_Fx_opt)
+println("yv_if_F: Production at Foreign for Home consumption is ")
+display(yv_if_F_opt)
+println("yv_if_Fx: Production at Foreign for Foreign consumption is ")
+display(yv_if_Fx_opt)
+
+println("z_H: Home productivity at optimal is ")
+display(z_H_opt)
+println("z_F: Home productivity at optimal is $z_F_opt")
 
 println("w_F: Foreign wage at optimal is $w_F_opt")
 println("Total trade from Home to Foreign is $export_opt")
 println("Total trade from Foreign to Home is $import_opt")
-println("Import to GDP ratio by industry is $import_ratio_opt")
+println("Import to GDP ratio by industry is ")
+display(import_ratio_opt)
+println("Total Import to GDP ratio is $total_import_ratio_opt")
