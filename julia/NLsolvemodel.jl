@@ -311,5 +311,6 @@ end
 # Checks that file is being run using "julia NLsolvemodel.jl"
 # If not, does not execute code by default
 if abspath(PROGRAM_FILE) == @__FILE__
-    main()
+    
 end
+main()
