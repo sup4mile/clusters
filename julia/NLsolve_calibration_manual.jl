@@ -6,7 +6,12 @@ using NLsolve
 This file contains the trial and error process for manually calibrating productivity
     Compile all the functions and parameters first!
 """
-
+"""
+    1: Manufacturing
+    2: Service
+    3: Others
+    4: Foreign
+"""
 
 # #EXPERIMENT
 # import XLSX
@@ -21,7 +26,7 @@ This file contains the trial and error process for manually calibrating producti
 
 # Parameters
 nc = 2 # number of counties
-ni = 4 # number of industries
+ni = 3 # number of industries
 η = 0 # the spill-over effect
 τ = 1 # trade frictions
 ρ = 2 # the elasiticity of substitution within industry
@@ -32,16 +37,16 @@ w_H = 1 # wage at home normalized to 1
 Markup_H = 1/(ρ-1) # markup of firm
 E_H = (Markup_H + 1) * w_H # expenditure
 
-μ_lb = Matrix{Real}([0 0.5; 0 0.5; 0 0.5; 0 0.5])
+μ_lb = Matrix{Real}([0 0.5; 0 0.5; 0 0.5])
 # the entries before the semi-colon is industry 1 for all counties
-μ_ub = Matrix{Real}([0.5 1; 0.5 1; 0.5 1; 0.5 1])
+μ_ub = Matrix{Real}([0.5 1; 0.5 1; 0.5 1])
 
 # Manual Trial and Error
 
 # home productivity
-z_H = [1.2, 11, 2.5, 3.5]
+z_H = [29, 8, 2]
 # foreign productivity
-z_F = 0.06 * Matrix(ones(Float64, ni, 1))
+z_F = 0.24 * Matrix(ones(Float64, ni, 1))
 
 l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
 result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 100000)
@@ -51,7 +56,7 @@ import_ratio_result = Matrix{Any}(undef, ni+1, 1)
 for i in 1:ni
     import_ratio_result[i] = import_ratio(i, l)
 end
-import_ratio_result[5] = imp(l)/E_H
+import_ratio_result[4] = imp(l)/E_H
 
 display(import_ratio_result)
 
@@ -76,12 +81,8 @@ target_F = 0
 # end
 # target_F = 0.5
 
-# target_H[1] = 0.377
-# target_H[2] = 0.0377
-# target_H[3] = 0.1623
-# target_H[4] = 0.1135
-#
-# target_F = 0.1352
+target_H = [0.3774, 0.1623, 0.1289]
+target_F = 0.1352
 
 # calibration errors
 # diff1= r1-actualr1
@@ -265,12 +266,12 @@ end
 
 
 # Optimization with NLsolve
-# # concat into one single matrix as NLsolve input
-# w_F_v = [w_F for i = 1:ni]
-# l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
-#
-# result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 100000)
-# result.zero
+# concat into one single matrix as NLsolve input
+w_F_v = [w_F for i = 1:ni]
+l_initial = hcat(lv_ic_H, lv_ic_Hx, lv_if_F, lv_if_Fx, w_F_v)
+
+result = nlsolve(f!, l_initial, autodiff =:forward, iterations = 100000)
+result.zero
 
 # Calculate Optimal Level of Everything
 # extract optimal labor from optimization result
