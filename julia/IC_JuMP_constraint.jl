@@ -64,16 +64,16 @@ industries = 1:ni
 counties = 1:nc
 
 #labor for each industry-county (home production for home consumption), denoted lhh
-@variable(model, lhh[industries, counties] >= 0)
+@variable(model, lhh[industries, counties] >= 0, start = 0.1)
 
 #labor for each industry-county (home production for foreign consumption), denoted lhf
-@variable(model, lhf[industries, counties] >= 0)
+@variable(model, lhf[industries, counties] >= 0, start = 0.1)
 
 #labor for each industry (foreign production for home consumption), denoted lfh
-@variable(model, lfh[industries] >= 0)
+@variable(model, lfh[industries] >= 0, start = 0.1)
 
 #labor for each industry (foreign production for foreign consumption), denoted lff
-@variable(model, lff[industries] >= 0)
+@variable(model, lff[industries] >= 0, start = 0.1)
 
 #productivity for each industry-county (home production for both markets), denoted z_H
 # @variable(model, z_H[industries, counties] >= 0)
@@ -152,24 +152,16 @@ pred_import_share_H = @NLexpression(model, [i=industries], (yv_if_F[i] * pv_if_F
 #These last lines mirror our original model_difference() function
 
 pred_lhh_ic = @NLexpression(model, [i=industries, c=counties], yv_ic_H[i,c] / (z_H[i,c] * L_ic_H[i,c] ^ η))
-diff_lhh_ic = @NLexpression(model, [i=industries, c=counties], pred_lhh_ic[i,c] - lhh[i,c])
-
 pred_lhf_ic = @NLexpression(model, [i=industries, c=counties], yv_ic_Hx[i,c] / (z_H[i,c] * L_ic_H[i,c] ^ η))
-diff_lhf_ic = @NLexpression(model, [i=industries, c=counties], pred_lhf_ic[i,c] - lhf[i,c])
-
 pred_lfh_i = @NLexpression(model, [i=industries], yv_if_F[i] / z_F[i])
-diff_lfh_i = @NLexpression(model, [i=industries], pred_lfh_i[i] - lfh[i])
-
 pred_lff_i = @NLexpression(model, [i=industries], yv_if_Fx[i] / z_F[i])
-diff_lff_i = @NLexpression(model, [i=industries], pred_lff_i[i] - lff[i])
 
-diff_lhh = @NLexpression(model, sum(diff_lhh_ic[i,c]^2 for i=industries, c=counties))
-diff_lhf = @NLexpression(model, sum(diff_lhf_ic[i,c]^2 for i=industries, c=counties))
-diff_lfh = @NLexpression(model, sum(diff_lfh_i[i]^2 for i=industries))
-diff_lff = @NLexpression(model, sum(diff_lff_i[i]^2 for i=industries))
+@NLconstraint(model, [i=industries, c=counties], pred_lhh_ic[i,c] == lhh[i,c])
+@NLconstraint(model, [i=industries, c=counties], pred_lhf_ic[i,c] == lhf[i,c])
+@NLconstraint(model, [i=industries], pred_lff_i[i] == lff[i])
+@NLconstraint(model, [i=industries], pred_lfh_i[i] == lfh[i])
 
-model_difference = @NLexpression(model, diff_lhh + diff_lhf + diff_lfh + diff_lff)
-;
+
 
 #Set constraints for our model
 
@@ -185,7 +177,7 @@ model_difference = @NLexpression(model, diff_lhh + diff_lhf + diff_lfh + diff_lf
 #Constraint: import ratio for industry i at Home == target import ratio for i at H (from data)
 # the predicted ratio is import_ratio(i,l):
 # @NLconstraint(model, [i=industries], pred_import_share_H[i] == target_import_shares_H[i])
-
+# @NLobjective(model, Min, 1)
 #Constraint: import ratio for industry i at Foreign == target import ratio for i at F (from data?)
 #predicted ratio is the following value for all industries:
 # imp(l)/E_H
@@ -193,13 +185,6 @@ model_difference = @NLexpression(model, diff_lhh + diff_lhf + diff_lfh + diff_lf
 # foreign might be normalizable to 1, would make comparisons much easier
 # target_F = 1, according to our prior work
 
-
-#Lastly, we pass our root expression to our model as a non-linear objective.
-#Our objective needs to be non-linear to allow for our operations.
-#Objective function: minimize(| x - predicted(x) |) <-- i.e. we attempt to reach a fixed-point solution
-@NLobjective(model, Min, model_difference) #<-- this is the non-test objective to use
-#@NLobjective(model, Min, model_difference)
-#@objective(model, Min, model_difference(lhh, lhf, lfh, lff))
 
 # Run the model
 @show optimize!(model)
