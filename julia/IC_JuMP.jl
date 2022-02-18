@@ -9,7 +9,7 @@
 
 #We import our data for import shares
 import XLSX
-xf = XLSX.readxlsx("data/processed/Import_to_GDP_2019.xlsx")
+xf = XLSX.readxlsx("../data/processed/Import_to_GDP_2019.xlsx")
 sh = xf["2019final"]
 target_import_shares_H = sh["F2:F5"]
 target_import_shares_F = 1;
