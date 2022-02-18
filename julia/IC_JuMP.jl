@@ -12,6 +12,7 @@ import XLSX
 xf = XLSX.readxlsx("../data/processed/Import_to_GDP_2019.xlsx")
 sh = xf["2019final"]
 target_import_shares_H = sh["F2:F5"]
+# target_import_shares_H = sh["G2:G5"]
 target_import_shares_F = 1;
 ;
 
@@ -131,7 +132,7 @@ pred_lfh_i = @NLexpression(model, [i=industries], yv_if_F[i] / z_F[i])
 pred_lff_i = @NLexpression(model, [i=industries], yv_if_Fx[i] / z_F[i])
 
 #The following code is to be used for testing a new "constraint" solving method
-constraint_method = true
+constraint_method = false
 
 if constraint_method #We use the constraint method proposed during meeting
     @NLconstraint(model, [i=industries, c=counties], lhh[i,c] == pred_lhh_ic[i,c])
