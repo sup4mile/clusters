@@ -22,7 +22,7 @@ using Ipopt
 # debug = false
 
 # set up global params
-global nc = 5 # number of counties
+global nc = 20 # number of counties
 global ni = 4 # number of industries
 global η = 0 # the spill-over effect
 global τ = 1 # trade frictions
@@ -161,7 +161,7 @@ end
 #Constraint: labor must never be negative. This is achieved in the variable declarations.
 
 #Constraint: labors in a country must add to the country's initial allotment of labor
-@constraint(model, sum(lhh)+sum(lhf) == (ni*L_H))
+@constraint(model, sum(lhh)+sum(lhf) == (nc*L_H))
 #TODO is there an initial allotment of people per county? This may need to be added to
 #also, why ni and not nc? ALSO, why multiply by a number at all?
 
