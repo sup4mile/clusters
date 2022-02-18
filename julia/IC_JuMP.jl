@@ -34,14 +34,9 @@ global w_H = 1
 global Markup_H = 1/(ρ-1) # markup of firm
 global E_H = (Markup_H + 1) * w_H # expenditure
 
-# global z_H = Matrix((ones(Float64, ni, nc))) # home productivity
-# global z_F = Matrix(ones(Float64, ni, 1)) # foreign productivity
-
 company_sizes_H = [1/nc for i=1:ni, c=1:nc]
 #takes on the role of μ_lb and μ_ub below
-#represents the size of a company relative to the population in the county, range (0,1)
-#@show company_sizes_H #<-- if one would like to debug
-
+#represents the size of a company relative to the population in the county? range (0,1)
 # The variables below have solid mathematical reason for being here, but don't seem practical
 # to me from a programming perspective. It seems they merely define the relative size of a
 # company; this can be represented with 1 number instead of 2.
@@ -84,22 +79,16 @@ end
 #@variable(model, z_F[industries] >= 0)
 @variable(model, z_F_v >=0) # a single variable representing foreign productivity
 z_F = @NLexpression(model, [i=industries], z_F_v)
+#TODO: why agriculture at home? If we're equalising producitivity for all industries abroad,
+#why not make abroad 1? Do we care about how THEY compare to US?
+#Also, if productivity is equalised, we do not need z_F as it is now. We can just use z_F_v
+
 #wage at Home, normalised to 1
 #@NLparameter(model, w_H == 1)
 #wage at Foreign, some positive number relative to w_H
 @variable(model, w_F >= 0)
 
-# #show what these look like, purely for debugging
-# if(debug)
-# {       @show lhh
-#         @show lhf
-#         @show lfh
-#         @show lff
-# }
-# end
-
-#Here we make expressions that mirror functions. It seems that functions might
-#not work as desired, so we might be forced to use expressions. Yuck.
+#Here we make expressions that mirror functions from IC_NLsolve.jl
 
 L_ic_H = @NLexpression(model, [i=industries, c=counties], company_sizes_H[i,c] * (lhh[i,c] + lhf[i,c]))
 
@@ -134,14 +123,6 @@ exports = @NLexpression(model, sum((company_sizes_H[i,c]) * (pv_ic_Hx[i,c]) * (y
 imports = @NLexpression(model, sum((pv_if_F[i]) * (yv_if_F[i]) for i=industries))
 
 pred_import_share_H = @NLexpression(model, [i=industries], (yv_if_F[i] * pv_if_F[i]) / sum((company_sizes_H[i,c]) * (yv_ic_H[i,c] * pv_ic_H[i,c] + yv_ic_Hx[i,c] * pv_ic_Hx[i,c]) for c=counties))
-# function import_ratio(i,l)
-#     import_sec = yv_if_F(i,l) * pv_if_F(i,l)
-#     gdp_H_sec = 0
-#     for j in counties
-#         gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l)+ yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
-#     end
-#     return import_sec/gdp_H_sec
-# end
 
 #These last lines mirror our original model_difference() function
 pred_lhh_ic = @NLexpression(model, [i=industries, c=counties], yv_ic_H[i,c] / (z_H[i,c] * L_ic_H[i,c] ^ η))
@@ -149,7 +130,8 @@ pred_lhf_ic = @NLexpression(model, [i=industries, c=counties], yv_ic_Hx[i,c] / (
 pred_lfh_i = @NLexpression(model, [i=industries], yv_if_F[i] / z_F[i])
 pred_lff_i = @NLexpression(model, [i=industries], yv_if_Fx[i] / z_F[i])
 
-constraint_method = false
+#The following code is to be used for testing a new "constraint" solving method
+constraint_method = true
 
 if constraint_method #We use the constraint method proposed during meeting
     @NLconstraint(model, [i=industries, c=counties], lhh[i,c] == pred_lhh_ic[i,c])
@@ -180,6 +162,9 @@ end
 
 #Constraint: labors in a country must add to the country's initial allotment of labor
 @constraint(model, sum(lhh)+sum(lhf) == (ni*L_H))
+#TODO is there an initial allotment of people per county? This may need to be added to
+#also, why ni and not nc? ALSO, why multiply by a number at all?
+
 @constraint(model, sum(lfh)+sum(lff) == L_F)
 
 #Constraint: imports must equal predicted exports (or the other way around, it doesn't matter)
@@ -188,14 +173,6 @@ end
 #Constraint: import ratio for industry i at Home == target import ratio for i at H (from data)
 # the predicted ratio is import_ratio(i,l):
 @NLconstraint(model, [i=industries], pred_import_share_H[i] == target_import_shares_H[i])
-
-#Constraint: import ratio for industry i at Foreign == target import ratio for i at F (from data?)
-#predicted ratio is the following value for all industries:
-# imp(l)/E_H
-# the difference is thus: imp(l)/E_H - target_F
-# foreign might be normalizable to 1, would make comparisons much easier
-# target_F = 1, according to our prior work
-
 
 #Lastly, we pass our root expression to our model as a non-linear objective.
 #Our objective needs to be non-linear to allow for our operations.
@@ -207,12 +184,26 @@ end
 # Run the model
 optimize!(model)
 @show solution_summary(model)
+print("<< lhh >>\n")
 @show value.(lhh)
+print("\n")
+print("<< lhf >>\n")
 @show value.(lhf)
+print("\n")
+print("<< lfh >>\n")
 @show value.(lfh)
+print("\n")
+print("<< lff >>\n")
 @show value.(lff)
+print("\n")
+print("<< z_H >>\n")
 @show value.(z_H)
+print("\n")
+print("<< z_F >>\n")
 @show value.(z_F)
+print("\n")
+print("<< w_F >>\n")
 @show value.(w_F)
+print("\n")
 
 ; #eliminate unnecessary output
