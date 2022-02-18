@@ -143,29 +143,35 @@ pred_import_share_H = @NLexpression(model, [i=industries], (yv_if_F[i] * pv_if_F
 #     return import_sec/gdp_H_sec
 # end
 
-
-
-
 #These last lines mirror our original model_difference() function
-
 pred_lhh_ic = @NLexpression(model, [i=industries, c=counties], yv_ic_H[i,c] / (z_H[i,c] * L_ic_H[i,c] ^ η))
-diff_lhh_ic = @NLexpression(model, [i=industries, c=counties], pred_lhh_ic[i,c] - lhh[i,c])
-
 pred_lhf_ic = @NLexpression(model, [i=industries, c=counties], yv_ic_Hx[i,c] / (z_H[i,c] * L_ic_H[i,c] ^ η))
-diff_lhf_ic = @NLexpression(model, [i=industries, c=counties], pred_lhf_ic[i,c] - lhf[i,c])
-
 pred_lfh_i = @NLexpression(model, [i=industries], yv_if_F[i] / z_F[i])
-diff_lfh_i = @NLexpression(model, [i=industries], pred_lfh_i[i] - lfh[i])
-
 pred_lff_i = @NLexpression(model, [i=industries], yv_if_Fx[i] / z_F[i])
-diff_lff_i = @NLexpression(model, [i=industries], pred_lff_i[i] - lff[i])
 
-diff_lhh = @NLexpression(model, sum(diff_lhh_ic[i,c]^2 for i=industries, c=counties))
-diff_lhf = @NLexpression(model, sum(diff_lhf_ic[i,c]^2 for i=industries, c=counties))
-diff_lfh = @NLexpression(model, sum(diff_lfh_i[i]^2 for i=industries))
-diff_lff = @NLexpression(model, sum(diff_lff_i[i]^2 for i=industries))
+constraint_method = false
 
-model_difference = @NLexpression(model, diff_lhh + diff_lhf + diff_lfh + diff_lff)
+if constraint_method #We use the constraint method proposed during meeting
+    @NLconstraint(model, [i=industries, c=counties], lhh[i,c] == pred_lhh_ic[i,c])
+    @NLconstraint(model, [i=industries, c=counties], lhf[i,c] == pred_lhf_ic[i,c])
+    @NLconstraint(model, [i=industries], lfh[i] == pred_lfh_i[i])
+    @NLconstraint(model, [i=industries], lff[i] == pred_lff_i[i])
+
+    model_difference = @NLexpression(model, 1)
+
+else #We use the squared-difference minimisation method (initial Martin implementation)
+    diff_lhh_ic = @NLexpression(model, [i=industries, c=counties], pred_lhh_ic[i,c] - lhh[i,c])
+    diff_lhf_ic = @NLexpression(model, [i=industries, c=counties], pred_lhf_ic[i,c] - lhf[i,c])
+    diff_lfh_i = @NLexpression(model, [i=industries], pred_lfh_i[i] - lfh[i])
+    diff_lff_i = @NLexpression(model, [i=industries], pred_lff_i[i] - lff[i])
+
+    diff_lhh = @NLexpression(model, sum(diff_lhh_ic[i,c]^2 for i=industries, c=counties))
+    diff_lhf = @NLexpression(model, sum(diff_lhf_ic[i,c]^2 for i=industries, c=counties))
+    diff_lfh = @NLexpression(model, sum(diff_lfh_i[i]^2 for i=industries))
+    diff_lff = @NLexpression(model, sum(diff_lff_i[i]^2 for i=industries))
+
+    model_difference = @NLexpression(model, diff_lhh + diff_lhf + diff_lfh + diff_lff)
+end
 ;
 
 #Set constraints for our model
