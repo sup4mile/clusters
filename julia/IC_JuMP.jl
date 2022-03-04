@@ -8,14 +8,14 @@
 # cd("C:\Users\ricks\Dropbox\PC (2)\Desktop\University of Wisconsin-Madison\Research\RA with Alder\clusters")
 
 #We import our data for import shares
-# import XLSX
-# xf = XLSX.readxlsx("../data/Import_to_GDP_2019.xlsx")
-# sh = xf["2019final"]
-# target_import_shares_H = sh["F2:F5"]
-# target_import_shares_F = 1;
-# ;
+import XLSX
+xf = XLSX.readxlsx("../data/Import_to_GDP_2019.xlsx")
+sh = xf["2019final"]
+target_import_shares_H = sh["F2:F5"]
+target_import_shares_F = 1;
+;
 
-target_import_shares_H = [0.5 0.5 0.5 0.5]
+# target_import_shares_H = [0.5 0.5 0.5 0.5]
 
 
 # do importing work in this tab
