@@ -8,12 +8,15 @@
 # cd("C:\Users\ricks\Dropbox\PC (2)\Desktop\University of Wisconsin-Madison\Research\RA with Alder\clusters")
 
 #We import our data for import shares
-import XLSX
-xf = XLSX.readxlsx("../data/Import_to_GDP_2019.xlsx")
-sh = xf["2019final"]
-target_import_shares_H = sh["F2:F5"]
-target_import_shares_F = 1;
-;
+# import XLSX
+# xf = XLSX.readxlsx("../data/Import_to_GDP_2019.xlsx")
+# sh = xf["2019final"]
+# target_import_shares_H = sh["F2:F5"]
+# target_import_shares_F = 1;
+# ;
+
+target_import_shares_H = [0.5 0.5 0.5 0.5]
+
 
 # do importing work in this tab
 using JuMP
@@ -22,7 +25,7 @@ using Ipopt
 # debug = false
 
 # set up global params
-global nc = 5 # number of counties
+global nc = 3 # number of counties
 global ni = 4 # number of industries
 global η = 0 # the spill-over effect
 global τ = 1 # trade frictions
@@ -199,14 +202,96 @@ model_difference = @NLexpression(model, diff_lhh + diff_lhf + diff_lfh + diff_lf
 #@objective(model, Min, model_difference(lhh, lhf, lfh, lff))
 
 # Run the model
-@show optimize!(model)
-@show solution_summary(model)
-@show value.(lhh)
-@show value.(lhf)
-@show value.(lfh)
-@show value.(lff)
-@show value.(z_H)
-@show value.(z_F)
-@show value.(w_F)
+optimize!(model)
+# @show solution_summary(model)
+# @show value.(lhh)
+# @show value.(lhf)
+# @show value.(lfh)
+# @show value.(lff)
+# @show value.(z_H)
+# @show value.(z_F)
+# @show value.(w_F)
 
 ; #eliminate unnecessary output
+
+pv_ic_H_ = Matrix{Any}(undef, ni, nc)
+pv_ic_Hx_ = Matrix{Any}(undef, ni, nc)
+pv_if_F_ = Vector{Any}(undef, ni)
+pv_if_Fx_ = Vector{Any}(undef, ni)
+yv_ic_H_ = Matrix{Any}(undef, ni, nc)
+yv_ic_Hx_ = Matrix{Any}(undef, ni, nc)
+yv_if_F_ = Vector{Any}(undef, ni)
+yv_if_Fx_ = Vector{Any}(undef, ni)
+
+z_H_ = Matrix{Any}(undef, ni, nc)
+lhh_ = Matrix{Any}(undef, ni, nc)
+lhf_ = Matrix{Any}(undef, ni, nc)
+lfh_ = Vector{Any}(undef, ni)
+lff_ = Vector{Any}(undef, ni)
+L_ic_H_ =  Matrix{Any}(undef, ni, nc)
+
+p_i_H_ = Vector{Any}(undef, ni)
+p_i_F_ = Vector{Any}(undef, ni)
+
+pred_import_share_H_ = Vector{Any}(undef, ni)
+
+
+for i in industries
+    for j in counties
+        pv_ic_H_[i,j] = value.(pv_ic_H)[i,j]
+        pv_ic_Hx_[i,j] = value.(pv_ic_Hx)[i,j]
+        yv_ic_H_[i,j] = value.(yv_ic_H)[i,j]
+        yv_ic_Hx_[i,j] = value.(yv_ic_Hx)[i,j]
+        z_H_[i,j] = value.(z_H)[i,j]
+        lhh_[i,j] = value.(lhh)[i,j]
+        lhf_[i,j] = value.(lhf)[i,j]
+        L_ic_H_[i,j] = value.(L_ic_H)[i,j]
+    end
+end
+
+for i in industries
+    pv_if_F_[i] = value.(pv_if_F)[i]
+    pv_if_Fx_[i] = value.(pv_if_Fx)[i]
+    p_i_H_[i] = value.(p_i_H)[i]
+    p_i_F_[i] = value.(p_i_F)[i]
+    yv_if_F_[i] = value.(yv_if_F)[i]
+    yv_if_Fx_[i] = value.(yv_if_Fx)[i]
+    lfh_[i] = value.(lfh)[i]
+    lff_[i] = value.(lff)[i]
+    pred_import_share_H_[i] = value.(pred_import_share_H)[i]
+end
+println("level at optimum: ")
+println("lhh: Labor at Home for Home production is ")
+display(lhh_)
+println("lhf: Labor at Home for Foreign production is ")
+display(lhf_)
+println("lfh: Labor at Foreign for Home production is ", lfh_)
+println("lff: Labor at Foreign for Foreign production is ", lff_)
+println("L_ic_H: Aggregate labor at Home is ")
+display(L_ic_H_)
+
+println("pv_ic_H: Price at Home for Home consumption is ")
+display(pv_ic_H_)
+println("pv_ic_Hx: Factory gate price at Home for Foreign consumption is ")
+display(pv_ic_Hx_)
+println("pv_if_F: Factory gate price at Foreign for Home consumption is ", pv_if_F_)
+println("pv_if_Fx: Price at Foreign for Foreign consumption is ", pv_if_Fx_)
+println("p_i_H: Price aggregation by industry at Home is ", p_i_H_ )
+println("p_i_F: Price aggregation by industry at Foreign is ", p_i_F_)
+println("p_H: Price of final good at Home is ", value(p_H))
+println("p_F: Price of final good at Foreign is ", value(p_F))
+
+println("yv_ic_H: Production at Home for Home consumption is ")
+display(yv_ic_H_)
+println("yv_ic_Hx: Production at Home for Foreign consumption is ")
+display(yv_ic_Hx_)
+println("yv_if_F: Production at Foreign for Home consumption is ", yv_if_F_)
+println("yv_if_Fx: Production at Foreign for Foreign consumption is ", yv_if_Fx_)
+
+println("w_F: Foreign wage at optimal is ", value(w_F))
+println("Total trade from Home to Foreign is ", value(exports))
+println("Total trade from Foreign to Home is ", value(imports))
+println("Import to GDP ratio by industry is ", pred_import_share_H_)
+println("z_H: Domestic productivity is")
+display(z_H_)
+println("z_F: Domestic productivity is ", value.(z_F)[1])
