@@ -19,8 +19,6 @@ target_import_shares_F = 1;
 using JuMP
 using Ipopt
 
-# debug = false
-
 # set up global params
 global nc = 5 # number of counties
 global ni = 4 # number of industries
@@ -33,9 +31,6 @@ global L_F = 1 # total mass of labor at foreign country
 global w_H = 1
 global Markup_H = 1/(ρ-1) # markup of firm
 global E_H = (Markup_H + 1) * w_H # expenditure
-
-# global z_H = Matrix((ones(Float64, ni, nc))) # home productivity
-# global z_F = Matrix(ones(Float64, ni, 1)) # foreign productivity
 
 company_sizes_H = [1/nc for i=1:ni, c=1:nc]
 #takes on the role of μ_lb and μ_ub below
@@ -77,8 +72,6 @@ counties = 1:nc
 for i in 1:nc
     fix(z_H[1, i], 1; force = true)
 end
-
-
 
 #productivity for each industry (foreign production for both markets), denoted z_F
 #@variable(model, z_F[industries] >= 0)
@@ -133,15 +126,8 @@ yv_if_Fx = @NLexpression(model, [i=industries], pv_if_Fx[i]^(-ρ) * p_i_F[i]^(ρ
 exports = @NLexpression(model, sum((company_sizes_H[i,c]) * (pv_ic_Hx[i,c]) * (yv_ic_Hx[i,c]) for i=industries, c=counties))
 imports = @NLexpression(model, sum((pv_if_F[i]) * (yv_if_F[i]) for i=industries))
 
-pred_import_share_H = @NLexpression(model, [i=industries], (yv_if_F[i] * pv_if_F[i]) / sum((company_sizes_H[i,c]) * (yv_ic_H[i,c] * pv_ic_H[i,c] + yv_ic_Hx[i,c] * pv_ic_Hx[i,c]) for c=counties))
-# function import_ratio(i,l)
-#     import_sec = yv_if_F(i,l) * pv_if_F(i,l)
-#     gdp_H_sec = 0
-#     for j in counties
-#         gdp_H_sec +=  (μ_ub[i,j] - μ_lb[i,j]) * (yv_ic_H(i,j,l) * pv_ic_H(i,j,l)+ yv_ic_Hx(i,j,l) * pv_ic_Hx(i,j,l))
-#     end
-#     return import_sec/gdp_H_sec
-# end
+pred_import_share_H = @NLexpression(model, [i=industries], (yv_if_F[i] * pv_if_F[i]) / sum((company_sizes_H[i,c]) 
+* (yv_ic_H[i,c] * pv_ic_H[i,c] + yv_ic_Hx[i,c] * pv_ic_Hx[i,c]) for c=counties))
 
 #These last lines mirror our original model_difference() function
 pred_lhh_ic = @NLexpression(model, [i=industries, c=counties], yv_ic_H[i,c] / (z_H[i,c] * L_ic_H[i,c] ^ η))
