@@ -59,7 +59,7 @@ company_sizes_H = [1/nc for i=1:ni, c=1:nc]
 
 #Make model and its vars
 model = Model(Ipopt.Optimizer)
-set_silent(model)
+# set_silent(model)
 industries = 1:ni
 counties = 1:nc
 
