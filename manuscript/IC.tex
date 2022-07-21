@@ -45,7 +45,7 @@ minus0.5ex} \textwidth15.75cm \evensidemargin5mm \oddsidemargin5mm
 \begin{titlepage}
 %\begin{singlespacing}
 
-\title{Industry Clusters\footnote{Nicole Jieying Zhang, Zili Yang, and Weihao Lu provided outstanding research assistance.}}
+\title{Industry Clusters\footnote{Nicole Jieying Zhang, Zili Yang, Richard Shi, Biance Yue, Martin Diges, and Weihao Lu provided outstanding research assistance.}}
 
 \author{Simeon D.~Alder\footnote{University of Wisconsin - Madison, Department of Economics, email: \url{simeon.alder@wisc.edu}}}
 %\date{October 2011}
@@ -223,7 +223,7 @@ Once concern is that industry concentration could vary systematically with the s
 
 \section{Model}
 \subsection{Preferences, Technology, and Geography}\label{sec:preferences}
-Time is discrete and periods are indexed by $t$. The economy is populated by a unit measure of workers with linear preferences of a single final consumption good:
+Time is discrete and periods are indexed by $t$. The economy is populated by a unit measure of workers with linear preferences over a single final consumption good:
 \begin{equation}
 \label{eq:U}
 U_t = \sum_{s=t}^\infty \beta^{t-s} u(c_s) = \sum_{s=t}^\infty \beta^{t-s} c_s,
@@ -259,7 +259,7 @@ where $\eta \geq 0$ governs the strength of the positive externality -- i.e.~the
 The labor productivities $z_{i,t}^H(j)$ are drawn from known distributions for each industry $i$ and individual producers take total employment at the industry-county level as given.
 %s home to a subset of industries $I_c \subseteq I$. Some counties host firms from all industries while others have a more limited industrial mix. Moreover, for each $i \in I$ the allocation of firms across counties is a partition of the closed interval $[0,1]$ into $C_i \leq C$ intervals.
 
-International trade is subject to symmetric iceberg-style trade costs denoted by $\tau$. In order to deliver one unit of output to an international destination, firms produce and ship $\tau$ units, which requires additional units of labor input. For simplicity, we abstract from geography and local technology spillovers in the {\it Foreign} economy, which allows us to drop local industry employment abroad ($\mathcal{L}$) altogether. Formally, production destined for exportw markets can be written as:
+International trade is subject to symmetric iceberg-style trade costs denoted by $\tau$. In order to deliver one unit of output to an international destination, firms produce and ship $\tau$ units, which requires additional units of labor input. For simplicity, we abstract from geography and local technology spillovers in the {\it Foreign} economy, which allows us to drop local industry employment abroad ($\mathcal{L}$) altogether. Formally, production destined for export markets can be written as:
 \begin{align}
 \label{}
 \tau y_{i,c,t}^{H*}(j) & = z_{i,t}^H(j) \ell_{i,c,t}^{H*}(j) \left( \mathcal{L}_{i,c,t}^H \right)^\eta\\
@@ -270,25 +270,44 @@ The location of production (or factor use) is labeled $H$ for {\it Home} and $F$
 \label{ }
 y_{i,t}^{F*}(j) = z_{i,t}^F(j) \ell_{i,t}^{F*}(j) .
 \end{equation}}
-Finally, the two economies are endowed with $L^H$ and $L^F$ workers. 
+Finally, the two economies are endowed with $L^H$ and $L^F$ workers.
+
 \subsection{Firms' Problems}\label{sec:problems}
+
+\subsubsection{Final Good}
+The final good is produced in a competitive market and the representative firm solves
+\begin{equation}
+\label{eq:Pi}
+\Pi_t = \max_{\{ y_{i,t} \}_{i=1}^I} P_t\left( \sum_{i=1}^I y_{i,t}^{\frac{\sigma-1}{\sigma}} \right)^{\frac{\sigma}{\sigma-1}} - \sum_{i=1}^I p_{i,t} y_{i,t}.
+\end{equation}
+\subsubsection{Industry Composite Goods}
+Similarly, the composite goods at the industry level are produced in a market with free entry and the representative firm in industry $i$ solves
+\begin{align}
+\label{eq:pi_i}
+\pi_{i,t} & = \max_{\left\{ \left\{ y_{i,c,t}^H(j) \right\}_{j \in [\underline{\mu}_{i,c},{\overline{\mu}_{i,c}]}} \right\}_{c=1}^C,\left\{ y_{i,t}^F(j) \right\}_{j \in [0,1]}} p_{i,t} \left( \sum_{c=1}^C \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} \left( {y^H_{i,c,t}(j)}^{\frac{\rho-1}{\rho}} + {y^F_{i,t}(j)}^{\frac{\rho-1}{\rho}} \right) dj\right)^{\frac{\rho}{\rho-1}} \nonumber \\
+& - \left( \sum_{c=1}^C \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} \left( {y^H_{i,c,t}(j)} p^H_{i,c,t}(j) + {y^F_{i,t}(j)} \tau p^F_{i,t}(j) \right) dj \right)
+\end{align}
+\subsubsection{Individual Varieties}
 A firm producing variety $j$ in industry $i$ and location $c$ for domestic use chooses the price $p_{i,c,t}(j)$, output $y_{i,c,t}(j)$, and
 labor input $\ell_{i,c,t}(j)$ to maximize its profits: 
-\begin{equation}
-\pi_{i,c,t}^H(j) = p_{i,c,t}^H(j) y_{i,c,t}^H(j) - w_{t}\ell_{i,c,t}^H(j),  \label{eq:profit_max_static}
-\end{equation}%
-subject to the downward-sloping demand curve implied by \eqref{eq:yi}. The firm's optimal price is the standard
-markup: 
+\begin{align}
+\pi_{i,c,t}^H(j) & = p_{i,c,t}^H(j) y_{i,c,t}^H(j) - w_{t}\ell_{i,c,t}^H(j) \nonumber\\
+& = p_{i,c,t}^H(j) z_{i,t}^H(j) \ell_{i,c,t}(j) \left( \mathcal{L}_{i,c,t}^H \right)^\eta - w_{t}\ell_{i,c,t}^H(j)  \label{eq:profit_max_static}
+\end{align}%
+subject to the downward-sloping demand curve implied by \eqref{eq:pi_i}. The firm's optimal price is the standard
+markup over marginal cost: 
 \begin{equation}
 p_{i,c,t}^H(j)=\frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j) \mathcal{L}_{i,c,t}^\eta}.  \label{eq:monopolist_price}
 \end{equation}%
-The corresponding output is: 
+Local spill-over effects imply that the optimal price depends on local employment in the same industry, denoted $\mathcal{L}_{i,c,t}$, whenever $\eta > 0$.
+
+The corresponding equilibrium quantity of output is: 
 \begin{align}
 y_{i,c,t}^H(j) & =\left( \frac{p_{i,c,t}^H(j)}{p_{i,t}}\right) ^{-\rho} \left( \frac{p_{i,t}}{P_t} \right)^{-\sigma} \frac{X_{t}}{P_{t}} \nonumber \\
 & =\left( \frac{\rho }{\rho -1}\frac{w_{t}}{z_{i,t}(j) \mathcal{L}_{i,c,t}^\eta}\right) ^{-\rho } p_{i,t}^{\rho-\sigma} P_t^{\sigma-1} X_t
 \label{eq:monopolist_output}
 \end{align}%
-where $X_{t}$ is aggregate expenditure, $P_{t}$ is the price of the final good, and $p_{i,t}$ is the price of the sectoral composite $y_{i,t}$ in {\it Home}.
+where $X_{t}$ denotes aggregate expenditures, $P_{t}$ is the price of the final good, and $p_{i,t}$ is the price of the sectoral composite $y_{i,t}$ in {\it Home}.
 
 Since the production technology is linear in labor, the firm solves a completely separate profit maximization problem for production and shipment to the export market in {\it Foreign}.
 
@@ -305,12 +324,12 @@ The sectoral price index is given by
 \label{ }
 p_{i,t} = \left( \sum_c \int_{\underline{\mu}_{i,c}}^{\overline{\mu}_{i,c}} p_{i,c,t}^H(j)^{1-\rho} dj + \int_0^1 \left( \tau p_{i,t}^F(j) \right)^{1-\rho} dj \right)^{\frac{1}{1-\rho}},
 \end{equation}
-where $p_{i,t}^F(j)$ is the factory gate price (f.o.b.) of the foreign variety $j$ in industry $i$ and $\tau p_{i,t}^F(j)$ is the corresponding c.i.f.~price at the destination.\footnote{The profit maximization problems of foreign producers mirror those of domestic producers. Recall, however, that $\eta=0$ and the foreign wage $w_t^*$ cannot be normalized to unity. The latter is determined in equilibrium and is pinned down by a balanced trade condition. We will fill in these details in the next version of the manuscript.} The final good price is a power mean over the sectoral indices:
+where $p_{i,t}^F(j)$ is the factory gate price (f.o.b.) of the foreign variety $j$ in industry $i$ and $\tau p_{i,t}^F(j)$ is the corresponding c.i.f.~price at the destination.\footnote{The profit maximization problems of foreign producers mirror those of domestic producers. Recall, however, that $\eta=0$ in {\it Foreign}.}
+The final good price is a power mean over the sectoral indices:
 \begin{equation}
 \label{ }
 P_t = \left( \sum_{i=1}^I p_{i,t}^{1-\sigma} \right)^{\frac{1}{1-\sigma}}.
 \end{equation}
-
 
 %The firm's period equilibrium profits are: 
 %\begin{equation}
@@ -328,6 +347,14 @@ Trade is balanced each period, that is,
 \end{equation}
 
 It is straightforward to show that $p_{i,c,t}^{F}(j)=\frac{\rho }{\rho -1}\frac{w_{t}^*}{z_{i,t}^*(j)}$ and that $y_{i,c,t}^{F}(j)$ also depends on $w_t^*$. This implies that the trade balance condition pins down the foreign wage in equilibrium.
+
+\section{Quantitative Analysis}
+We can now parameterize the model to assess the extent to which local labor markets with a more diversified industry mix are less prone to exogenous shocks. We use the rise in manufacturing imports from China as an example of a shock that is sufficiently large to generate the labor market disruptions that are of interest from a macroeconomic point of view.
+
+{\sc This is the next step in the project.}
+
+\section{Conclusion}
+{\sc To be completed!}
 %\section{Local Labor Market Dynamics in Wisconsin}
 %What do these results suggest for county-level employment dynamics in Wisconsin? Despite the widespread perception that competition from overseas has lead to the disappearance of manufacturing jobs, this is not borne out in the data. While it is certainly the case that Wisconsin was more exposed to the rise in Chinese imports than most U.S.~states (the color scheme to the right of Figure \ref{fig:d5ipw} illustrates the {\it national} deciles and Wisconsin counties tend to gravitate to the middle and top of the scale), there is no evidence to suggest that counties with plausibly higher exposure experienced lower employment growth between 1997 and 2002.
 %\begin{figure}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=latex 2019.5.8)  26 MAY 2022 17:34
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=latex 2019.5.8)  21 JUL 2022 16:32
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1100,28 +1100,31 @@ ngly small frac-tion of all im-ports).Finally,
 [4] [5] [6] [7]
 LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <12> not available
 (Font)              Font shape `OT1/ppl/b/n' tried instead on input line 225.
- [8] [9] [10] [11] [12] (./IC.bbl [13])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 371.
- [14]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 371.
+ [8] [9]
+LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <10.95> not available
+(Font)              Font shape `OT1/ppl/b/n' tried instead on input line 277.
+ [10] [11] [12] [13] (./IC.bbl [14])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 398.
+ [15]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 398.
  (./IC.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 371.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 371.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 398.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 398.
 Package rerunfilecheck Info: File `IC.out' has not changed.
-(rerunfilecheck)             Checksum: B9116CE2C88F53C9961B13C92190A583;358.
+(rerunfilecheck)             Checksum: E9FA7CF50D93E72D2E719DB02B0ABAFE;692.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 371.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 398.
  ) 
 Here is how much of TeX's memory you used:
- 25775 strings out of 492617
- 462338 string characters out of 6129508
- 553763 words of memory out of 5000000
- 29387 multiletter control sequences out of 15000+600000
- 558977 words of font info for 114 fonts, out of 8000000 for 9000
+ 25784 strings out of 492617
+ 462474 string characters out of 6129508
+ 554363 words of memory out of 5000000
+ 29396 multiletter control sequences out of 15000+600000
+ 559357 words of font info for 115 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  53i,12n,92p,2155b,451s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on IC.dvi (15 pages, 88916 bytes).
+Output written on IC.dvi (16 pages, 94032 bytes).
