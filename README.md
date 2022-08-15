@@ -26,12 +26,12 @@ Part One - Employment data
 File path: jzhang 
 
 1. Change raw data into dta format 
+	 
+	cbp_related/cbp_raw_to_dta.do
 	
-	cbp_related/cbpYYco.txt (YY is the year) 
+	read in: cbpYYco.txt (the raw CBP data txt file, Yy is the year)
 	
-	Stata command: insheet using cbpYYYYco.txt 
-	
-	save cbpYYYYco.dta (this is the input raw data for imputation) 
+	result: cbpYYYYco.dta (this is the input raw data for imputation)
 
 2. Imputation of employment data for each year 
 	
