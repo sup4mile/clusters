@@ -11,7 +11,7 @@ Raw data sources
 	
 	Retrieved from https://www.census.gov/programs-surveys/cbp.html 
 	
-	Data -> CBP Tables -> Year -> Geography -> County -> All counties -> Download table
+	Data -> County Business Patterns Data-> CBP Datasets -> Year -> Complete County File
 	
 2. Imports data: United Nations Comtrade Database 1992-2016 
 	
@@ -27,7 +27,7 @@ File path: jzhang
 
 1. Change raw data into dta format 
 	
-	cbp_related/bpYYYYco.txt (YYYY is the year) 
+	cbp_related/cbpYYco.txt (YY is the year) 
 	
 	Stata command: insheet using cbpYYYYco.txt 
 	
