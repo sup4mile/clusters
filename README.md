@@ -15,9 +15,9 @@ Raw data sources
 	
 2. Imports data: United Nations Comtrade Database 1992-2016 
 	
-	Retrieved from https://www.comtrade.un.org 
+	Retrieved from https://comtrade.un.org/
 	
-	To get import data from China: Select year ->Reporters: USA -> Partners: China -> Trade flows: Import _> HS Codes: AG6 -All 6-digit HS commodities -> get data 
+	To get import data from China: Get data -> Select year ->Reporters: USA -> Partners: China -> Trade flows: Import _> HS Codes: AG6 -All 6-digit HS commodities -> get data 
 --------------------------------------------------------------------------------------------------------
 Data Cleaning 
 
@@ -29,7 +29,7 @@ File path: jzhang
 	 
 	cbp_related/cbp_raw_to_dta.do
 	
-	read in: cbpYYco.txt (the raw CBP data txt file, Yy is the year)
+	read in: cbpYYco.txt (the raw CBP data txt file, YY is the year)
 	
 	result: cbpYYYYco.dta (this is the input raw data for imputation)
 
@@ -60,7 +60,7 @@ File path: Imports data
 	Imports from other countries: C7 (1992-2016) 
 	
 	C7/other_process.do 
-	merge all imports from AUS, Den, Fin, Germ, Newz, Spain, Swiss, Jap to one dta file
+	merge all imports from AUS, Den, Fin, Germ, Newz, Spain, Swiss, Jap to one dta file (other_agg.dta)
 
 2. Change imports data industry classifications from Harmonized System (HS) code into NAICS 
 	6hs-6naics.do
