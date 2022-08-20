@@ -18,6 +18,18 @@ Raw data sources
 	Retrieved from https://comtrade.un.org/
 	
 	To get import data from China: Get data -> Select year ->Reporters: USA -> Partners: China -> Trade flows: Import _> HS Codes: AG6 -All 6-digit HS commodities -> get data 
+	
+3. Working age population data by county: Census Intercensal Datasets
+	
+	1990-2000 retrieved from https://www.census.gov/data/datasets/time-series/demo/popest/intercensal-1990-2000-state-and-county-characteristics.html
+	
+	2000-2010 retrieved from https://www.census.gov/data/datasets/time-series/demo/popest/intercensal-2000-2010-counties.html
+	
+	The do file to merge: WORKING AGE POP/WAP2000_2010_stata.do
+	
+	read in: WAP2000_2010.csv, WAPyyyy.csv (yyyy is each year from 1990 to 1999)
+	
+	result: working_age_pop/dta
 --------------------------------------------------------------------------------------------------------
 Data Cleaning 
 
