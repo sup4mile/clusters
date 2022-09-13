@@ -29,7 +29,7 @@ Raw data sources
 	
 	read in: WAP2000_2010.csv, WAPyyyy.csv (yyyy is each year from 1990 to 1999)
 	
-	result: working_age_pop/dta
+	result: working_age_pop.dta and working_age_pop.csv
 --------------------------------------------------------------------------------------------------------
 Data Cleaning 
 
@@ -125,6 +125,7 @@ Merge and construct 1992-2007 dataset, then perform the 2SLS: 201026_overlapping
 The section below keeps track of the updates in 2022 Fall. 
 
 Raw data file
+
 	1. employment data (2022/cbp)
 	
 	   1990-1997: sic_naic4_2019.dta
