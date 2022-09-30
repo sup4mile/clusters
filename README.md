@@ -3,10 +3,14 @@
 This project analyzes the effect of industry concentration on employment dynamics. 
 The raw data consist of the County Business Pattern (CBP) and the imports data from the United Nations Comtrade Database. The time periods in the current data sets are 1992-2016 for CBP and 1992-2019 for imports data. 
 
-The main data cleaning tasks are (1) compile the employment data in CBP and deal with employment noise imputation (2) combine imports data from other countries and reclassify all imports data from Harmonized System (HS)code to the North American Industry Classification System (NAICS) code (3) change the Standardized Industry Code (SIC) into the NAICS code in the 1992-1997 employment data. There are other minor changes in the industry and county classification over the year. The main data analysis task is a 2SLS. All files are stored in the Linux Project V:\ic
+The main data cleaning tasks are:
+1. compile the employment data in CBP and deal with employment noise imputation 
+2. combine imports data from other countries and reclassify all imports data from Harmonized System (HS)code to the North American Industry Classification System (NAICS) code 
+3. change the Standardized Industry Code (SIC) into the NAICS code in the 1992-1997 employment data. There are other minor changes in the industry and county classification over the year. The main data analysis task is a 2SLS. All files are stored in the Linux Project V:\ic
 
 --------------------------------------------------------------------------------------------------------
-Raw data sources 
+
+## Raw data sources 
 1. Employment data: County Business Patterns from the U.S. Census 1992-2016  
 	
 	Retrieved from https://www.census.gov/programs-surveys/cbp.html 
@@ -31,9 +35,9 @@ Raw data sources
 	
 	result: working_age_pop.dta and working_age_pop.csv
 --------------------------------------------------------------------------------------------------------
-Data Cleaning 
+## Data Cleaning 
 
-Part One - Employment data
+### Part One - Employment data
 
 File path: jzhang 
 
@@ -62,7 +66,7 @@ File path: jzhang
 
 
 
-Part Two - Imports Data 
+### Part Two - Imports Data 
 File path: Imports data 
 
 1. Raw data used
@@ -81,7 +85,7 @@ File path: Imports data
 
 
 
-Part Three - Construct the final data set
+### Part Three - Construct the final data set
 File path: jzhang+
 
 Note: From 1990 to 1997, the data used SIC (the Standard Industry Code) to classify industries. In 1998-2016, the data used the NAICS code. After the data cleaning, all industry classifications are in NAICS code. 
@@ -109,8 +113,8 @@ ipw_progress.do
 	Change of county ID in virginia: va_ctyid_new 
 	
 	Final step: cty_clean_9216_new.do 
---------------------------------------------------------------------------------------------------------
-Data Analysis
+
+## Data Analysis
 
         
 Final dataset from the data cleaning phase: jzhang+/cty_clean_9216_final.dta
@@ -119,12 +123,12 @@ Import data construction: 201026_9216data_construction.do
 	
 Merge and construct 1992-2007 dataset, then perform the 2SLS: 201026_overlapping_reg.do 
 	
-
-# 2022 Fall Updates
 --------------------------------------------------------------------------------------------------------
+# 2022 Fall Updates
+
 The section below keeps track of the updates in 2022 Fall. 
 
-Raw data file
+## Raw data file
 
 	1. employment data (2022/cbp)
 	
@@ -138,9 +142,9 @@ Raw data file
 	   
 	3. import data (2022/imports)
 	
-Data Cleaning
+## Data Cleaning
 
-Part One - Commuting Zone (CZ) Employment data
+### Part One - Commuting Zone (CZ) Employment data
 
 File path: 2022/CZ_assign
 
