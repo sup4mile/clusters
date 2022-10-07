@@ -130,13 +130,13 @@ The section below keeps track of the updates in 2022 Fall.
 
 ## Raw data file
 
-	1. employment data (2022/cbp)
+	1. employment data (File path: ic/old/2022/cbp)
 	
 	   1990-1997: sic_naic4_2019.dta
 	   
 	   1998-2016: append_97naics4_2019.dta
 	   
-	2. Working age population data (2022/WORKING AGE POP)
+	2. Working age population data (File path: ic/old/2022/WORKING AGE POP)
 	
 	   working_age_pop (dta or csv)
 	   
@@ -146,25 +146,23 @@ The section below keeps track of the updates in 2022 Fall.
 
 ### Part One - Commuting Zone (CZ) Employment data
 
-File path: 2022/CZ_assign
-
 1. Add CZ identifier to each observation
 
     use the USDA CZ file as a reference: USDA_cz00.xls
     
     the reference document to deal with county division changes: County_Change.pdf
     
-    code file: cz_identifier.py
+    code file: cz_identifier.py  (File path: ic/code/community_zone_CZ/)
     
     readin: USDA_cz00, sic_naic4_2019, and append_97naics4_2019
     
-    result: sic_naic4_2019_cz and append_97naics4_2019_cz
+    result: sic_naic4_2019_cz and append_97naics4_2019_cz  (File path: ic/data/community_zone_CZ/)
     
 2. Aggregate county-level observation to CZ-level
 
-   code file: cz_aggregation.py
+   code file: cz_aggregation.py  (File path: ic/code/community_zone_CZ/)
    
    readin: USDA_cz00, sic_naic4_2019_cz, append_97naics4_2019_cz, and working_age_pop
    
-   result: 90-97_cz_wap.dta and 98-16_cz_wap.dta
-    
+   result: 90-97_cz_wap.dta and 98-16_cz_wap.dta  (File path: ic/data/community_zone_CZ/)
+
