@@ -144,7 +144,7 @@ The section below keeps track of the updates in 2022 Fall.
 	
 	
 ## Weight of HS10-HS6:
-	Other countries only have HS6 inteade of HS10 codes. Therfore, we need to weight these HS6 to US HS10 codes. And we then apply the weighted HS10 into HS10-NAICS6 crosswalk and finally get NIAIC4 code 
+Other countries only have HS6 inteade of HS10 codes. Therfore, we need to weight these HS6 to US HS10 codes. And we then apply the weighted HS10 into HS10-NAICS6 crosswalk and finally get NIAIC4 code 
 	
 1. old_data/imports data/6hs-6naics.do: 
  	This do-files takes im_from_China.dta and collapses HS10 to HS6 (generate "weight" for each HS10 within HS6) and it also collaps imports from other countires (other_naics4_agg.dta) from HS10 to HS6. Finally it generate NAICS4 and save as other_naics4_agg.dta 
@@ -156,8 +156,7 @@ The section below keeps track of the updates in 2022 Fall.
 	China imports data after weighting from HS6 - HS10
 	
 4. old_data/imports data/other_naics4_agg.dta is the final data with imports from other countries.
-	    
-	    level of imports (NAICS4) and difference at 1, 3, 5 and 10 years
+	level of imports (NAICS4) and difference at 1, 3, 5 and 10 years
 
 	    
 	
