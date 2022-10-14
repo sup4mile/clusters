@@ -130,17 +130,19 @@ The section below keeps track of the updates in 2022 Fall.
 
 ## Raw data file
 
-	1. employment data (File path: ic/old/2022/cbp)
+	1. employment data (File path: ic/data/raw_data/cbp)
 	
 	   1990-1997: sic_naic4_2019.dta
 	   
 	   1998-2016: append_97naics4_2019.dta
 	   
-	2. Working age population data (File path: ic/old/2022/WORKING AGE POP)
+	2. Working age population data (File path: ic/data/raw_data/WORKING AGE POP)
 	
 	   working_age_pop (dta or csv)
 	   
-	3. import data (2022/imports)
+	3. import data (ic/old data)
+	   US imports from China: hs_cn_new
+	   other countries' imports from China: other_naics4_agg
 	
 	
 ## Weight of HS10-HS6:
@@ -152,14 +154,6 @@ Other countries only have HS6 inteade of HS10 codes. Therfore, we need to weight
 2. old_data/imports data/hs_sic_naics_imports_89_117_20180927.dta:
 
    HS10 to NAICS crosswalk
-	
-3. old_data/imports data/cw_hs6_naics6_yby.dta final China data:
-	
-   China imports data after weighting from HS6 - HS10
-	
-4. old_data/imports data/other_naics4_agg.dta is the final data with imports from other countries:
-
-    level of imports (NAICS4) and difference at 1, 3, 5 and 10 years
 
 	    
 	
@@ -168,25 +162,37 @@ Other countries only have HS6 inteade of HS10 codes. Therfore, we need to weight
 	
 ## Data Cleaning
 
-### Part One - Commuting Zone (CZ) Employment data
+### Part One - Commuting Zone (CZ) level data (ic/code/commuting_zone_CZ)
 
 1. Add CZ identifier to each observation
 
-    use the USDA CZ file as a reference: USDA_cz00.xls
-    
-    the reference document to deal with county division changes: County_Change.pdf
-    
-    code file: cz_identifier.py  (File path: ic/code/community_zone_CZ/)
+    code file: cz_identifier.py 
     
     readin: USDA_cz00, sic_naic4_2019, and append_97naics4_2019
     
     result: sic_naic4_2019_cz and append_97naics4_2019_cz  (File path: ic/data/community_zone_CZ/)
     
+    use the USDA CZ file as a reference: USDA_cz00.xls
+    
+    the reference document to deal with county division changes: County_Change.pdf
+    
 2. Aggregate county-level observation to CZ-level
 
-   code file: cz_aggregation.py  (File path: ic/code/community_zone_CZ/)
+    code file: cz_aggregation.py 
    
-   readin: USDA_cz00, sic_naic4_2019_cz, append_97naics4_2019_cz, and working_age_pop
+    readin: USDA_cz00, sic_naic4_2019_cz, and append_97naics4_2019_cz,
+      
+    result: 90-97_cz.csv and 98-16_cz_wap.csv  (File path: ic/data/community_zone_CZ/)
    
-   result: 90-97_cz_wap.dta and 98-16_cz_wap.dta  (File path: ic/data/community_zone_CZ/)
+3. Aggregate county-level working age population to CZ-level
+    
+    code file: wap_cz.py
+    
+    readin: USDA_cz00
+    
+    result: wap_cz.csv (File path: ic/data/community_zone_CZ/)
+    
+### Part Two - Forward 1, 3, 5, 10-year differences
+    
+    
 
