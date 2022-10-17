@@ -184,7 +184,9 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
 1. ipt_diff&hhi.do
 
     **Purpose**: 1) Calculate forward differences of imports (in dollars)
+    
                          2) Calculate forward differences of imports per worker (in dollars)
+                         
                          3) Calculate HHI at both 4-digit NAICS and 2-digit NAICS levels for each CZ
                          
     readin: 90-97_cz.csv,  98-16_cz.csv, hs_cn_new.dta, and other_naics4_agg.dta 
@@ -196,7 +198,9 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
 2. wap_diff&manu_em_diff.do
 
     **Purpose**: 1) Clean up CZ-level working age population and calculate forward differences of it
+    
                          2) Calculate forward differences of manufacturing industry
+                         
                          3) Merge HHI and all forward differences into a final datafile
                          
     readin: wap_cz.csv and 90-16_cz_ipt_diff_allcountries.dta
