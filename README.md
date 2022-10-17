@@ -146,53 +146,64 @@ The section below keeps track of the updates in 2022 Fall.
 	
 	
 ## Weight of HS10-HS6:
-Other countries only have HS6 inteade of HS10 codes. Therfore, we need to weight these HS6 to US HS10 codes. And we then apply the weighted HS10 into HS10-NAICS6 crosswalk and finally get NIAIC4 code 
-	
-1. old_data/imports data/6hs-6naics.do: 
-   This do-files takes im_from_China.dta and collapses HS10 to HS6 (generate "weight" for each HS10 within HS6) and it also collaps imports from other countires (other_naics4_agg.dta) from HS10 to HS6. Finally it generate NAICS4 and save as other_naics4_agg.dta 
-	
-2. old_data/imports data/hs_sic_naics_imports_89_117_20180927.dta:
-
-   HS10 to NAICS crosswalk
-
-	    
-	
-	
+Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in its HS10 based on the US import record. Therfore, we need to weight these HS6 to US HS10 codes. 6hs-6naics.do (old_data/Imports data) calculate weights and apply these weights to other countries' imports from China. cw_hs6_naics6_yby.dta (old_data/Imports data) is the datafile after splitting  6-digit other countries’ imports into 10-digit code, and hs_sic_naics_imports_89_117....dta (old_data/Imports data) is the reference for crosswalk from HS10 to NAICS6. Two final import datafiles are described above.
 
 	
 ## Data Cleaning
 
 ### Part One - Commuting Zone (CZ) level data (ic/code/commuting_zone_CZ)
 
-1. Add CZ identifier to each observation
+1. cz_identifier.py 
 
-    code file: cz_identifier.py 
+    **Purpose**: Add CZ identifier to each observation
     
     readin: USDA_cz00, sic_naic4_2019, and append_97naics4_2019
     
-    result: sic_naic4_2019_cz and append_97naics4_2019_cz  (File path: ic/data/community_zone_CZ/)
+    output: sic_naic4_2019_cz and append_97naics4_2019_cz  (File path: ic/data/community_zone_CZ/)
     
-    use the USDA CZ file as a reference: USDA_cz00.xls
+    Remark: use the USDA CZ file as a reference: USDA_cz00.xls, and the reference document to deal with county division changes is County_Change.pdf
     
-    the reference document to deal with county division changes: County_Change.pdf
-    
-2. Aggregate county-level observation to CZ-level
+2. cz_aggregation.py
 
-    code file: cz_aggregation.py 
+    **Purpose**: Aggregate county-level observation to CZ-level
    
     readin: USDA_cz00, sic_naic4_2019_cz, and append_97naics4_2019_cz,
       
-    result: 90-97_cz.csv and 98-16_cz_wap.csv  (File path: ic/data/community_zone_CZ/)
+    output: 90-97_cz.csv and 98-16_cz.csv  (File path: ic/data/community_zone_CZ/)
    
-3. Aggregate county-level working age population to CZ-level
-    
-    code file: wap_cz.py
+3. wap_cz.py
+
+    **Purpose**: Aggregate county-level working age population to CZ-level
     
     readin: USDA_cz00
     
-    result: wap_cz.csv (File path: ic/data/community_zone_CZ/)
+    output: wap_cz.csv (File path: ic/data/community_zone_CZ/)
     
-### Part Two - Forward 1, 3, 5, 10-year differences
+### Part Two - Forward 1, 3, 5, 10-year differences (ic/code/diff_computation)
+
+1. ipt_diff&hhi.do
+
+    **Purpose**: 1) Calculate forward differences of imports (in dollars)
+                         2) Calculate forward differences of imports per worker (in dollars)
+                         3) Calculate HHI at both 4-digit NAICS and 2-digit NAICS levels for each CZ
+                         
+    readin: 90-97_cz.csv,  98-16_cz.csv, hs_cn_new.dta, and other_naics4_agg.dta 
+    
+    output: 90-16_cz_ipt_diff_allcountries.dta and hhi_naics2.dta (File path: ic/data/diff_computation/)
+    
+    intermediate output: 98-16_cz_ipt_dif.dta, 90-97_cz_ipt_diff.dta, and 90-16_cz_ipt_diff.dta (File path: ic/data/diff_computation/)
+    
+2. wap_diff&manu_em_diff.do
+
+    **Purpose**: 1) Clean up CZ-level working age population and calculate forward differences of it
+                         2) Calculate forward differences of manufacturing industry
+                         3) Merge HHI and all forward differences into a final datafile
+                         
+    readin: wap_cz.csv and 90-16_cz_ipt_diff_allcountries.dta
+    
+    output: cz_clean_file.dta (File path: ic/data/diff_computation/)
+    
+    intermediate output: wap_cz_cleaned.dta and manufacturing_gap.dta (File path: ic/data/diff_computation/)
     
     
 
