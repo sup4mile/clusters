@@ -194,12 +194,13 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
     
     intermediate output: 98-16_cz_ipt_dif.dta, 90-97_cz_ipt_diff.dta, and 90-16_cz_ipt_diff.dta (File path: ic/data/diff_computation/)
     
-2. wap_diff&manu_em_diff.do
+2. other_diff.do
 
     **Purpose**: 
     	1) Clean up CZ-level working age population and calculate forward differences of it
 	2) Calculate forward differences of manufacturing industry
-	3) Merge HHI and all forward differences into a final datafile
+	3) Calculate forward differences of CZ employment share in working age population
+	4) Merge HHI and all forward differences into a final datafile
                          
     readin: wap_cz.csv and 90-16_cz_ipt_diff_allcountries.dta
     
