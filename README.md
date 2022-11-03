@@ -208,5 +208,12 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
     
     intermediate output: wap_cz_cleaned.dta and manufacturing_gap.dta (File path: ic/data/diff_computation/)
     
-    
+### Part Three - Regression (ic/code/regression
 
+    All regression do files readin: cz_clean_file.dta (File path: ic/data/diff_computation/)
+    
+1. regress_5yr_weight.do
+
+    Regression for stacked 5-year differences with both 1992 employment and 2016 employment as analytical weights
+    
+    Regressions done in this file (update required)
