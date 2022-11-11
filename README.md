@@ -192,9 +192,10 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
                          
     readin: 90-97_cz.csv,  98-16_cz.csv, hs_cn_new.dta, and other_naics4_agg.dta 
     
-    output: 90-16_cz_ipt_diff_allcountries.dta and hhi_naics2.dta (File path: ic/data/diff_computation/)
-    
     intermediate output: 98-16_cz_ipt_dif.dta, 90-97_cz_ipt_diff.dta, and 90-16_cz_ipt_diff.dta (File path: ic/data/diff_computation/)
+    
+    final output: 90-16_cz_ipt_diff_allcountries.dta and hhi_naics2.dta (File path: ic/data/diff_computation/)
+    
     
 2. other_diff.do
 
@@ -206,13 +207,15 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
                          
     readin: wap_cz.csv and 90-16_cz_ipt_diff_allcountries.dta
     
-    output: cz_clean_file.dta (File path: ic/data/diff_computation/)
-    
     intermediate output: wap_cz_cleaned.dta and manufacturing_gap.dta (File path: ic/data/diff_computation/)
+    
+    final output: cz_clean_file.dta (File path: ic/data/diff_computation/)
+    
+    
     
 ### Part Three - Regression (ic/code/regression
 
-    All regression do files readin: cz_clean_file.dta (File path: ic/data/diff_computation/)
+     All regression do files readin: cz_clean_file.dta (File path: ic/data/diff_computation/)
     
 1. emp_sh_wap_regress.do
 
