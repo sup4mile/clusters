@@ -130,19 +130,20 @@ The section below keeps track of the updates in 2022 Fall.
 
 ## Raw data file
 
-	1. employment data (File path: ic/data/raw_data/cbp)
+1. employment data (File path: ic/data/raw_data/cbp)
 	
-	   1990-1997: sic_naic4_2019.dta
+    1990-1997: sic_naic4_2019.dta
 	   
-	   1998-2016: append_97naics4_2019.dta
+    1998-2016: append_97naics4_2019.dta
 	   
-	2. Working age population data (File path: ic/data/raw_data/WORKING AGE POP)
+2. Working age population data (File path: ic/data/raw_data/WORKING AGE POP)
 	
-	   working_age_pop (dta or csv)
+    working_age_pop (dta or csv)
 	   
-	3. import data (ic/old data)
-	   US imports from China: hs_cn_new
-	   other countries' imports from China: other_naics4_agg
+3. import data (ic/old data)
+    US imports from China: hs_cn_new
+    
+    other countries' imports from China: other_naics4_agg
 	
 	
 ## Weight of HS10-HS6:
