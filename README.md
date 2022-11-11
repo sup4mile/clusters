@@ -217,3 +217,7 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
 1. emp_sh_wap_regress.do
 
     Regress change of employment share in WAP on changes in import per workers, manu employ share in employ, hhi_4, and the interaction of changes in import per workers with hhi_4 under different year stacks
+    
+2. log_emp_regress.do
+
+    Regress log difference in employement on changes in import per workers, manu employ share in employ, hhi_4, and the interaction of changes in import per workers with hhi_4 under different year stacks
