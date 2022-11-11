@@ -213,9 +213,9 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
     
     
     
-### Part Three - Regression (ic/code/regression
+### Part Three - Regression (ic/code/regression)
 
-     All regression do files readin: cz_clean_file.dta (File path: ic/data/diff_computation/)
+    All regression do files readin: cz_clean_file.dta (File path: ic/data/diff_computation/)
     
 1. emp_sh_wap_regress.do
 
