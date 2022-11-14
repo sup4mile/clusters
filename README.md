@@ -221,10 +221,19 @@ All regression do files readin: cz_clean_file.dta (File path: ic/data/diff_compu
 1. emp_sh_wap_regress.do
 
     Regress change of employment share in WAP on changes in import per workers, manu employ share in employ, hhi_4, and the interaction of changes in import per workers with hhi_4 under different year stacks
+
+emp_sh_wap_regress.log
+
+Saved the do file into a log file
+
     
 2. log_emp_regress.do
 
     Regress log difference in employement on changes in import per workers, manu employ share in employ, hhi_4, and the interaction of changes in import per workers with hhi_4 under different year stacks
+
+log_emp_regress.log
+
+Saved the do file into a log file
 
 
 ## Batch File
