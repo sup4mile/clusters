@@ -140,19 +140,19 @@ The section below keeps track of the updates in 2022 Fall.
 	
     working_age_pop (dta or csv)
 	   
-3. import data (ic/old data)
-    US imports from China: hs_cn_new
+3. import data (File path: ic/old data)
+    
+	US imports from China: hs_cn_new
     
     other countries' imports from China: other_naics4_agg
 	
 	
 ## Weight of HS10-HS6:
-Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in its HS10 based on the US import record. Therfore, we need to weight these HS6 to US HS10 codes. 6hs-6naics.do (old_data/Imports data) calculate weights and apply these weights to other countries' imports from China. cw_hs6_naics6_yby.dta (old_data/Imports data) is the datafile after splitting  6-digit other countries’ imports into 10-digit code, and hs_sic_naics_imports_89_117....dta (old_data/Imports data) is the reference for crosswalk from HS10 to NAICS6. Two final import datafiles are described above.
-
+Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in its HS10 based on the US import record. Therfore, we need to weight these HS6 to US HS10 codes. 6hs-6naics.do (File path: old_data/Imports data) calculates weights and applies these weights to other countries' imports from China. cw_hs6_naics6_yby.dta (File path: old_data/Imports data) is the datafile after splitting  6-digit other countries’ imports into 10-digit code, and hs_sic_naics_imports_89_117....dta (File path: old_data/Imports data) is the reference for crosswalk from HS10 to NAICS6. Two final import datafiles are described above.
 	
 ## Data Cleaning
 
-### Part One - Commuting Zone (CZ) level data (ic/code/commuting_zone_CZ)
+### Part One - Commuting Zone (CZ) level data (File path: ic/code/commuting_zone_CZ)
 
 1. cz_identifier.py 
 
@@ -182,7 +182,7 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
     
     output: wap_cz.csv (File path: ic/data/community_zone_CZ/)
     
-### Part Two - Forward 1, 3, 5, 10-year differences (ic/code/diff_computation)
+### Part Two - Forward 1, 3, 5, 10-year differences (File path: ic/code/diff_computation)
 
 1. ipt_diff&hhi.do
 
@@ -214,7 +214,7 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
     
     
     
-### Part Three - Regression (ic/code/regression)
+### Part Three - Regression (File path: ic/code/regression)
 
 All regression do files readin: cz_clean_file.dta (File path: ic/data/diff_computation/)
     
@@ -225,3 +225,6 @@ All regression do files readin: cz_clean_file.dta (File path: ic/data/diff_compu
 2. log_emp_regress.do
 
     Regress log difference in employement on changes in import per workers, manu employ share in employ, hhi_4, and the interaction of changes in import per workers with hhi_4 under different year stacks
+
+
+## Batch File
