@@ -167,8 +167,9 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
 2. cz_aggregation.py
 
     **Purpose**: 
-    	1) Aggregate county-level observation to CZ-level
-	2) Assign each CZ with a state code based on the employment
+    	1) Calculate HHI at both 4-digit NAICS and 2-digit NAICS levels for each CZ
+    	2) Aggregate county-level observation to CZ-level
+	3) Assign each CZ with a state code based on the employment
    
     readin: USDA_cz00, sic_naic4_2019_cz, and append_97naics4_2019_cz,
       
@@ -184,12 +185,11 @@ Other countries only have HS6 inteade of HS10 codes. We estimate weights HS10 in
     
 ### Part Two - Forward 1, 3, 5, 10-year differences (File path: ic/code/diff_computation)
 
-1. ipt_diff&hhi.do
+1. ipt_diff.do
 
     **Purpose**: 
     	1) Calculate forward differences of imports (in dollars)
 	2) Calculate forward differences of imports per worker (in dollars)
-	3) Calculate HHI at both 4-digit NAICS and 2-digit NAICS levels for each CZ
                          
     readin: 90-97_cz.csv,  98-16_cz.csv, hs_cn_new.dta, and other_naics4_agg.dta 
     
