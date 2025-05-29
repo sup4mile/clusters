@@ -1,4 +1,4 @@
-using Random, Distributions, Optim # JuMP, Ipopt
+using Random, Distributions, Optim, NLsolve # JuMP, Ipopt
 
 N = 3 # Number of countries
 J = 250000 # Number of goods (needs to be big number and an integer type)
@@ -93,6 +93,7 @@ end
 # Our objective function 'trade_balance_sq' accepts several input arguments, only one of which is 'w'. To "feed" the objective function to the optimizer, we need to create an anonymous function that redefines 'trade_balance_sq' as a function of a single argument 'w'.
 sol_a = optimize(w -> trade_balance_sq(tau,w1,w,z,T,theta,sigma,N,L), [1.1 1.1])
 # Now we use the minimizer from the optimization step and "feed" it to the 'report_results' function as an input argument:
+println("Part (a.)")
 results_a = report_results(w1, Optim.minimizer(sol_a), L, tau, z, T, theta, sigma, N)
 
 # Next, let's find the solution by way of a root-finding algorithm instead, which is available in the 'NLsolve' package.
@@ -111,6 +112,7 @@ end
 # Use the result from question a. as the initial guess for the optimization in question b.:
 sol_b = optimize(w -> trade_balance_sq(tau,w1,w,z,T,theta,sigma,N,L), Optim.minimizer(sol_a))
 # Now we use the minimizer from the optimization step and "feed" it to the 'report_results' function as an input argument:
+println("Part (b.)")
 report_results(w1, Optim.minimizer(sol_b), L, tau, z, T, theta, sigma, N)
 # Find the solution by way of a root-finding algorithm instead, which is available in the 'NLsolve' package.
 root_b = nlsolve(w -> trade_balance(tau,w1,w,z,T,theta,sigma,N,L), root_a.zero)
@@ -128,6 +130,7 @@ tau[2,1] = tau[1,2]
 # Use the result from question a. as the initial guess for the optimization in question c.:
 sol_c = optimize(w -> trade_balance_sq(tau,w1,w,z,T,theta,sigma,N,L), Optim.minimizer(sol_a))
 # Now we use the minimizer from the optimization step and "feed" it to the 'report_results' function as an input argument:
+println("Part (c.)")
 report_results(w1, Optim.minimizer(sol_c), L, tau, z, T, theta, sigma, N)
 # Find the solution by way of a root-finding algorithm instead, which is available in the 'NLsolve' package.
 root_c = nlsolve(w -> trade_balance(tau,w1,w,z,T,theta,sigma,N,L), root_a.zero)
@@ -144,6 +147,7 @@ z[:, 2] = inv_Frechet(u[:, 2], T[2], theta)
 # Use the result from question c. as the initial guess for the optimization in question d.:
 sol_d = optimize(w -> trade_balance_sq(tau,w1,w,z,T,theta,sigma,N,L), Optim.minimizer(sol_c))
 # Now we use the minimizer from the optimization step and "feed" it to the 'report_results' function as an input argument:
+println("Part (d.)")
 report_results(w1, Optim.minimizer(sol_d), L, tau, z, T, theta, sigma, N)
 # Find the solution by way of a root-finding algorithm instead, which is available in the 'NLsolve' package.
 root_d = nlsolve(w -> trade_balance(tau,w1,w,z,T,theta,sigma,N,L), root_c.zero)
@@ -162,8 +166,26 @@ end
 # Use the result from question c. as the initial guess for the optimization in question d.:
 sol_e = optimize(w -> trade_balance_sq(tau,w1,w,z,T,theta,sigma,N,L), Optim.minimizer(sol_c))
 # Now we use the minimizer from the optimization step and "feed" it to the 'report_results' function as an input argument:
+println("Part (d.)")
 report_results(w1, Optim.minimizer(sol_e), L, tau, z, T, theta, sigma, N)
 # Find the solution by way of a root-finding algorithm instead, which is available in the 'NLsolve' package.
 root_e = nlsolve(w -> trade_balance(tau,w1,w,z,T,theta,sigma,N,L), root_c.zero)
 # Results based on root-finding algorithm:
 report_results(w1, root_e.zero, L, tau, z, T, theta, sigma, N)
+
+##########
+### f. ###
+##########
+tau = ones(N,N)
+T[2] = 3
+# Update the productivities in country 2 accordingly:
+z[:, 2] = inv_Frechet(u[:, 2], T[2], theta)
+# Use the result from question a. as the initial guess for the optimization in question d.:
+sol_e = optimize(w -> trade_balance_sq(tau,w1,w,z,T,theta,sigma,N,L), Optim.minimizer(sol_a))
+# Now we use the minimizer from the optimization step and "feed" it to the 'report_results' function as an input argument:
+println("Part (f.)")
+report_results(w1, Optim.minimizer(sol_e), L, tau, z, T, theta, sigma, N)
+# Find the solution by way of a root-finding algorithm instead, which is available in the 'NLsolve' package.
+root_f = nlsolve(w -> trade_balance(tau,w1,w,z,T,theta,sigma,N,L), root_a.zero)
+# Results based on root-finding algorithm:
+report_results(w1, root_f.zero, L, tau, z, T, theta, sigma, N)
