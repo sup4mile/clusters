@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=latex 2024.2.12)  21 JUN 2024 13:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=latex 2024.2.12)  24 JUN 2026 10:49
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -716,6 +716,10 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <8> on input line 44.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 44.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <9> on input line 46.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 46.
  [1
 
 ] (./EK.aux)
@@ -725,12 +729,12 @@ L3 programming layer <2024-01-22>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 17873 strings out of 474229
- 355237 string characters out of 5746484
- 1936972 words of memory out of 5000000
- 39851 multiletter control sequences out of 15000+600000
- 583405 words of font info for 52 fonts, out of 8000000 for 9000
+ 17904 strings out of 474229
+ 355683 string characters out of 5746484
+ 1939972 words of memory out of 5000000
+ 39873 multiletter control sequences out of 15000+600000
+ 599569 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,5n,93p,999b,316s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,9n,93p,999b,316s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on EK.dvi (1 page, 15288 bytes).
+Output written on EK.dvi (1 page, 16352 bytes).
