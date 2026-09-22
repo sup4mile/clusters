@@ -1,0 +1,5 @@
+## Suggested Exercises: Exact Hat Algebra in the Eaton–Kortum Model
+
+1. Verify algebraically that if trade costs are unchanged ($\hat{d}_{ni} = 1$ for all $n, i$) and all countries experience the same technology growth ($\hat{T}_i = g$ for all $i$), then $\hat{\pi}_{ni} = 1$ for all $n, i$ (i.e., trade shares don't change). Interpret this result.
+2. Consider a two-country world ($N = 2$). Suppose country 1 imposes a trade cost increase on imports from country 2 ($\hat{d}_{12} > 1$), with all else unchanged. Using the boxed equations, describe qualitatively what happens to $\hat{\pi}_{11}$, $\hat{w}_1$, and $\hat{W}_1$.
+3. Explain in your own words why the ACR welfare formula does not require knowledge of $\theta$'s underlying microfoundation (i.e., why the *same* formula applies across a class of seemingly very different trade models, as ACR (2012) show).
